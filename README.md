@@ -1,1 +1,12 @@
-# Senior Project- QuickFix is a system that aims to streamline the repair service industry with secure payments and offering emergency services by connecting clients with technicians in real-time.
+# Senior Project - QuickFix
+
+QuickFix is a smart repair service system that aims to streamline the repair service industry. It offers secure payments, real-time technician-client matching, and emergency services around the clock.
+
+## Getting Started with Expo
+
+This project was built using [Expo](https://expo.dev) and [React Native](https://reactnative.dev).
+
+### 1. Install dependencies
+
+```bash
+npm install
