@@ -1,0 +1,36 @@
+// server.js
+
+// 1. Import dependencies
+const express = require('express');
+const cors    = require('cors');
+const bodyParser = require('body-parser');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// 2. Middleware
+app.use(cors());                  // Allow cross-origin from Expo
+app.use(bodyParser.json());       // Parse JSON bodies
+
+// 3. In-memory store for demo (replace with DB in production)
+const bookings = [];
+
+/**
+ * POST /api/bookings
+ * Body: { clientId, techId, skill, urgency, timeRequested, clientLoc, techLoc }
+ * Returns: { success: true, bookingId }
+ */
+app.post('/api/bookings', (req, res) => {
+  const booking = {
+    id: bookings.length + 1,
+    ...req.body,
+    createdAt: new Date().toISOString()
+  };
+  bookings.push(booking);
+  return res.json({ success: true, bookingId: booking.id });
+});
+
+// 4. Start server
+app.listen(PORT, () => {
+  console.log(`QuickFix server running on http://localhost:${PORT}`);
+});
