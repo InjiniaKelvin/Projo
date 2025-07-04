@@ -1,17 +1,18 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-export default function ClientDashboard({ navigation }) {
+export default function ClientDashboard() {
+  const navigation = useNavigation();
+
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Client Dashboard</Text>
+      <Text style={styles.header}>Welcome to QuickFix</Text>
 
       {/* Card: Find a Technician */}
       <TouchableOpacity
         style={styles.card}
         onPress={() => navigation.navigate('RequestService')}
-
       >
         <Ionicons name="wrench" size={28} color="#0d6efd" />
         <Text style={styles.cardText}>Find a Technician</Text>

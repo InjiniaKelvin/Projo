@@ -1,14 +1,20 @@
 // screens/ServiceRequestScreen.js
 
-import React, { useState, useEffect } from 'react';
-import { 
-  View, Text, Button, Alert, StyleSheet, ActivityIndicator, Platform 
-} from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import MapView, { Marker } from 'react-native-maps';
 import axios from 'axios';
-import { getCurrentLocation } from '../utils/locationHelper';
-import { matchTechnician }    from '../utils/matchingEngine';
+import { useEffect, useState } from 'react';
+import {
+    ActivityIndicator,
+    Alert,
+    Button,
+    Platform,
+    StyleSheet,
+    Text,
+    View
+} from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
+import { getCurrentLocation } from '../Utils/locationHelper';
+import { matchTechnician } from '../Utils/matchingEngine';
 
 export default function ServiceRequestScreen() {
   // Loading & error states

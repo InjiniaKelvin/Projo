@@ -1,25 +1,25 @@
 // navigation/AppNavigator.js
 
-import React from 'react';
-// Navigation container and stack navigator
-import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
+// Navigation container and navigators
+import { Ionicons } from '@expo/vector-icons';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-// Import all existing screens
-import SplashScreen           from '../screens/SplashScreen';
-import LoginScreen            from '../screens/LoginScreen';
-import RegisterScreen         from '../screens/RegisterScreen';
-import ClientDashboard        from '../screens/ClientDashboard';
-import TechnicianDashboard    from '../screens/TechnicianDashboard';
-import AdminDashboard         from '../screens/AdminDashboard';
-
-// ⬇️ NEW: Import the service request screen
-import ServiceRequestScreen   from '../screens/ServiceRequestScreen';
+// Import all screens
+import AdminDashboard from '../Screens/AdminDashboard';
+import ClientDashboard from '../Screens/ClientDashboard';
+import LoginScreen from '../Screens/LoginScreen';
+import PlaceholderScreen from '../Screens/PlaceholderScreen';
+import RegisterScreen from '../Screens/RegisterScreen';
+import ServiceRequestScreen from '../Screens/ServiceRequestScreen';
+import SplashScreen from '../Screens/SplashScreen';
+import TechnicianDashboard from '../Screens/TechnicianDashboard';
 
 const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
 
 // Custom theme colors for consistency
-
 const QuickFixTheme = {
   ...DefaultTheme,
   colors: {
@@ -30,29 +30,100 @@ const QuickFixTheme = {
   },
 };
 
+// Client Tab Navigator
+function ClientTabs() {
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
+          if (route.name === 'Dashboard') {
+            iconName = focused ? 'home' : 'home-outline';
+          } else if (route.name === 'RequestService') {
+            iconName = focused ? 'build' : 'build-outline';
+          } else if (route.name === 'Messages') {
+            iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
+          } else if (route.name === 'Profile') {
+            iconName = focused ? 'person' : 'person-outline';
+          }
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+        tabBarActiveTintColor: '#0d6efd',
+        tabBarInactiveTintColor: 'gray',
+        headerShown: false,
+      })}
+    >
+      <Tab.Screen name="Dashboard" component={ClientDashboard} />
+      <Tab.Screen name="RequestService" component={ServiceRequestScreen} />
+      <Tab.Screen 
+        name="Messages" 
+        children={() => <PlaceholderScreen title="Messages" />} 
+      />
+      <Tab.Screen 
+        name="Profile" 
+        children={() => <PlaceholderScreen title="Profile" />} 
+      />
+    </Tab.Navigator>
+  );
+}
+
+// Technician Tab Navigator
+function TechnicianTabs() {
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
+          if (route.name === 'Dashboard') {
+            iconName = focused ? 'briefcase' : 'briefcase-outline';
+          } else if (route.name === 'Jobs') {
+            iconName = focused ? 'list' : 'list-outline';
+          } else if (route.name === 'Messages') {
+            iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
+          } else if (route.name === 'Profile') {
+            iconName = focused ? 'person' : 'person-outline';
+          }
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+        tabBarActiveTintColor: '#0d6efd',
+        tabBarInactiveTintColor: 'gray',
+        headerShown: false,
+      })}
+    >
+      <Tab.Screen name="Dashboard" component={TechnicianDashboard} />
+      <Tab.Screen 
+        name="Jobs" 
+        children={() => <PlaceholderScreen title="Jobs" />} 
+      />
+      <Tab.Screen 
+        name="Messages" 
+        children={() => <PlaceholderScreen title="Messages" />} 
+      />
+      <Tab.Screen 
+        name="Profile" 
+        children={() => <PlaceholderScreen title="Profile" />} 
+      />
+    </Tab.Navigator>
+  );
+}
+
 export default function AppNavigator() {
   return (
     // Wrap all screens in NavigationContainer with our theme
     <NavigationContainer theme={QuickFixTheme}>
       <Stack.Navigator
-        initialRouteName="Splash"      // Start at splash on app launch
+        initialRouteName="Splash"
         screenOptions={{ headerShown: false }}
       >
-        {/* Public entry screens */}
-        <Stack.Screen name="Splash"    component={SplashScreen} />
-        <Stack.Screen name="Login"     component={LoginScreen} />
-        <Stack.Screen name="Register"  component={RegisterScreen} />
+        {/* Authentication Flow */}
+        <Stack.Screen name="Splash" component={SplashScreen} />
+        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Register" component={RegisterScreen} />
 
-        {/* Role-based dashboards */}
-        <Stack.Screen name="Client"      component={ClientDashboard} />
-        <Stack.Screen name="Technician"  component={TechnicianDashboard} />
-        <Stack.Screen name="Admin"       component={AdminDashboard} />
-
-        {/* ⬇️ NEW: Service request flow */}
-        <Stack.Screen
-          name="RequestService"         // Route name you’ll use in navigate()
-          component={ServiceRequestScreen}
-        />
+        {/* Role-based Tab Navigators */}
+        <Stack.Screen name="Client" component={ClientTabs} />
+        <Stack.Screen name="Technician" component={TechnicianTabs} />
+        <Stack.Screen name="Admin" component={AdminDashboard} />
       </Stack.Navigator>
     </NavigationContainer>
   );
