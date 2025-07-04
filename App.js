@@ -1,7 +1,11 @@
+// App.js
+// Main application component with authentication provider
+
 import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
+import { AuthProvider } from './contexts/AuthContext';
 import AppNavigator from './navigation/AppNavigator';
 
 export default function App() {
@@ -15,9 +19,9 @@ export default function App() {
   }
 
   return (
-    <>
+    <AuthProvider>
       <AppNavigator />
       <StatusBar style="auto" />
-    </>
+    </AuthProvider>
   );
 }
