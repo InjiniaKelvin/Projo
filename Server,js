@@ -1,36 +1,296 @@
-// server.js
+/**
+ * QuickFix Backend Server
+ * 
+ * This is the main server file for the QuickFix app backend.
+ * It includes MongoDB integration, authentication, payment processing,
+ * and comprehensive API endpoints for the mobile application.
+ */
 
-// 1. Import dependencies
+// Load environment variables
+require('dotenv').config();
+
+// Import dependencies
 const express = require('express');
-const cors    = require('cors');
-const bodyParser = require('body-parser');
+const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const path = require('path');
 
+// Import database configuration
+const database = require('./backend/config/database');
+
+// Import routes
+const authRoutes = require('./backend/routes/auth');
+const paymentRoutes = require('./backend/routes/payments');
+const bookingRoutes = require('./backend/routes/bookings');
+
+// Initialize Express app
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 2. Middleware
-app.use(cors());                  // Allow cross-origin from Expo
-app.use(bodyParser.json());       // Parse JSON bodies
+// Security middleware
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 
-// 3. In-memory store for demo (replace with DB in production)
-const bookings = [];
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 1000, // limit each IP to 1000 requests per windowMs
+  message: {
+    success: false,
+    message: 'Too many requests from this IP, please try again later'
+  },
+  standardHeaders: true,
+  legacyHeaders: false
+});
 
-/**
- * POST /api/bookings
- * Body: { clientId, techId, skill, urgency, timeRequested, clientLoc, techLoc }
- * Returns: { success: true, bookingId }
- */
-app.post('/api/bookings', (req, res) => {
+app.use(limiter);
+
+// CORS configuration
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (mobile apps, Postman, etc.)
+    if (!origin) return callback(null, true);
+    
+    // Allow localhost and development origins
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://localhost:19006', // Expo web
+      'http://192.168.1.100:19006', // Local network Expo
+      'exp://localhost:19000', // Expo development
+    ];
+    
+    if (process.env.NODE_ENV === 'production') {
+      // Add production origins here
+      allowedOrigins.push('https://your-production-domain.com');
+    }
+    
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-requested-with']
+};
+
+app.use(cors(corsOptions));
+
+// Body parsing middleware
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Serve static files (uploaded images, etc.)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Request logging in development
+if (process.env.NODE_ENV === 'development') {
+  app.use((req, res, next) => {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+    next();
+  });
+}
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({
+    success: true,
+    message: 'QuickFix API is running',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    version: '1.0.0'
+  });
+});
+
+// API routes
+app.use('/api/auth', authRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/bookings', bookingRoutes);
+
+// Legacy booking endpoint for backward compatibility
+app.post('/api/bookings-legacy', (req, res) => {
+  // This endpoint maintains compatibility with the existing frontend
+  // while the new booking system is being integrated
   const booking = {
-    id: bookings.length + 1,
+    id: Date.now(),
     ...req.body,
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
+    status: 'pending'
   };
-  bookings.push(booking);
-  return res.json({ success: true, bookingId: booking.id });
+  
+  console.log('Legacy booking created:', booking);
+  
+  res.json({ 
+    success: true, 
+    bookingId: booking.id,
+    message: 'Booking created (legacy endpoint)'
+  });
 });
 
-// 4. Start server
-app.listen(PORT, () => {
-  console.log(`QuickFix server running on http://localhost:${PORT}`);
+// API documentation endpoint
+app.get('/api', (req, res) => {
+  res.json({
+    success: true,
+    message: 'QuickFix API v1.0.0',
+    endpoints: {
+      authentication: {
+        register: 'POST /api/auth/register',
+        login: 'POST /api/auth/login',
+        refresh: 'POST /api/auth/refresh',
+        logout: 'POST /api/auth/logout',
+        profile: 'GET /api/auth/profile'
+      },
+      payments: {
+        wallet: 'GET /api/payments/wallet',
+        addFunds: 'POST /api/payments/add-funds',
+        withdrawFunds: 'POST /api/payments/withdraw-funds',
+        transactions: 'GET /api/payments/transactions',
+        escrowDeposit: 'POST /api/payments/escrow/deposit',
+        escrowRelease: 'POST /api/payments/escrow/release'
+      },
+      bookings: {
+        create: 'POST /api/bookings',
+        list: 'GET /api/bookings',
+        details: 'GET /api/bookings/:bookingId',
+        assign: 'POST /api/bookings/:bookingId/assign',
+        confirm: 'POST /api/bookings/:bookingId/confirm',
+        start: 'POST /api/bookings/:bookingId/start',
+        complete: 'POST /api/bookings/:bookingId/complete',
+        cancel: 'POST /api/bookings/:bookingId/cancel'
+      }
+    },
+    documentation: 'Visit /api/docs for detailed API documentation'
+  });
 });
+
+// 404 handler for API routes
+app.use('/api/*', (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: 'API endpoint not found',
+    path: req.path,
+    method: req.method
+  });
+});
+
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error('Global error handler:', err);
+  
+  // MongoDB/Mongoose errors
+  if (err.name === 'ValidationError') {
+    const errors = Object.values(err.errors).map(e => ({
+      field: e.path,
+      message: e.message
+    }));
+    
+    return res.status(400).json({
+      success: false,
+      message: 'Validation error',
+      errors
+    });
+  }
+  
+  if (err.name === 'CastError') {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid ID format'
+    });
+  }
+  
+  if (err.code === 11000) {
+    return res.status(400).json({
+      success: false,
+      message: 'Duplicate field value'
+    });
+  }
+  
+  // JWT errors
+  if (err.name === 'JsonWebTokenError') {
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid token'
+    });
+  }
+  
+  if (err.name === 'TokenExpiredError') {
+    return res.status(401).json({
+      success: false,
+      message: 'Token expired'
+    });
+  }
+  
+  // CORS errors
+  if (err.message && err.message.includes('CORS')) {
+    return res.status(403).json({
+      success: false,
+      message: 'CORS policy violation'
+    });
+  }
+  
+  // Default error response
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || 'Internal server error',
+    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+  });
+});
+
+// Connect to MongoDB and start server
+async function startServer() {
+  try {
+    console.log('🚀 Starting QuickFix Backend Server...');
+    console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
+    
+    // Connect to MongoDB
+    await database.connect();
+    console.log('✅ Database connected successfully');
+    
+    // Start the server
+    const server = app.listen(PORT, () => {
+      console.log(`🌐 Server running on http://localhost:${PORT}`);
+      console.log(`📊 Health check: http://localhost:${PORT}/health`);
+      console.log(`📖 API documentation: http://localhost:${PORT}/api`);
+      console.log('🔧 Ready to accept connections!');
+    });
+    
+    // Graceful shutdown
+    const gracefulShutdown = async (signal) => {
+      console.log(`\n⚠️  Received ${signal}. Starting graceful shutdown...`);
+      
+      server.close(async () => {
+        console.log('🔌 HTTP server closed');
+        
+        try {
+          await database.disconnect();
+          console.log('📴 Database disconnected');
+          console.log('✅ Graceful shutdown completed');
+          process.exit(0);
+        } catch (error) {
+          console.error('❌ Error during shutdown:', error);
+          process.exit(1);
+        }
+      });
+      
+      // Force close after 10 seconds
+      setTimeout(() => {
+        console.error('⏰ Could not close connections in time, forcefully shutting down');
+        process.exit(1);
+      }, 10000);
+    };
+    
+    // Listen for termination signals
+    process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+    process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+    
+  } catch (error) {
+    console.error('❌ Failed to start server:', error);
+    process.exit(1);
+  }
+}
+
+// Start the server
+startServer();

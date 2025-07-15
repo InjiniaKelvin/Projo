@@ -12,14 +12,15 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
 
 // Import all screens
+import LoginScreen from '../components/auth/LoginScreen';
+import RegisterScreen from '../components/auth/RegisterScreen';
 import AdminDashboard from '../Screens/AdminDashboard';
 import ClientDashboard from '../Screens/ClientDashboard';
-import LoginScreen from '../Screens/LoginScreen';
 import PlaceholderScreen from '../Screens/PlaceholderScreen';
-import RegisterScreen from '../Screens/RegisterScreen';
 import ServiceRequestScreen from '../Screens/ServiceRequestScreen';
 import SplashScreen from '../Screens/SplashScreen';
 import TechnicianDashboard from '../Screens/TechnicianDashboard';
+import WalletScreen from '../Screens/WalletScreen';
 // Import payment and wallet screens
 import AddFundsScreen from '../Screens/AddFundsScreen';
 import EscrowWalletScreen from '../Screens/EscrowWalletScreen';
@@ -50,8 +51,8 @@ function ClientTabs() {
             iconName = focused ? 'home' : 'home-outline';
           } else if (route.name === 'RequestService') {
             iconName = focused ? 'build' : 'build-outline';
-          } else if (route.name === 'Messages') {
-            iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
+          } else if (route.name === 'Wallet') {
+            iconName = focused ? 'wallet' : 'wallet-outline';
           } else if (route.name === 'Profile') {
             iconName = focused ? 'person' : 'person-outline';
           }
@@ -64,10 +65,7 @@ function ClientTabs() {
     >
       <Tab.Screen name="Dashboard" component={ClientDashboard} />
       <Tab.Screen name="RequestService" component={ServiceRequestScreen} />
-      <Tab.Screen 
-        name="Messages" 
-        children={() => <PlaceholderScreen title="Messages" />} 
-      />
+      <Tab.Screen name="Wallet" component={WalletScreen} />
       <Tab.Screen 
         name="Profile" 
         children={() => <PlaceholderScreen title="Profile" />} 
@@ -87,8 +85,8 @@ function TechnicianTabs() {
             iconName = focused ? 'briefcase' : 'briefcase-outline';
           } else if (route.name === 'Jobs') {
             iconName = focused ? 'list' : 'list-outline';
-          } else if (route.name === 'Messages') {
-            iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
+          } else if (route.name === 'Wallet') {
+            iconName = focused ? 'wallet' : 'wallet-outline';
           } else if (route.name === 'Profile') {
             iconName = focused ? 'person' : 'person-outline';
           }
@@ -102,12 +100,9 @@ function TechnicianTabs() {
       <Tab.Screen name="Dashboard" component={TechnicianDashboard} />
       <Tab.Screen 
         name="Jobs" 
-        children={() => <PlaceholderScreen title="Jobs" />} 
+        children={() => <PlaceholderScreen title="Available Jobs" />} 
       />
-      <Tab.Screen 
-        name="Messages" 
-        children={() => <PlaceholderScreen title="Messages" />} 
-      />
+      <Tab.Screen name="Wallet" component={WalletScreen} />
       <Tab.Screen 
         name="Profile" 
         children={() => <PlaceholderScreen title="Profile" />} 

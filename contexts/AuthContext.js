@@ -2,8 +2,9 @@
 // Authentication Context Provider for managing user authentication state across the app
 
 import { createContext, useContext, useEffect, useReducer } from 'react';
-import AuthService from '../services/AuthService';
-import StorageService from '../services/StorageService';
+// Temporarily comment out imports to test if they're causing issues
+// import AuthService from '../services/AuthService';
+// import StorageService from '../services/StorageService';
 
 // Create Authentication Context
 const AuthContext = createContext();
@@ -19,6 +20,7 @@ const AUTH_ACTIONS = {
   REGISTER_SUCCESS: 'REGISTER_SUCCESS',
   REGISTER_FAILURE: 'REGISTER_FAILURE',
   UPDATE_USER: 'UPDATE_USER',
+  CLEAR_ERROR: 'CLEAR_ERROR',
 };
 
 // Initial authentication state
@@ -114,6 +116,12 @@ function authReducer(state, action) {
         user: { ...state.user, ...action.payload.user },
       };
 
+    case AUTH_ACTIONS.CLEAR_ERROR:
+      return {
+        ...state,
+        error: null,
+      };
+
     default:
       return state;
   }
@@ -121,11 +129,31 @@ function authReducer(state, action) {
 
 // Authentication Context Provider Component
 export function AuthProvider({ children }) {
+  console.log('🚨 AuthProvider: Component rendered');
+  
   const [state, dispatch] = useReducer(authReducer, initialState);
+  
+  console.log('🚨 AuthProvider: state after useReducer:', state);
 
   // Restore user session on app startup
   useEffect(() => {
-    restoreSession();
+    console.log('🚨 AuthContext: useEffect called - starting session restore');
+    
+    // For debugging: immediately set as unauthenticated to bypass storage issues
+    setTimeout(() => {
+      console.log('🚨 AuthContext: Force setting unauthenticated to bypass storage issues');
+      dispatch({
+        type: AUTH_ACTIONS.RESTORE_SESSION,
+        payload: {
+          isAuthenticated: false,
+          user: null,
+          token: null,
+        },
+      });
+    }, 100);
+    
+    // Commented out for debugging
+    // restoreSession();
   }, []);
 
   /**
@@ -133,35 +161,41 @@ export function AuthProvider({ children }) {
    * Called when the app starts to check if user is already logged in
    */
   const restoreSession = async () => {
+    console.log('AuthContext: restoreSession called');
     try {
-      const sessionData = await StorageService.getSession();
+      console.log('AuthContext: calling StorageService.getSession');
+      
+      // Add shorter timeout to prevent hanging (reduced from 3000ms to 1000ms)
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Storage timeout after 1s')), 1000)
+      );
+      
+      let sessionData;
+      try {
+        sessionData = await Promise.race([
+          StorageService.getSession(),
+          timeoutPromise
+        ]);
+        console.log('AuthContext: getSession result:', sessionData);
+      } catch (timeoutError) {
+        console.log('AuthContext: Storage operation timed out, proceeding as unauthenticated');
+        sessionData = null;
+      }
       
       if (sessionData && sessionData.token && sessionData.user) {
-        // Validate token with backend (optional)
-        const isTokenValid = await AuthService.validateToken(sessionData.token);
-        
-        if (isTokenValid) {
-          dispatch({
-            type: AUTH_ACTIONS.RESTORE_SESSION,
-            payload: {
-              isAuthenticated: true,
-              user: sessionData.user,
-              token: sessionData.token,
-            },
-          });
-        } else {
-          // Token is invalid, clear storage
-          await StorageService.clearSession();
-          dispatch({
-            type: AUTH_ACTIONS.RESTORE_SESSION,
-            payload: {
-              isAuthenticated: false,
-              user: null,
-              token: null,
-            },
-          });
-        }
+        console.log('AuthContext: restoring session for user:', sessionData.user.email);
+        // For now, trust the stored session without backend validation
+        // This avoids blocking the app if backend is not available
+        dispatch({
+          type: AUTH_ACTIONS.RESTORE_SESSION,
+          payload: {
+            isAuthenticated: true,
+            user: sessionData.user,
+            token: sessionData.token,
+          },
+        });
       } else {
+        console.log('AuthContext: no valid session found, setting unauthenticated');
         dispatch({
           type: AUTH_ACTIONS.RESTORE_SESSION,
           payload: {
@@ -172,7 +206,8 @@ export function AuthProvider({ children }) {
         });
       }
     } catch (error) {
-      console.error('Session restore error:', error);
+      console.error('AuthContext: Session restore error:', error);
+      console.log('AuthContext: setting unauthenticated due to error');
       dispatch({
         type: AUTH_ACTIONS.RESTORE_SESSION,
         payload: {
@@ -190,35 +225,27 @@ export function AuthProvider({ children }) {
    * @param {string} password - User password
    */
   const login = async (email, password) => {
+    console.log('AuthContext: login called with:', email);
     dispatch({ type: AUTH_ACTIONS.LOGIN_START });
 
     try {
-      // Call authentication service
-      const response = await AuthService.login(email, password);
+      // Temporarily return success for testing
+      console.log('AuthContext: TEMPORARY - returning mock success');
+      const mockResponse = {
+        success: true,
+        user: { email, role: 'client', id: '123' },
+        token: 'mock-token'
+      };
       
-      if (response.success) {
-        // Store session data securely
-        await StorageService.storeSession({
-          user: response.user,
-          token: response.token,
-        });
+      dispatch({
+        type: AUTH_ACTIONS.LOGIN_SUCCESS,
+        payload: {
+          user: mockResponse.user,
+          token: mockResponse.token,
+        },
+      });
 
-        dispatch({
-          type: AUTH_ACTIONS.LOGIN_SUCCESS,
-          payload: {
-            user: response.user,
-            token: response.token,
-          },
-        });
-
-        return { success: true };
-      } else {
-        dispatch({
-          type: AUTH_ACTIONS.LOGIN_FAILURE,
-          payload: { error: response.message || 'Login failed' },
-        });
-        return { success: false, message: response.message };
-      }
+      return { success: true };
     } catch (error) {
       const errorMessage = error.message || 'Network error. Please try again.';
       dispatch({
@@ -234,35 +261,27 @@ export function AuthProvider({ children }) {
    * @param {Object} userData - User registration data
    */
   const register = async (userData) => {
+    console.log('AuthContext: register called with:', userData);
     dispatch({ type: AUTH_ACTIONS.REGISTER_START });
 
     try {
-      // Call authentication service
-      const response = await AuthService.register(userData);
+      // Temporarily return success for testing
+      console.log('AuthContext: TEMPORARY - returning mock registration success');
+      const mockResponse = {
+        success: true,
+        user: { email: userData.email, role: userData.userType || 'client', id: '123' },
+        token: 'mock-token'
+      };
       
-      if (response.success) {
-        // Store session data securely
-        await StorageService.storeSession({
-          user: response.user,
-          token: response.token,
-        });
+      dispatch({
+        type: AUTH_ACTIONS.REGISTER_SUCCESS,
+        payload: {
+          user: mockResponse.user,
+          token: mockResponse.token,
+        },
+      });
 
-        dispatch({
-          type: AUTH_ACTIONS.REGISTER_SUCCESS,
-          payload: {
-            user: response.user,
-            token: response.token,
-          },
-        });
-
-        return { success: true };
-      } else {
-        dispatch({
-          type: AUTH_ACTIONS.REGISTER_FAILURE,
-          payload: { error: response.message || 'Registration failed' },
-        });
-        return { success: false, message: response.message };
-      }
+      return { success: true };
     } catch (error) {
       const errorMessage = error.message || 'Network error. Please try again.';
       dispatch({
@@ -279,19 +298,20 @@ export function AuthProvider({ children }) {
    */
   const logout = async () => {
     try {
-      // Call logout service (optional - for server-side logout)
-      await AuthService.logout(state.token);
-      
-      // Clear stored session data
-      await StorageService.clearSession();
-      
+      // Temporarily simplified logout
+      console.log('AuthContext: TEMPORARY - simplified logout');
       dispatch({ type: AUTH_ACTIONS.LOGOUT });
     } catch (error) {
       console.error('Logout error:', error);
-      // Even if logout fails, clear local data
-      await StorageService.clearSession();
       dispatch({ type: AUTH_ACTIONS.LOGOUT });
     }
+  };
+
+  /**
+   * Clear authentication error
+   */
+  const clearError = () => {
+    dispatch({ type: AUTH_ACTIONS.CLEAR_ERROR });
   };
 
   /**
@@ -300,21 +320,14 @@ export function AuthProvider({ children }) {
    */
   const updateUser = async (updates) => {
     try {
-      const response = await AuthService.updateProfile(state.token, updates);
+      // Temporarily simplified update
+      console.log('AuthContext: TEMPORARY - simplified updateUser');
+      dispatch({
+        type: AUTH_ACTIONS.UPDATE_USER,
+        payload: { user: updates },
+      });
       
-      if (response.success) {
-        dispatch({
-          type: AUTH_ACTIONS.UPDATE_USER,
-          payload: { user: updates },
-        });
-
-        // Update stored session data
-        await StorageService.updateSession({ user: { ...state.user, ...updates } });
-        
-        return { success: true };
-      } else {
-        return { success: false, message: response.message };
-      }
+      return { success: true };
     } catch (error) {
       return { success: false, message: error.message };
     }
@@ -349,6 +362,7 @@ export function AuthProvider({ children }) {
     logout,
     updateUser,
     restoreSession,
+    clearError,
     
     // Role-based access control
     hasRole,

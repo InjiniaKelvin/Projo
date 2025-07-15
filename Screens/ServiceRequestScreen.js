@@ -1,33 +1,37 @@
-// screens/ServiceRequestScreen.js
+/**
+ * Service Request Screen
+ * Allows clients to request services from technicians
+ */
 
-import DateTimePicker from '@react-native-community/datetimepicker';
-import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
 import {
     ActivityIndicator,
     Alert,
-    Button,
     Platform,
     StyleSheet,
     Text,
     View
 } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
-import { getCurrentLocation } from '../Utils/locationHelper';
-import { matchTechnician } from '../Utils/matchingEngine';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function ServiceRequestScreen() {
-  // Loading & error states
-  const [loading, setLoading] = useState(false);
-  // Date/time picker state
-  const [mode, setMode]       = useState('date');
-  const [showPicker, setShowPicker] = useState(false);
-  const [date, setDate]       = useState(new Date()); // selected time
-
-  // Map & technician info
-  const [clientLoc, setClientLoc] = useState(null);
-  const [techLoc,   setTechLoc]   = useState(null);
-  const [techName,  setTechName]  = useState('');
+  const navigation = useNavigation();
+  const { user } = useAuth();
+  
+  const [formData, setFormData] = useState({
+    serviceType: '',
+    description: '',
+    address: '',
+    urgency: 'normal',
+    preferredDate: '',
+    preferredTime: '',
+    estimatedBudget: ''
+  });
+  
+  const [serviceCategories, setServiceCategories] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
 
   // 1. Initialize client location on mount
   useEffect(() => {

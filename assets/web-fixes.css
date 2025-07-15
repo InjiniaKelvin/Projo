@@ -1,0 +1,71 @@
+/* Fix for React Native Web button interaction issues */
+/* This CSS ensures proper touch and click handling for web builds */
+
+/* Generic fix for all pressable components */
+[data-focusable="true"] {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+/* Fix for Pressable components */
+div[role="button"],
+span[role="button"] {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+}
+
+/* Fix for TouchableOpacity components */
+div[data-pressable-container="true"] {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+/* General button-like element fixes */
+.button,
+[class*="button"],
+[data-testid*="button"] {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  user-select: none !important;
+}
+
+/* Ensure nested text elements don't interfere */
+div[role="button"] *,
+span[role="button"] * {
+  pointer-events: none !important;
+}
+
+/* Fix for elements that might be blocking events */
+* {
+  pointer-events: auto;
+}
+
+/* Override any conflicting styles that might prevent interaction */
+.react-native-web * {
+  pointer-events: auto !important;
+}
+
+/* Specific fix for common React Native Web components */
+div[data-focusable],
+div[data-pressable],
+span[data-focusable],
+span[data-pressable] {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+/* Fix for any overlapping elements */
+body * {
+  position: relative;
+  z-index: auto;
+}
+
+/* Ensure buttons are above other content */
+[role="button"] {
+  z-index: 1;
+  position: relative;
+}
