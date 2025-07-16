@@ -20,6 +20,10 @@ import RegisterScreen from '../Screens/RegisterScreen';
 import ServiceRequestScreen from '../Screens/ServiceRequestScreen';
 import SplashScreen from '../Screens/SplashScreen';
 import TechnicianDashboard from '../Screens/TechnicianDashboard';
+// Import payment and wallet screens
+import AddFundsScreen from '../Screens/AddFundsScreen';
+import EscrowWalletScreen from '../Screens/EscrowWalletScreen';
+import WithdrawFundsScreen from '../Screens/WithdrawFundsScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -151,6 +155,23 @@ export default function AppNavigator() {
             {user?.userType === 'admin' && (
               <Stack.Screen name="Admin" component={AdminDashboard} />
             )}
+            
+            {/* Payment and Wallet Screens - Available to all authenticated users */}
+            <Stack.Screen 
+              name="EscrowWallet" 
+              component={EscrowWalletScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen 
+              name="AddFunds" 
+              component={AddFundsScreen}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen 
+              name="WithdrawFunds" 
+              component={WithdrawFundsScreen}
+              options={{ headerShown: false }}
+            />
           </>
         )}
       </Stack.Navigator>

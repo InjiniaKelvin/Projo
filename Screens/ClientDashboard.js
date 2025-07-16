@@ -19,7 +19,10 @@ export default function ClientDashboard() {
       </TouchableOpacity>
 
       {/* Card: My Escrow Wallet */}
-      <TouchableOpacity style={styles.card}>
+      <TouchableOpacity 
+        style={styles.card}
+        onPress={() => navigation.navigate('EscrowWallet')}
+      >
         <Ionicons name="wallet" size={28} color="#0d6efd" />
         <Text style={styles.cardText}>My Escrow Wallet</Text>
       </TouchableOpacity>

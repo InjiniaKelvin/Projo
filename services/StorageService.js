@@ -18,6 +18,9 @@ class StorageService {
     REMEMBER_ME: 'quickfix_remember_me',
     LAST_LOGIN_EMAIL: 'quickfix_last_login_email',
     APP_SETTINGS: 'quickfix_app_settings',
+    WALLET_DATA: 'quickfix_wallet_data',
+    PAYMENT_METHODS: 'quickfix_payment_methods',
+    TRANSACTION_CACHE: 'quickfix_transaction_cache',
   };
 
   /**
@@ -345,6 +348,116 @@ class StorageService {
         items: [],
         isSecureStoreAvailable: false,
       };
+    }
+  }
+
+  /**
+   * Store wallet data
+   * @param {Object} walletData - Wallet information
+   */
+  static async storeWalletData(walletData) {
+    try {
+      await AsyncStorage.setItem(
+        this.KEYS.WALLET_DATA,
+        JSON.stringify(walletData)
+      );
+      console.log('Wallet data stored successfully');
+    } catch (error) {
+      console.error('Error storing wallet data:', error);
+      throw new Error('Failed to store wallet data');
+    }
+  }
+
+  /**
+   * Retrieve wallet data
+   * @returns {Object|null} Wallet data or null if not found
+   */
+  static async getWalletData() {
+    try {
+      const walletDataJson = await AsyncStorage.getItem(this.KEYS.WALLET_DATA);
+      if (walletDataJson) {
+        return JSON.parse(walletDataJson);
+      }
+      return null;
+    } catch (error) {
+      console.error('Error retrieving wallet data:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Store payment methods
+   * @param {Array} paymentMethods - User's saved payment methods
+   */
+  static async storePaymentMethods(paymentMethods) {
+    try {
+      // Encrypt sensitive payment method data
+      await SecureStore.setItemAsync(
+        this.KEYS.PAYMENT_METHODS,
+        JSON.stringify(paymentMethods)
+      );
+      console.log('Payment methods stored securely');
+    } catch (error) {
+      console.error('Error storing payment methods:', error);
+      throw new Error('Failed to store payment methods');
+    }
+  }
+
+  /**
+   * Retrieve payment methods
+   * @returns {Array} User's payment methods
+   */
+  static async getPaymentMethods() {
+    try {
+      const paymentMethodsJson = await SecureStore.getItemAsync(this.KEYS.PAYMENT_METHODS);
+      if (paymentMethodsJson) {
+        return JSON.parse(paymentMethodsJson);
+      }
+      return [];
+    } catch (error) {
+      console.error('Error retrieving payment methods:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Cache transaction data for offline access
+   * @param {Array} transactions - Transaction history
+   */
+  static async cacheTransactions(transactions) {
+    try {
+      await AsyncStorage.setItem(
+        this.KEYS.TRANSACTION_CACHE,
+        JSON.stringify({
+          transactions,
+          cachedAt: new Date().toISOString(),
+        })
+      );
+      console.log('Transactions cached successfully');
+    } catch (error) {
+      console.error('Error caching transactions:', error);
+    }
+  }
+
+  /**
+   * Get cached transactions
+   * @returns {Array} Cached transactions
+   */
+  static async getCachedTransactions() {
+    try {
+      const cacheJson = await AsyncStorage.getItem(this.KEYS.TRANSACTION_CACHE);
+      if (cacheJson) {
+        const cache = JSON.parse(cacheJson);
+        // Return cached data if less than 1 hour old
+        const cacheAge = Date.now() - new Date(cache.cachedAt).getTime();
+        if (cacheAge < 60 * 60 * 1000) { // 1 hour
+          return cache.transactions;
+        }
+      }
+      return [];
+    } catch (error) {
+      console.error('Error retrieving cached transactions:', error);
+      return [];
     }
   }
 }
