@@ -1,10 +1,15 @@
 // navigation/AppNavigator.js
+// Enhanced navigation with authentication state management and route protection
 
 // Navigation container and navigators
 import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
+
+// Import authentication context
+import { useAuth } from '../contexts/AuthContext';
 
 // Import all screens
 import AdminDashboard from '../Screens/AdminDashboard';
@@ -107,24 +112,58 @@ function TechnicianTabs() {
   );
 }
 
+/**
+ * Main App Navigator with Authentication State Management
+ * Handles routing based on authentication state and user roles
+ */
 export default function AppNavigator() {
-  return (
-    // Wrap all screens in NavigationContainer with our theme
-    <NavigationContainer theme={QuickFixTheme}>
-      <Stack.Navigator
-        initialRouteName="Splash"
-        screenOptions={{ headerShown: false }}
-      >
-        {/* Authentication Flow */}
-        <Stack.Screen name="Splash" component={SplashScreen} />
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Register" component={RegisterScreen} />
+  // Get authentication state from context
+  const { isLoading, isAuthenticated, user } = useAuth();
 
-        {/* Role-based Tab Navigators */}
-        <Stack.Screen name="Client" component={ClientTabs} />
-        <Stack.Screen name="Technician" component={TechnicianTabs} />
-        <Stack.Screen name="Admin" component={AdminDashboard} />
+  // Show loading screen while checking authentication state
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0d6efd" />
+      </View>
+    );
+  }
+
+  return (
+    <NavigationContainer theme={QuickFixTheme}>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {!isAuthenticated ? (
+          // Authentication Flow - Show when user is not authenticated
+          <>
+            <Stack.Screen name="Splash" component={SplashScreen} />
+            <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen name="Register" component={RegisterScreen} />
+          </>
+        ) : (
+          // Authenticated Flow - Show based on user role
+          <>
+            {user?.userType === 'client' && (
+              <Stack.Screen name="Client" component={ClientTabs} />
+            )}
+            {user?.userType === 'technician' && (
+              <Stack.Screen name="Technician" component={TechnicianTabs} />
+            )}
+            {user?.userType === 'admin' && (
+              <Stack.Screen name="Admin" component={AdminDashboard} />
+            )}
+          </>
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
+
+// Loading screen styles
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f5f7fa',
+  },
+});
