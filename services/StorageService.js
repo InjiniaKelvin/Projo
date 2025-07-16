@@ -31,20 +31,33 @@ class StorageService {
    */
   static async storeSession(sessionData) {
     try {
-      // Store sensitive authentication token in SecureStore
+      console.log('StorageService: storeSession called');
+      
+      // Store sensitive authentication token in SecureStore (with web fallback)
       if (sessionData.token) {
-        await SecureStore.setItemAsync(
-          this.KEYS.SESSION_TOKEN,
-          sessionData.token
-        );
+        try {
+          console.log('StorageService: trying to store token in SecureStore');
+          await SecureStore.setItemAsync(
+            this.KEYS.SESSION_TOKEN,
+            sessionData.token
+          );
+          console.log('StorageService: token stored in SecureStore');
+        } catch (secureStoreError) {
+          console.log('StorageService: SecureStore failed (probably web), using AsyncStorage fallback');
+          // Fallback to AsyncStorage for web
+          await AsyncStorage.setItem(this.KEYS.SESSION_TOKEN, sessionData.token);
+          console.log('StorageService: token stored in AsyncStorage');
+        }
       }
 
       // Store user data in AsyncStorage (non-sensitive)
       if (sessionData.user) {
+        console.log('StorageService: storing user data in AsyncStorage');
         await AsyncStorage.setItem(
           this.KEYS.USER_DATA,
           JSON.stringify(sessionData.user)
         );
+        console.log('StorageService: user data stored in AsyncStorage');
       }
 
       console.log('Session stored successfully');
@@ -60,24 +73,40 @@ class StorageService {
    */
   static async getSession() {
     try {
-      // Get authentication token from SecureStore
-      const token = await SecureStore.getItemAsync(this.KEYS.SESSION_TOKEN);
+      console.log('StorageService: getSession called');
+      
+      // Get authentication token from SecureStore (with web fallback)
+      let token = null;
+      try {
+        console.log('StorageService: trying to get token from SecureStore');
+        token = await SecureStore.getItemAsync(this.KEYS.SESSION_TOKEN);
+        console.log('StorageService: SecureStore token result:', token ? 'found' : 'not found');
+      } catch (secureStoreError) {
+        console.log('StorageService: SecureStore failed (probably web), trying AsyncStorage fallback');
+        // Fallback to AsyncStorage for web
+        token = await AsyncStorage.getItem(this.KEYS.SESSION_TOKEN);
+        console.log('StorageService: AsyncStorage token result:', token ? 'found' : 'not found');
+      }
       
       // Get user data from AsyncStorage
+      console.log('StorageService: getting user data from AsyncStorage');
       const userDataString = await AsyncStorage.getItem(this.KEYS.USER_DATA);
       const user = userDataString ? JSON.parse(userDataString) : null;
+      console.log('StorageService: user data result:', user ? 'found' : 'not found');
 
       // Return session data if both token and user exist
       if (token && user) {
+        console.log('StorageService: returning session data');
         return {
           token,
           user,
         };
       }
 
+      console.log('StorageService: no complete session found');
       return null;
     } catch (error) {
-      console.error('Error retrieving session:', error);
+      console.error('StorageService: Error retrieving session:', error);
       return null;
     }
   }
@@ -115,11 +144,24 @@ class StorageService {
    */
   static async clearSession() {
     try {
-      // Remove authentication token from SecureStore
-      await SecureStore.deleteItemAsync(this.KEYS.SESSION_TOKEN);
+      console.log('StorageService: clearSession called');
+      
+      // Remove authentication token from SecureStore (with web fallback)
+      try {
+        console.log('StorageService: trying to remove token from SecureStore');
+        await SecureStore.deleteItemAsync(this.KEYS.SESSION_TOKEN);
+        console.log('StorageService: token removed from SecureStore');
+      } catch (secureStoreError) {
+        console.log('StorageService: SecureStore failed (probably web), using AsyncStorage fallback');
+        // Fallback to AsyncStorage for web
+        await AsyncStorage.removeItem(this.KEYS.SESSION_TOKEN);
+        console.log('StorageService: token removed from AsyncStorage');
+      }
       
       // Remove user data from AsyncStorage
+      console.log('StorageService: removing user data from AsyncStorage');
       await AsyncStorage.removeItem(this.KEYS.USER_DATA);
+      console.log('StorageService: user data removed from AsyncStorage');
       
       console.log('Session cleared successfully');
     } catch (error) {
