@@ -27,27 +27,34 @@ export default function Index() {
   useEffect(() => {
     console.log('Index: useEffect triggered, isLoading:', isLoading, 'user:', user, 'showSplash:', showSplash);
     
-    // Only proceed with navigation if loading is complete and splash is dismissed
-    if (!showSplash && !isLoading) {
-      console.log('Index: Ready to navigate - user authenticated:', !!user);
+    // If we have a user and loading is complete, navigate immediately regardless of splash state
+    if (!isLoading && user && user.role) {
+      console.log('Index: User authenticated with role:', user.role, 'navigating to dashboard immediately');
       
-      // Add a delay and use a more robust navigation approach
       const timer = setTimeout(() => {
         try {
-          if (user && user.role) {
-            console.log('Index: User authenticated with role:', user.role, 'navigating to dashboard');
-            // Use push instead of replace to avoid router state issues
-            const dashboardRoute = user.role === 'admin' ? '/dashboard/admin' :
-                                 user.role === 'technician' ? '/dashboard/technician' :
-                                 '/dashboard/client';
-            router.push(dashboardRoute);
-          } else {
-            console.log('Index: No user or role, navigating to auth');
-            router.push('/auth/login');
-          }
+          const dashboardRoute = user.role === 'admin' ? '/dashboard/admin' :
+                               user.role === 'technician' ? '/dashboard/technician' :
+                               '/dashboard/client';
+          console.log('Index: Navigating authenticated user to:', dashboardRoute);
+          router.replace(dashboardRoute);
         } catch (error) {
-          console.error('Index: Navigation error:', error);
-          // If navigation fails, just log it - don't try to retry as it might cause more issues
+          console.error('Index: Navigation error for authenticated user:', error);
+        }
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+    
+    // For non-authenticated users, only proceed with navigation if loading is complete and splash is dismissed
+    if (!showSplash && !isLoading && !user) {
+      console.log('Index: No user, navigating to login');
+      
+      const timer = setTimeout(() => {
+        try {
+          router.push('/auth/login');
+        } catch (error) {
+          console.error('Index: Navigation error to login:', error);
         }
       }, 200);
       
@@ -70,6 +77,21 @@ export default function Index() {
   // Show splash screen
   if (showSplash) {
     console.log('🔥 Index: Rendering splash screen with button');
+    
+    // Show different content for authenticated users
+    if (user) {
+      return (
+        <View style={styles.splashContainer}>
+          <Text style={styles.title}>QuickFix</Text>
+          <Text style={styles.subtitle}>Welcome back, {user.name || user.email}!</Text>
+          <ActivityIndicator size="large" color="#0d6efd" style={{ marginVertical: 20 }} />
+          <Text style={styles.description}>
+            Redirecting to your dashboard...
+          </Text>
+        </View>
+      );
+    }
+    
     return (
       <View style={styles.splashContainer}>
         <Text style={styles.title}>QuickFix</Text>

@@ -255,19 +255,38 @@ class AuthController {
   }
 
   /**
-   * Logout user
+   * Logout user (works with both valid and expired tokens)
    * @param {Object} req - Express request object
    * @param {Object} res - Express response object
    */
   async logout(req, res) {
     try {
       const { refreshToken } = req.body;
-      const user = req.user;
       
-      if (refreshToken) {
-        await user.removeRefreshToken(refreshToken);
+      // Try to get user from token if available
+      let user = req.user;
+      
+      // If no user attached (e.g., expired token), try to extract from token manually
+      if (!user && req.headers.authorization) {
+        try {
+          const token = req.headers.authorization.split(' ')[1];
+          const decoded = jwt.verify(token, process.env.JWT_SECRET, { ignoreExpiration: true });
+          user = await User.findById(decoded.userId);
+        } catch (tokenError) {
+          console.log('Could not extract user from token, proceeding with logout anyway');
+        }
       }
       
+      // Remove refresh token if provided and user exists
+      if (refreshToken && user) {
+        try {
+          await user.removeRefreshToken(refreshToken);
+        } catch (removeError) {
+          console.log('Could not remove refresh token, but logout proceeding');
+        }
+      }
+      
+      // Always return success for logout
       res.json({
         success: true,
         message: 'Logged out successfully'
@@ -275,10 +294,10 @@ class AuthController {
       
     } catch (error) {
       console.error('Logout error:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Logout failed',
-        error: error.message
+      // Still return success for logout to prevent loops
+      res.json({
+        success: true,
+        message: 'Logged out successfully'
       });
     }
   }

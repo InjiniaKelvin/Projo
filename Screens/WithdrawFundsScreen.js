@@ -4,16 +4,16 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
 import EscrowService from '../services/EscrowService';
@@ -55,7 +55,7 @@ export default function WithdrawFundsScreen({ navigation }) {
       name: 'PayPal',
       icon: 'logo-paypal',
       processingTime: 'Instant',
-      fee: '$0.25',
+      fee: 'KES 25',
     },
     {
       id: 'mpesa',
@@ -109,8 +109,8 @@ export default function WithdrawFundsScreen({ navigation }) {
     }
 
     // Minimum withdrawal amount
-    if (numAmount < 10) {
-      Alert.alert('Minimum Amount', 'Minimum withdrawal amount is $10');
+    if (numAmount < 1000) {
+      Alert.alert('Minimum Amount', 'Minimum withdrawal amount is KES 1,000');
       return false;
     }
 
@@ -169,7 +169,7 @@ export default function WithdrawFundsScreen({ navigation }) {
       // Prepare withdrawal data
       const withdrawalData = {
         amount: numAmount,
-        currency: selectedMethod === 'mpesa' ? 'KES' : 'USD',
+        currency: 'KES', // Always use KES for Kenyan market
         withdrawMethod: selectedMethod,
         userId: user.id,
       };
@@ -342,7 +342,7 @@ export default function WithdrawFundsScreen({ navigation }) {
           <Text style={styles.sectionTitle}>Withdrawal Amount</Text>
           
           <View style={styles.amountInputContainer}>
-            <Text style={styles.currencySymbol}>$</Text>
+            <Text style={styles.currencySymbol}>KES</Text>
             <TextInput
               style={styles.amountInput}
               placeholder="Enter amount"
@@ -360,7 +360,7 @@ export default function WithdrawFundsScreen({ navigation }) {
           </View>
           
           <Text style={styles.amountNote}>
-            Minimum withdrawal: $10
+            Minimum withdrawal: KES 1,000
           </Text>
         </View>
 
