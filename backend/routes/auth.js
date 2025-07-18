@@ -55,6 +55,13 @@ router.post('/register', authLimiter, validateUserRegistration, authController.r
 router.post('/login', authLimiter, validateUserLogin, authController.login);
 
 /**
+ * @route   GET /api/auth/validate
+ * @desc    Validate authentication token
+ * @access  Private
+ */
+router.get('/validate', generalLimiter, authenticateToken, authController.validateToken);
+
+/**
  * @route   POST /api/auth/refresh
  * @desc    Refresh access token
  * @access  Public
@@ -63,10 +70,10 @@ router.post('/refresh', generalLimiter, authController.refreshToken);
 
 /**
  * @route   POST /api/auth/logout
- * @desc    Logout user
- * @access  Private
+ * @desc    Logout user (works with both valid and expired tokens)
+ * @access  Public/Private
  */
-router.post('/logout', generalLimiter, authenticateToken, authController.logout);
+router.post('/logout', generalLimiter, authController.logout);
 
 /**
  * @route   POST /api/auth/logout-all

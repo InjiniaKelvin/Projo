@@ -6,14 +6,14 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { useAuth } from '../../contexts/SimpleAuthContext';
 import WebCompatibleButton from '../WebCompatibleButton';
@@ -68,10 +68,11 @@ export default function LoginScreen() {
                                  user.role === 'technician' ? '/dashboard/technician' :
                                  '/dashboard/client';
             console.log('LoginScreen: Navigating to:', dashboardRoute);
-            router.push(dashboardRoute);
+            // Use replace to prevent back navigation to login
+            router.replace(dashboardRoute);
           } else {
             console.log('LoginScreen: No user role, defaulting to client dashboard');
-            router.push('/dashboard/client');
+            router.replace('/dashboard/client');
           }
         } else {
           Alert.alert('Login Failed', result?.message || 'Login failed');

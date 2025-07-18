@@ -33,6 +33,9 @@ export default function RegisterScreen() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [skillInput, setSkillInput] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordsMatch, setPasswordsMatch] = useState(true);
 
   const router = useRouter();
   const { register, error, clearError } = useAuth();
@@ -42,6 +45,16 @@ export default function RegisterScreen() {
       ...prev,
       [field]: value
     }));
+    
+    // Check password matching in real-time
+    if (field === 'password' || field === 'confirmPassword') {
+      const updatedData = { ...formData, [field]: value };
+      if (updatedData.confirmPassword) {
+        setPasswordsMatch(updatedData.password === updatedData.confirmPassword);
+      } else {
+        setPasswordsMatch(true); // Reset when confirm password is empty
+      }
+    }
   };
 
   const addSkill = () => {
@@ -123,8 +136,14 @@ export default function RegisterScreen() {
             {
               text: 'OK',
               onPress: () => {
-                // Navigation will be handled by the auth state change in index.tsx
-                console.log('Registration successful');
+                // Redirect to appropriate dashboard based on role
+                if (formData.role === 'admin') {
+                  router.replace('/dashboard/admin');
+                } else if (formData.role === 'technician') {
+                  router.replace('/dashboard/technician');
+                } else {
+                  router.replace('/dashboard/client');
+                }
               }
             }
           ]
@@ -190,23 +209,45 @@ export default function RegisterScreen() {
               keyboardType="phone-pad"
             />
 
-            <TextInput
-              style={styles.input}
-              placeholder="Password"
-              value={formData.password}
-              onChangeText={(value) => handleInputChange('password', value)}
-              secureTextEntry
-              autoCapitalize="none"
-            />
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={styles.passwordInput}
+                placeholder="Password"
+                value={formData.password}
+                onChangeText={(value) => handleInputChange('password', value)}
+                secureTextEntry={!showPassword}
+                autoCapitalize="none"
+              />
+              <TouchableOpacity
+                style={styles.eyeButton}
+                onPress={() => setShowPassword(!showPassword)}
+              >
+                <Text style={styles.eyeText}>{showPassword ? '👁️' : '🙈'}</Text>
+              </TouchableOpacity>
+            </View>
 
-            <TextInput
-              style={styles.input}
-              placeholder="Confirm Password"
-              value={formData.confirmPassword}
-              onChangeText={(value) => handleInputChange('confirmPassword', value)}
-              secureTextEntry
-              autoCapitalize="none"
-            />
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={styles.passwordInput}
+                placeholder="Confirm Password"
+                value={formData.confirmPassword}
+                onChangeText={(value) => handleInputChange('confirmPassword', value)}
+                secureTextEntry={!showConfirmPassword}
+                autoCapitalize="none"
+              />
+              <TouchableOpacity
+                style={styles.eyeButton}
+                onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+              >
+                <Text style={styles.eyeText}>{showConfirmPassword ? '👁️' : '🙈'}</Text>
+              </TouchableOpacity>
+            </View>
+
+            {formData.confirmPassword && !passwordsMatch && (
+              <Text style={styles.passwordMismatchText}>
+                Passwords do not match
+              </Text>
+            )}
 
             <View style={styles.pickerContainer}>
               <Text style={styles.label}>I am a:</Text>
@@ -306,6 +347,36 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 16,
     backgroundColor: '#fff'
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    marginBottom: 16,
+    paddingRight: 8
+  },
+  passwordInput: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 16
+  },
+  eyeButton: {
+    paddingHorizontal: 8,
+    paddingVertical: 4
+  },
+  eyeText: {
+    fontSize: 18
+  },
+  passwordMismatchText: {
+    color: '#ff4444',
+    fontSize: 14,
+    marginTop: -8,
+    marginBottom: 16,
+    fontStyle: 'italic'
   },
   pickerContainer: {
     marginBottom: 16

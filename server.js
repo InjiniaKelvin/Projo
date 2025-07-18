@@ -2,7 +2,7 @@
  * QuickFix Backend Server
  * 
  * Main server file that initializes the Express app, connects to MongoDB,
- * sets up middleware, routes, and starts the server.
+ * sets up middleware, routes, WebSocket server, and starts the server.
  */
 
 const express = require('express');
@@ -11,6 +11,8 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const multer = require('multer');
 const path = require('path');
+const http = require('http');
+const socketIo = require('socket.io');
 require('dotenv').config();
 
 // Import database connection
@@ -21,31 +23,55 @@ const authRoutes = require('./backend/routes/auth');
 const paymentRoutes = require('./backend/routes/payments');
 const bookingRoutes = require('./backend/routes/bookings');
 
-// Initialize Express app
+// Import new enhanced routes
+const enhancedPaymentRoutes = require('./backend/routes/enhancedPayments');
+const adminRoutes = require('./backend/routes/admin');
+const notificationRoutes = require('./backend/routes/notifications');
+const analyticsRoutes = require('./backend/routes/analytics');
+const chatRoutes = require('./backend/routes/chat');
+
+// Import WebSocket configuration
+const { initializeSocketIO } = require('./backend/config/websocket');
+
+// Import controllers for WebSocket integration
+const enhancedBookingController = require('./backend/controllers/enhancedBookingController');
+
+// Initialize Express app and HTTP server
 const app = express();
+const server = http.createServer(app);
 const PORT = process.env.PORT || 3000;
+
+// Setup WebSocket with all handlers
+const io = initializeSocketIO(server);
+
+// Pass io instance to controllers that need real-time features
+enhancedBookingController.setSocketIO(io);
 
 // Security middleware
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
-// Rate limiting
+// Rate limiting (increased limits for development)
 const limiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // limit each IP to 100 requests per windowMs
+  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 1000, // increased to 1000 requests per windowMs for development
   message: {
     success: false,
     message: 'Too many requests from this IP, please try again later'
   },
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
+  skip: (req) => {
+    // Skip rate limiting for development health checks
+    return process.env.NODE_ENV === 'development' && req.path === '/health';
+  }
 });
 
-// Apply rate limiting to all routes
+// Apply rate limiting to all routes except health checks in development
 app.use(limiter);
 
-// CORS configuration
+// CORS configuration with improved preflight handling
 const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
@@ -70,7 +96,10 @@ const corsOptions = {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
 
 app.use(cors(corsOptions));
@@ -135,6 +164,16 @@ app.use('/api/auth', authRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/bookings', bookingRoutes);
 
+// Enhanced API Routes
+app.use('/api/payments/enhanced', enhancedPaymentRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/chat', chatRoutes);
+
+// M-Pesa callback route (needs to be before error middleware)
+app.post('/api/payments/mpesa/callback', require('./backend/controllers/enhancedPaymentController').handleMpesaCallback);
+
 // Error handling middleware
 app.use((error, req, res, next) => {
   console.error('Error:', error);
@@ -173,12 +212,14 @@ async function startServer() {
     await database.connect();
     console.log('✅ Database connected successfully');
     
-    // Start Express server
-    const server = app.listen(PORT, () => {
+    // Start HTTP server with Socket.IO
+    server.listen(PORT, () => {
       console.log(`🚀 QuickFix server running on http://localhost:${PORT}`);
       console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log(`🔍 Health check: http://localhost:${PORT}/health`);
       console.log(`📚 API base URL: http://localhost:${PORT}/api`);
+      console.log(`🔌 WebSocket server initialized`);
+      console.log(`📱 Real-time features enabled`);
     });
     
     // Graceful shutdown
@@ -186,6 +227,7 @@ async function startServer() {
       console.log('🛑 SIGTERM received. Shutting down gracefully...');
       server.close(async () => {
         await database.disconnect();
+        console.log('✅ Server shut down successfully');
         process.exit(0);
       });
     });
@@ -194,6 +236,7 @@ async function startServer() {
       console.log('🛑 SIGINT received. Shutting down gracefully...');
       server.close(async () => {
         await database.disconnect();
+        console.log('✅ Server shut down successfully');
         process.exit(0);
       });
     });

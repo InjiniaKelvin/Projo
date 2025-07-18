@@ -144,6 +144,8 @@ export function AuthProvider({ children }) {
 
   // Set up axios interceptor for authentication
   useEffect(() => {
+    let isLoggingOut = false; // Prevent logout loops
+    
     const requestInterceptor = axios.interceptors.request.use(
       (config) => {
         if (state.token) {
@@ -159,9 +161,29 @@ export function AuthProvider({ children }) {
     const responseInterceptor = axios.interceptors.response.use(
       (response) => response,
       async (error) => {
-        if (error.response?.status === 401 && state.token) {
-          // Token expired, logout user
-          await logout();
+        // Only trigger logout for 401 errors that aren't already during logout process
+        if (error.response?.status === 401 && state.token && !isLoggingOut) {
+          console.log('🔥 Auth: 401 detected, triggering logout...');
+          isLoggingOut = true;
+          // Token expired, logout user without calling backend logout to prevent loop
+          try {
+            console.log('🔥 Auth: Starting local logout cleanup...');
+            // Clear local storage using storage helper
+            await storage.removeItem('authToken');
+            console.log('🔥 Auth: Removed authToken from storage');
+            await storage.removeItem('userData');
+            console.log('🔥 Auth: Removed userData from storage');
+            console.log('🔥 Auth: Local storage cleared successfully');
+            
+            console.log('🔥 Auth: Dispatching LOGOUT action...');
+            dispatch({ type: 'LOGOUT' });
+            console.log('🔥 Auth: LOGOUT action dispatched successfully');
+          } catch (storageError) {
+            console.error('🔥 Auth: Storage cleanup error during interceptor logout:', storageError);
+            dispatch({ type: 'LOGOUT' });
+          } finally {
+            isLoggingOut = false;
+          }
         }
         return Promise.reject(error);
       }
@@ -207,22 +229,44 @@ export function AuthProvider({ children }) {
       console.log('🔥 Auth: Web check - Token found:', !!token, 'User data found:', !!userData);
       
       if (token && userData) {
-        const user = JSON.parse(userData);
-        console.log('🔥 Auth: Restoring web session for user:', user.email);
-        
-        dispatch({
-          type: 'LOGIN_SUCCESS',
-          payload: {
-            user: user,
-            token: token
+        try {
+          const user = JSON.parse(userData);
+          console.log('🔥 Auth: Attempting to restore web session for user:', user.email);
+          
+          // Validate the token by making a quick API call
+          const response = await axios.get('/auth/validate', {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          
+          if (response.data.valid) {
+            console.log('🔥 Auth: Token is valid, restoring session...');
+            dispatch({
+              type: 'LOGIN_SUCCESS',
+              payload: {
+                user: user,
+                token: token
+              }
+            });
+            console.log('🔥 Auth: Web session restored successfully');
+          } else {
+            console.log('🔥 Auth: Token is invalid, clearing storage...');
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userData');
           }
-        });
-        console.log('🔥 Auth: Web session restored successfully');
+        } catch (validateError) {
+          console.error('🔥 Auth: Token validation failed:', validateError);
+          console.log('🔥 Auth: Clearing invalid credentials...');
+          localStorage.removeItem('authToken');
+          localStorage.removeItem('userData');
+        }
       } else {
         console.log('🔥 Auth: No existing web session found');
       }
     } catch (error) {
       console.error('🔥 Auth: Error checking web auth state:', error);
+      // Clear potentially corrupted data
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userData');
     } finally {
       console.log('🔥 Auth: Web auth check complete - setting loading to false');
       dispatch({ type: 'SET_LOADING', payload: false });
@@ -275,45 +319,60 @@ export function AuthProvider({ children }) {
     dispatch({ type: 'LOGIN_START' });
     
     try {
-      const response = await axios.post('/auth/login', {
-        email: email.toLowerCase().trim(),
-        password: password
-      });
-      
-      console.log('🔥 Auth: Login response:', response.data);
-      
-      if (response.data.success) {
-        console.log('🔥 Auth: Full response.data:', JSON.stringify(response.data, null, 2));
-        const { user, token } = response.data.data;
-        
-        console.log('🔥 Auth: Extracted user:', user);
-        console.log('🔥 Auth: Extracted token:', token);
-        console.log('🔥 Auth: response.data.data:', response.data.data);
-        
-        if (!token) {
-          console.error('🔥 Auth: Token is missing from response!');
-          // Check if token is elsewhere in the response
-          console.log('🔥 Auth: Checking response.data.token:', response.data.token);
-          console.log('🔥 Auth: Checking response.data.accessToken:', response.data.accessToken);
-        }
-        
-        console.log('🔥 Auth: About to store - user:', user, 'token:', token);
-        
-        // Store token and user data using storage helper
-        await storage.setItem('authToken', token);
-        await storage.setItem('userData', JSON.stringify(user));
-        
-        console.log('🔥 Auth: Storage complete, dispatching LOGIN_SUCCESS');
-        
-        dispatch({
-          type: 'LOGIN_SUCCESS',
-          payload: { user, token }
+      // First, try the real backend
+      try {
+        console.log('🔥 Auth: Attempting backend login...');
+        console.log('🔥 Auth: Request URL:', `${API_BASE_URL}/auth/login`);
+        console.log('🔥 Auth: Request payload:', {
+          email: email.toLowerCase().trim(),
+          password: password
+        });
+        const response = await axios.post('/auth/login', {
+          email: email.toLowerCase().trim(),
+          password: password
         });
         
-        console.log('🔥 Auth: Login successful for user:', user.email, 'with token:', token);
-        return { success: true, user, token };
-      } else {
-        throw new Error(response.data.message || 'Login failed');
+        console.log('🔥 Auth: Backend login response:', response.data);
+        
+        if (response.data.success) {
+          console.log('🔥 Auth: Full response.data:', JSON.stringify(response.data, null, 2));
+          const { user, tokens } = response.data.data;
+          const token = tokens?.accessToken || tokens?.token; // Handle both structures
+          
+          console.log('🔥 Auth: Extracted user:', user);
+          console.log('🔥 Auth: Extracted tokens:', tokens);
+          console.log('🔥 Auth: Final token:', token);
+          console.log('🔥 Auth: response.data.data:', response.data.data);
+          
+          if (!token) {
+            console.error('🔥 Auth: Token is missing from response!');
+            // Check if token is elsewhere in the response
+            console.log('🔥 Auth: Checking response.data.token:', response.data.token);
+            console.log('🔥 Auth: Checking response.data.accessToken:', response.data.accessToken);
+            throw new Error('No authentication token received');
+          }
+          
+          console.log('🔥 Auth: About to store - user:', user, 'token:', token);
+          
+          // Store token and user data using storage helper
+          await storage.setItem('authToken', token);
+          await storage.setItem('userData', JSON.stringify(user));
+          
+          console.log('🔥 Auth: Storage complete, dispatching LOGIN_SUCCESS');
+          
+          dispatch({
+            type: 'LOGIN_SUCCESS',
+            payload: { user, token }
+          });
+          
+          console.log('🔥 Auth: Backend login successful for user:', user.email, 'with token:', token);
+          return { success: true, user, token };
+        } else {
+          throw new Error(response.data.message || 'Login failed');
+        }
+      } catch (backendError) {
+        console.error('🔥 Auth: Backend login failed:', backendError.message);
+        throw backendError;
       }
     } catch (error) {
       console.error('🔥 Auth: Login error:', error);
@@ -374,8 +433,8 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const logout = async () => {
-    console.log('🔥 Auth: Logout function called');
+  const logout = async (skipBackendCall = false) => {
+    console.log('🔥 Auth: Logout function called, skipBackendCall:', skipBackendCall);
     console.log('🔥 Auth: Current state before logout:', { 
       isAuthenticated: state.isAuthenticated, 
       hasUser: !!state.user, 
@@ -384,8 +443,8 @@ export function AuthProvider({ children }) {
     });
     
     try {
-      // Call backend logout endpoint if we have a token
-      if (state.token) {
+      // Call backend logout endpoint if we have a token and not skipping
+      if (state.token && !skipBackendCall) {
         console.log('🔥 Auth: Calling backend logout endpoint with token...');
         try {
           await axios.post('/auth/logout');
@@ -394,7 +453,7 @@ export function AuthProvider({ children }) {
           console.error('🔥 Auth: Backend logout failed but continuing:', backendError.response?.data || backendError.message);
         }
       } else {
-        console.log('🔥 Auth: No token found, skipping backend logout call');
+        console.log('🔥 Auth: Skipping backend logout call - token:', !!state.token, 'skipBackendCall:', skipBackendCall);
       }
     } catch (error) {
       console.error('🔥 Auth: Backend logout error:', error);

@@ -129,23 +129,17 @@ export default function ServiceRequestScreen() {
         <Button title="Find & Book Technician" onPress={handleRequest} />
       )}
 
-      {/* Map & ETA Display */}
+      {/* Location Display */}
       {techLoc && (
-        <MapView
-          style={styles.map}
-          initialRegion={{
-            latitude:  clientLoc.latitude,
-            longitude: clientLoc.longitude,
-            latitudeDelta: 0.05,
-            longitudeDelta: 0.05,
-          }}
-        >
-          {/* Client Marker */}
-          <Marker coordinate={clientLoc} title="You" pinColor="blue" />
-
-          {/* Technician Marker */}
-          <Marker coordinate={techLoc} title={techName} pinColor="green" />
-        </MapView>
+        <View style={styles.locationInfo}>
+          <Text style={styles.locationText}>📍 Technician Located</Text>
+          <Text style={styles.locationDetails}>
+            Your location: {clientLoc.latitude.toFixed(4)}, {clientLoc.longitude.toFixed(4)}
+          </Text>
+          <Text style={styles.locationDetails}>
+            Technician: {techLoc.latitude.toFixed(4)}, {techLoc.longitude.toFixed(4)}
+          </Text>
+        </View>
       )}
     </View>
   );
@@ -155,5 +149,23 @@ const styles = StyleSheet.create({
   container: { flex:1, padding:20, backgroundColor:'#f5f7fa' },
   header:    { fontSize:22, fontWeight:'600', marginBottom:15, textAlign:'center' },
   pickerRow: { flexDirection:'row', justifyContent:'space-around', marginBottom:15 },
-  map:       { flex:1, marginTop:20, borderRadius:10 }
+  locationInfo: { 
+    backgroundColor: '#e3f2fd', 
+    padding: 15, 
+    marginTop: 20, 
+    borderRadius: 10, 
+    borderWidth: 1, 
+    borderColor: '#90caf9' 
+  },
+  locationText: { 
+    fontSize: 16, 
+    fontWeight: '600', 
+    marginBottom: 8, 
+    color: '#1976d2' 
+  },
+  locationDetails: { 
+    fontSize: 14, 
+    color: '#424242', 
+    marginBottom: 4 
+  }
 });

@@ -154,11 +154,7 @@ async function seedDatabase() {
     const createdUsers = [];
     
     for (const userData of sampleUsers) {
-      // Hash password
-      const hashedPassword = await bcrypt.hash(userData.password, 12);
-      userData.password = hashedPassword;
-      
-      // Create user
+      // Create user (password will be hashed by the User model's pre-save hook)
       const user = new User(userData);
       await user.save();
       
