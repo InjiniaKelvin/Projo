@@ -1,0 +1,71 @@
+{
+  "timestamp": "2025-08-15T09:32:04.415Z",
+  "summary": {
+    "serverHealth": "success",
+    "databaseConnection": "failed",
+    "authentication": "success",
+    "bookingCreation": "success",
+    "corsConfiguration": "success",
+    "webCompatibility": "failed"
+  },
+  "details": {
+    "serverHealth": {
+      "status": "success",
+      "data": {
+        "success": true,
+        "message": "QuickFix API is running",
+        "timestamp": "2025-08-15T09:31:51.724Z",
+        "version": "1.0.0",
+        "database": "connected"
+      },
+      "responseTime": "unknown"
+    },
+    "authentication": {
+      "status": "success",
+      "userId": "689efe8a554bbec91ff4415b",
+      "token": "eyJhbGciOiJIUzI1NiIs...",
+      "tokenValid": true
+    },
+    "bookingCreation": {
+      "totalTests": 2,
+      "successCount": 1,
+      "results": [
+        {
+          "format": "Standard Format",
+          "status": "success",
+          "bookingId": "BKG17552503186161F7YND",
+          "serviceId": "RDIT1267810Q"
+        },
+        {
+          "format": "Legacy Format",
+          "status": "failed",
+          "error": {
+            "success": false,
+            "message": "Client name is required"
+          },
+          "statusCode": 400
+        }
+      ]
+    },
+    "databaseConnection": {
+      "status": "failed",
+      "error": {
+        "success": false,
+        "message": "Access token required"
+      },
+      "statusCode": 401
+    },
+    "corsConfiguration": {
+      "status": "success",
+      "allowedOrigins": "http://localhost:8081",
+      "allowedMethods": "GET,POST,PUT,DELETE,OPTIONS,PATCH",
+      "allowedHeaders": "Content-Type,Authorization,X-Requested-With,Accept,Origin"
+    },
+    "webCompatibility": {
+      "status": "failed",
+      "webServerRunning": false,
+      "error": "timeout of 5000ms exceeded"
+    },
+    "errors": []
+  }
+}

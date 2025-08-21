@@ -1,7 +1,7 @@
 // Authentication Context with Backend Integration
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import { createContext, useContext, useEffect, useReducer } from 'react';
+import { createContext, useContext, useEffect, useReducer, useRef } from 'react';
 import { Platform } from 'react-native';
 
 // Configure axios defaults
@@ -139,17 +139,25 @@ export function AuthProvider({ children }) {
   console.log('🔥 Auth: AuthProvider rendered!');
   
   const [state, dispatch] = useReducer(authReducer, initialState);
+  const tokenRef = useRef(state.token);
+  
+  // Update token ref whenever state.token changes
+  useEffect(() => {
+    tokenRef.current = state.token;
+  }, [state.token]);
   
   console.log('🔥 Auth: Current state:', state);
 
-  // Set up axios interceptor for authentication
+  // Set up axios interceptor for authentication - only set up once
   useEffect(() => {
     let isLoggingOut = false; // Prevent logout loops
     
     const requestInterceptor = axios.interceptors.request.use(
       (config) => {
-        if (state.token) {
-          config.headers.Authorization = `Bearer ${state.token}`;
+        // Get the current token from ref to avoid stale closure
+        const currentToken = tokenRef.current;
+        if (currentToken) {
+          config.headers.Authorization = `Bearer ${currentToken}`;
         }
         return config;
       },
@@ -162,7 +170,7 @@ export function AuthProvider({ children }) {
       (response) => response,
       async (error) => {
         // Only trigger logout for 401 errors that aren't already during logout process
-        if (error.response?.status === 401 && state.token && !isLoggingOut) {
+        if (error.response?.status === 401 && tokenRef.current && !isLoggingOut) {
           console.log('🔥 Auth: 401 detected, triggering logout...');
           isLoggingOut = true;
           // Token expired, logout user without calling backend logout to prevent loop
@@ -194,7 +202,7 @@ export function AuthProvider({ children }) {
       axios.interceptors.request.eject(requestInterceptor);
       axios.interceptors.response.eject(responseInterceptor);
     };
-  }, [state.token]);
+  }, []); // Empty dependency array to set up interceptors only once
 
   // Check for existing session on app start
   useEffect(() => {

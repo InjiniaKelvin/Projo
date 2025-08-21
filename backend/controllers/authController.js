@@ -172,8 +172,47 @@ class AuthController {
   }
 
   /**
-   * Refresh access token
+   * Validate authentication token
    * @param {Object} req - Express request object
+   * @param {Object} res - Express response object
+   */
+  async validateToken(req, res) {
+    try {
+      // If we reach here, the token is valid (middleware already validated it)
+      const user = req.user; // User is already attached by auth middleware
+      
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: 'User not found'
+        });
+      }
+
+      res.json({
+        success: true,
+        valid: true,
+        message: 'Token is valid',
+        user: {
+          id: user._id,
+          email: user.email,
+          role: user.role,
+          name: user.firstName ? `${user.firstName} ${user.lastName}` : user.email.split('@')[0],
+          isEmailVerified: user.isEmailVerified
+        }
+      });
+    } catch (error) {
+      console.error('Token validation error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Token validation failed',
+        error: error.message
+      });
+    }
+  }
+
+  /**
+   * Refresh access token
+   * @param {Object} req - Expresspx request object
    * @param {Object} res - Express response object
    */
   async refreshToken(req, res) {
@@ -272,7 +311,7 @@ class AuthController {
           const token = req.headers.authorization.split(' ')[1];
           const decoded = jwt.verify(token, process.env.JWT_SECRET, { ignoreExpiration: true });
           user = await User.findById(decoded.userId);
-        } catch (tokenError) {
+        } catch (_tokenError) {
           console.log('Could not extract user from token, proceeding with logout anyway');
         }
       }
@@ -281,7 +320,7 @@ class AuthController {
       if (refreshToken && user) {
         try {
           await user.removeRefreshToken(refreshToken);
-        } catch (removeError) {
+        } catch (_removeError) {
           console.log('Could not remove refresh token, but logout proceeding');
         }
       }

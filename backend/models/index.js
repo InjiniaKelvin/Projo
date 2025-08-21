@@ -6,13 +6,19 @@
  */
 
 const User = require('./User');
-const Wallet = require('./Wallet');
-const Transaction = require('./Transaction');
 const Booking = require('./Booking');
+const Service = require('./Service');
+const Transaction = require('./Transaction');
+const Wallet = require('./Wallet');
+const Message = require('./Message');
+const Notification = require('./Notification');
 
 module.exports = {
   User,
-  Wallet,
+  Booking,
+  Service,
   Transaction,
-  Booking
+  Wallet,
+  Message,
+  Notification
 };

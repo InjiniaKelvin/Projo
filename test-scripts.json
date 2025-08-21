@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "test:e2e": "npx playwright test",
+    "test:e2e:headed": "npx playwright test --headed",
+    "test:e2e:debug": "npx playwright test --debug",
+    "test:booking": "npx playwright test tests/booking-flow.spec.ts",
+    "test:booking:headed": "npx playwright test tests/booking-flow.spec.ts --headed"
+  }
+}

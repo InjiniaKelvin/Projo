@@ -10,7 +10,7 @@ config.resolver.platforms = ['web', 'ios', 'android', 'native'];
 config.resolver.resolverMainFields = ['browser', 'main'];
 
 // Add source extensions for platform-specific files
-config.resolver.sourceExts = [...config.resolver.sourceExts, 'web.js', 'web.ts', 'web.tsx'];
+config.resolver.sourceExts = [...config.resolver.sourceExts, 'web.js', 'web.ts', 'web.tsx', 'tsx', 'ts'];
 
 // Configure aliases to handle problematic native modules on web
 config.resolver.alias = {
