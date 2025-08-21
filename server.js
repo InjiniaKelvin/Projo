@@ -9,19 +9,20 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const multer = require('multer');
-const path = require('path');
 const http = require('http');
-const socketIo = require('socket.io');
 require('dotenv').config();
 
 // Import database connection
 const database = require('./backend/config/database');
 
+// Import models to ensure indexes are created
+const { Booking } = require('./backend/models');
+
 // Import routes
 const authRoutes = require('./backend/routes/auth');
 const paymentRoutes = require('./backend/routes/payments');
 const bookingRoutes = require('./backend/routes/bookings');
+const servicesRoutes = require('./backend/routes/services');
 
 // Import new enhanced routes
 const enhancedPaymentRoutes = require('./backend/routes/enhancedPayments');
@@ -33,19 +34,13 @@ const chatRoutes = require('./backend/routes/chat');
 // Import WebSocket configuration
 const { initializeSocketIO } = require('./backend/config/websocket');
 
-// Import controllers for WebSocket integration
-const enhancedBookingController = require('./backend/controllers/enhancedBookingController');
-
 // Initialize Express app and HTTP server
 const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 3000;
 
 // Setup WebSocket with all handlers
-const io = initializeSocketIO(server);
-
-// Pass io instance to controllers that need real-time features
-enhancedBookingController.setSocketIO(io);
+initializeSocketIO(server);
 
 // Security middleware
 app.use(helmet({
@@ -130,31 +125,8 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// File upload configuration
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/');
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
-
-const upload = multer({
-  storage: storage,
-  limits: {
-    fileSize: parseInt(process.env.MAX_FILE_SIZE) || 5 * 1024 * 1024 // 5MB default
-  },
-  fileFilter: function (req, file, cb) {
-    // Check file type
-    if (file.mimetype.startsWith('image/')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only image files are allowed!'), false);
-    }
-  }
-});
+// Routes
+app.use('/api/auth', authRoutes);
 
 // Serve static files (uploads)
 app.use('/uploads', express.static('uploads'));
@@ -163,6 +135,11 @@ app.use('/uploads', express.static('uploads'));
 app.use('/api/auth', authRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/bookings', bookingRoutes);
+app.use('/api/services', servicesRoutes);
+
+// Redesigned booking routes
+const bookingRedesignedRoutes = require('./backend/routes/bookingRedesigned');
+app.use('/api/bookings-redesigned', bookingRedesignedRoutes);
 
 // Enhanced API Routes
 app.use('/api/payments/enhanced', enhancedPaymentRoutes);
@@ -177,15 +154,6 @@ app.post('/api/payments/mpesa/callback', require('./backend/controllers/enhanced
 // Error handling middleware
 app.use((error, req, res, next) => {
   console.error('Error:', error);
-  
-  if (error instanceof multer.MulterError) {
-    if (error.code === 'LIMIT_FILE_SIZE') {
-      return res.status(400).json({
-        success: false,
-        message: 'File too large'
-      });
-    }
-  }
   
   res.status(error.status || 500).json({
     success: false,
@@ -204,6 +172,23 @@ app.use('*', (req, res) => {
 });
 
 /**
+ * Ensure database indexes are created
+ */
+async function ensureIndexes() {
+  try {
+    console.log('🔍 Ensuring database indexes...');
+    
+    // Ensure Booking model indexes are created
+    await Booking.createIndexes();
+    console.log('✅ Booking indexes created successfully');
+    
+  } catch (error) {
+    console.error('⚠️ Error creating indexes:', error.message);
+    // Don't fail the server startup for index creation errors
+  }
+}
+
+/**
  * Start the server
  */
 async function startServer() {
@@ -211,6 +196,9 @@ async function startServer() {
     // Connect to MongoDB
     await database.connect();
     console.log('✅ Database connected successfully');
+    
+    // Ensure indexes are created
+    await ensureIndexes();
     
     // Start HTTP server with Socket.IO
     server.listen(PORT, () => {

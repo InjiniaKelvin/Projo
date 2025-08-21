@@ -12,10 +12,10 @@ div[role="button"],
 span[role="button"] {
   pointer-events: auto !important;
   cursor: pointer !important;
-  user-select: none !important;
   -webkit-user-select: none !important;
   -moz-user-select: none !important;
   -ms-user-select: none !important;
+  user-select: none !important;
 }
 
 /* Fix for TouchableOpacity components */
@@ -30,6 +30,9 @@ div[data-pressable-container="true"] {
 [data-testid*="button"] {
   pointer-events: auto !important;
   cursor: pointer !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
   user-select: none !important;
 }
 

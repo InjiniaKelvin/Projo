@@ -6,7 +6,22 @@
  */
 
 const { Wallet, Transaction, User } = require('../models');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
+// Initialize Stripe with proper error handling
+let stripe = null;
+if (process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRET_KEY.startsWith('sk_')) {
+  stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+} else {
+  console.warn('⚠️  Stripe not configured - using mock payments for development');
+  // Create a mock stripe object for development
+  stripe = {
+    paymentIntents: {
+      create: async () => ({ id: 'pi_mock_' + Date.now(), client_secret: 'mock_secret' }),
+      confirm: async () => ({ status: 'succeeded' }),
+      retrieve: async () => ({ status: 'succeeded' })
+    }
+  };
+}
 
 class PaymentController {
   /**

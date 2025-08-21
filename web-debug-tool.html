@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickFix API Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin-bottom: 30px; padding: 20px; border: 1px solid #ddd; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        button { padding: 10px 20px; margin: 10px 0; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>QuickFix API Debug Tool</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Health Check</h2>
+        <button onclick="testHealth()">Test Health Endpoint</button>
+        <div id="health-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 2: Registration & Login</h2>
+        <button onclick="testRegistration()">Test Registration</button>
+        <div id="register-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test 3: Create Booking</h2>
+        <button onclick="testBooking()">Test Booking Creation</button>
+        <div id="booking-result"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000/api';
+        let currentToken = null;
+
+        function log(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            element.innerHTML += `<div class="${type}">[${timestamp}] ${message}</div>`;
+        }
+
+        function logObject(elementId, obj, type = 'info') {
+            const element = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            element.innerHTML += `<div class="${type}">[${timestamp}] <pre>${JSON.stringify(obj, null, 2)}</pre></div>`;
+        }
+
+        async function testHealth() {
+            const resultDiv = document.getElementById('health-result');
+            resultDiv.innerHTML = '';
+            
+            try {
+                log('health-result', 'Testing health endpoint...', 'info');
+                
+                const response = await fetch(`${API_BASE}/health`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log('health-result', '✅ Health check successful!', 'success');
+                    logObject('health-result', data, 'success');
+                } else {
+                    log('health-result', '❌ Health check failed!', 'error');
+                    logObject('health-result', data, 'error');
+                }
+            } catch (error) {
+                log('health-result', '❌ Health check error!', 'error');
+                logObject('health-result', { error: error.message }, 'error');
+            }
+        }
+
+        async function testRegistration() {
+            const resultDiv = document.getElementById('register-result');
+            resultDiv.innerHTML = '';
+            
+            try {
+                log('register-result', 'Testing registration...', 'info');
+                
+                const timestamp = Date.now();
+                const userData = {
+                    firstName: 'WebDebug',
+                    lastName: 'Test',
+                    email: `webdebug.${timestamp}@example.com`,
+                    password: 'TestPassword123',
+                    phoneNumber: `070${timestamp.toString().slice(-7)}`,
+                    role: 'client'
+                };
+                
+                const response = await fetch(`${API_BASE}/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(userData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log('register-result', '✅ Registration successful!', 'success');
+                    currentToken = data.data.tokens.accessToken;
+                    logObject('register-result', {
+                        userId: data.data.user.id,
+                        email: data.data.user.email,
+                        tokenReceived: !!currentToken
+                    }, 'success');
+                } else {
+                    log('register-result', '❌ Registration failed!', 'error');
+                    logObject('register-result', data, 'error');
+                }
+            } catch (error) {
+                log('register-result', '❌ Registration error!', 'error');
+                logObject('register-result', { error: error.message }, 'error');
+            }
+        }
+
+        async function testBooking() {
+            const resultDiv = document.getElementById('booking-result');
+            resultDiv.innerHTML = '';
+            
+            if (!currentToken) {
+                log('booking-result', '❌ No auth token! Please register first.', 'error');
+                return;
+            }
+            
+            try {
+                log('booking-result', 'Testing booking creation...', 'info');
+                
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                
+                const bookingData = {
+                    serviceType: 'plumbing',
+                    serviceDescription: 'Web debug test booking',
+                    urgency: 'medium',
+                    clientDetails: {
+                        name: 'WebDebug Test',
+                        phoneNumber: '0712345678',
+                        email: 'webdebug@example.com'
+                    },
+                    location: {
+                        city: 'Nairobi',
+                        county: 'Nairobi',
+                        constituency: 'Westlands', 
+                        ward: 'Kitisuru',
+                        road: 'Debug Avenue',
+                        preciseLocation: 'Near debug landmark'
+                    },
+                    scheduling: {
+                        preferredDate: tomorrow.toISOString().split('T')[0],
+                        preferredTimeSlot: {
+                            start: '10:00',
+                            end: '12:00'
+                        }
+                    }
+                };
+                
+                const response = await fetch(`${API_BASE}/bookings`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': `Bearer ${currentToken}`
+                    },
+                    body: JSON.stringify(bookingData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log('booking-result', '✅ Booking creation successful!', 'success');
+                    logObject('booking-result', {
+                        bookingId: data.data.bookingId,
+                        serviceId: data.data.serviceId,
+                        status: data.data.status
+                    }, 'success');
+                } else {
+                    log('booking-result', '❌ Booking creation failed!', 'error');
+                    logObject('booking-result', data, 'error');
+                }
+            } catch (error) {
+                log('booking-result', '❌ Booking creation error!', 'error');
+                logObject('booking-result', { error: error.message }, 'error');
+            }
+        }
+
+        // Auto-run health check on page load
+        window.onload = function() {
+            testHealth();
+        };
+    </script>
+</body>
+</html>

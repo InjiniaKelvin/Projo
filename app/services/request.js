@@ -1,92 +1,40 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
 import {
-    Alert,
     ScrollView,
     StyleSheet,
     Text,
-    TextInput,
     TouchableOpacity,
     View
 } from 'react-native';
-import { useAuth } from '../../contexts/SimpleAuthContext';
 
 export default function ServiceRequestScreen() {
-  const { user } = useAuth();
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    serviceType: '',
-    description: '',
-    location: '',
-    urgency: 'normal',
-    preferredDate: '',
-    preferredTime: '',
-    budget: ''
-  });
 
   const serviceTypes = [
-    { id: 'plumbing', name: 'Plumbing', icon: 'water-outline' },
-    { id: 'electrical', name: 'Electrical', icon: 'flash-outline' },
-    { id: 'hvac', name: 'HVAC', icon: 'thermometer-outline' },
-    { id: 'appliance', name: 'Appliance Repair', icon: 'construct-outline' },
-    { id: 'cleaning', name: 'Cleaning', icon: 'sparkles-outline' },
-    { id: 'carpentry', name: 'Carpentry', icon: 'hammer-outline' },
-    { id: 'painting', name: 'Painting', icon: 'brush-outline' },
-    { id: 'gardening', name: 'Gardening', icon: 'leaf-outline' },
+    { id: 'plumbing', name: 'Plumbing', icon: 'water-outline', category: 'plumbing', description: 'Pipe repairs, leaks, installations' },
+    { id: 'electrical', name: 'Electrical', icon: 'flash-outline', category: 'electrical', description: 'Wiring, outlets, electrical repairs' },
+    { id: 'hvac', name: 'HVAC', icon: 'thermometer-outline', category: 'air_conditioning', description: 'Heating, ventilation, air conditioning' },
+    { id: 'appliance', name: 'Appliance Repair', icon: 'construct-outline', category: 'appliance_repair', description: 'Fix household appliances' },
+    { id: 'cleaning', name: 'Cleaning', icon: 'sparkles-outline', category: 'cleaning', description: 'House cleaning, deep cleaning' },
+    { id: 'carpentry', name: 'Carpentry', icon: 'hammer-outline', category: 'carpentry', description: 'Wood work, furniture repair' },
+    { id: 'painting', name: 'Painting', icon: 'brush-outline', category: 'painting', description: 'Interior and exterior painting' },
+    { id: 'gardening', name: 'Gardening', icon: 'leaf-outline', category: 'gardening', description: 'Lawn care, landscaping' },
   ];
 
-  const urgencyLevels = [
-    { id: 'low', name: 'Low', color: '#198754', description: 'Within a week' },
-    { id: 'normal', name: 'Normal', color: '#0d6efd', description: 'Within 2-3 days' },
-    { id: 'high', name: 'High', color: '#fd7e14', description: 'Within 24 hours' },
-    { id: 'urgent', name: 'Urgent', color: '#dc3545', description: 'ASAP' },
-  ];
-
-  const handleServiceTypeSelect = (serviceType) => {
-    setFormData(prev => ({ ...prev, serviceType }));
-  };
-
-  const handleUrgencySelect = (urgency) => {
-    setFormData(prev => ({ ...prev, urgency }));
-  };
-
-  const handleSubmit = async () => {
-    if (!formData.serviceType) {
-      Alert.alert('Error', 'Please select a service type');
-      return;
-    }
-    if (!formData.description.trim()) {
-      Alert.alert('Error', 'Please describe your service request');
-      return;
-    }
-    if (!formData.location.trim()) {
-      Alert.alert('Error', 'Please provide your location');
-      return;
-    }
-
-    setLoading(true);
-    
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      Alert.alert(
-        'Request Submitted!',
-        'Your service request has been submitted. You will receive notifications when technicians respond.',
-        [
-          {
-            text: 'OK',
-            onPress: () => router.back()
-          }
-        ]
-      );
-    } catch (error) {
-      Alert.alert('Error', 'Failed to submit request. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+  const handleServiceTypeSelect = (service) => {
+    // Redirect to the main booking flow with service data
+    router.push({
+      pathname: '/booking/details',
+      params: {
+        serviceData: JSON.stringify({
+          id: service.id,
+          name: service.name,
+          description: service.description,
+          category: service.category
+        })
+      }
+    });
   };
 
   return (
@@ -96,141 +44,53 @@ export default function ServiceRequestScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Request Service</Text>
+        <Text style={styles.headerTitle}>Select Service</Text>
         <View style={styles.placeholder} />
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Service Type Selection */}
+        {/* Service Types */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>What service do you need?</Text>
+          <Text style={styles.sectionSubtitle}>Select a service to continue with booking</Text>
+          
           <View style={styles.serviceGrid}>
             {serviceTypes.map((service) => (
               <TouchableOpacity
                 key={service.id}
-                style={[
-                  styles.serviceCard,
-                  formData.serviceType === service.id && styles.selectedServiceCard
-                ]}
-                onPress={() => handleServiceTypeSelect(service.id)}
+                style={styles.serviceCard}
+                onPress={() => handleServiceTypeSelect(service)}
               >
-                <Ionicons 
-                  name={service.icon} 
-                  size={24} 
-                  color={formData.serviceType === service.id ? '#fff' : '#0d6efd'} 
-                />
-                <Text style={[
-                  styles.serviceCardText,
-                  formData.serviceType === service.id && styles.selectedServiceCardText
-                ]}>
-                  {service.name}
-                </Text>
+                <View style={styles.serviceIconContainer}>
+                  <Ionicons name={service.icon} size={32} color="#007AFF" />
+                </View>
+                <Text style={styles.serviceName}>{service.name}</Text>
+                <Text style={styles.serviceDescription}>{service.description}</Text>
+                <View style={styles.serviceAction}>
+                  <Text style={styles.serviceActionText}>Book Now</Text>
+                  <Ionicons name="arrow-forward" size={16} color="#007AFF" />
+                </View>
               </TouchableOpacity>
             ))}
           </View>
         </View>
 
-        {/* Description */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Describe your problem</Text>
-          <TextInput
-            style={styles.textArea}
-            value={formData.description}
-            onChangeText={(text) => setFormData(prev => ({ ...prev, description: text }))}
-            placeholder="Please describe what needs to be fixed or done..."
-            multiline
-            numberOfLines={4}
-            maxLength={500}
-          />
-          <Text style={styles.charCount}>{formData.description.length}/500</Text>
-        </View>
-
-        {/* Location */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Your location</Text>
-          <TextInput
-            style={styles.textInput}
-            value={formData.location}
-            onChangeText={(text) => setFormData(prev => ({ ...prev, location: text }))}
-            placeholder="Enter your address or area..."
-          />
-        </View>
-
-        {/* Urgency Level */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>How urgent is this?</Text>
-          <View style={styles.urgencyContainer}>
-            {urgencyLevels.map((level) => (
-              <TouchableOpacity
-                key={level.id}
-                style={[
-                  styles.urgencyCard,
-                  formData.urgency === level.id && styles.selectedUrgencyCard,
-                  { borderColor: level.color }
-                ]}
-                onPress={() => handleUrgencySelect(level.id)}
-              >
-                <Text style={[
-                  styles.urgencyName,
-                  { color: level.color },
-                  formData.urgency === level.id && styles.selectedUrgencyName
-                ]}>
-                  {level.name}
-                </Text>
-                <Text style={[
-                  styles.urgencyDescription,
-                  formData.urgency === level.id && styles.selectedUrgencyDescription
-                ]}>
-                  {level.description}
-                </Text>
-              </TouchableOpacity>
-            ))}
+        {/* Emergency Services Note */}
+        <View style={styles.emergencyNote}>
+          <Ionicons name="warning-outline" size={24} color="#dc3545" />
+          <View style={styles.emergencyTextContainer}>
+            <Text style={styles.emergencyTitle}>Need Emergency Service?</Text>
+            <Text style={styles.emergencyDescription}>
+              For urgent repairs and emergencies, visit our Emergency Services section for faster response times.
+            </Text>
+            <TouchableOpacity 
+              style={styles.emergencyButton}
+              onPress={() => router.push('/booking/emergency-services')}
+            >
+              <Text style={styles.emergencyButtonText}>Emergency Services</Text>
+            </TouchableOpacity>
           </View>
         </View>
-
-        {/* Preferred Date & Time */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Preferred schedule (optional)</Text>
-          <View style={styles.scheduleContainer}>
-            <TextInput
-              style={[styles.textInput, styles.scheduleInput]}
-              value={formData.preferredDate}
-              onChangeText={(text) => setFormData(prev => ({ ...prev, preferredDate: text }))}
-              placeholder="Date (YYYY-MM-DD)"
-            />
-            <TextInput
-              style={[styles.textInput, styles.scheduleInput]}
-              value={formData.preferredTime}
-              onChangeText={(text) => setFormData(prev => ({ ...prev, preferredTime: text }))}
-              placeholder="Time (HH:MM)"
-            />
-          </View>
-        </View>
-
-        {/* Budget */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Estimated budget (optional)</Text>
-          <TextInput
-            style={styles.textInput}
-            value={formData.budget}
-            onChangeText={(text) => setFormData(prev => ({ ...prev, budget: text }))}
-            placeholder="Budget in KSh"
-            keyboardType="numeric"
-          />
-        </View>
-
-        {/* Submit Button */}
-        <TouchableOpacity
-          style={[styles.submitButton, loading && styles.disabledButton]}
-          onPress={handleSubmit}
-          disabled={loading}
-        >
-          {loading ? (
-            <Text style={styles.submitButtonText}>Submitting...</Text>
-          ) : (
-            <Text style={styles.submitButtonText}>Submit Request</Text>
-          )}
-        </TouchableOpacity>
       </ScrollView>
     </View>
   );
@@ -239,41 +99,45 @@ export default function ServiceRequestScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#f5f5f5',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0d6efd',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    backgroundColor: '#007AFF',
     paddingTop: 50,
-    paddingBottom: 15,
-    paddingHorizontal: 15,
   },
   backButton: {
-    marginRight: 15,
+    padding: 5,
   },
   headerTitle: {
-    flex: 1,
     fontSize: 20,
     fontWeight: 'bold',
     color: '#fff',
-    textAlign: 'center',
   },
   placeholder: {
-    width: 39,
+    width: 34,
   },
   content: {
     flex: 1,
-    padding: 15,
+    padding: 20,
   },
   section: {
-    marginBottom: 25,
+    marginBottom: 30,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 22,
+    fontWeight: 'bold',
     color: '#333',
-    marginBottom: 15,
+    marginBottom: 8,
+  },
+  sectionSubtitle: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 20,
   },
   serviceGrid: {
     flexDirection: 'row',
@@ -281,107 +145,81 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   serviceCard: {
+    backgroundColor: 'white',
     width: '48%',
-    backgroundColor: '#fff',
-    padding: 15,
+    padding: 20,
     borderRadius: 12,
+    marginBottom: 15,
     alignItems: 'center',
-    marginBottom: 10,
-    borderWidth: 2,
-    borderColor: '#e9ecef',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  selectedServiceCard: {
-    backgroundColor: '#0d6efd',
-    borderColor: '#0d6efd',
+  serviceIconContainer: {
+    marginBottom: 12,
   },
-  serviceCardText: {
-    marginTop: 8,
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#333',
-    textAlign: 'center',
-  },
-  selectedServiceCardText: {
-    color: '#fff',
-  },
-  textArea: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#ced4da',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    textAlignVertical: 'top',
-    minHeight: 100,
-  },
-  textInput: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#ced4da',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-  },
-  charCount: {
-    textAlign: 'right',
-    fontSize: 12,
-    color: '#6c757d',
-    marginTop: 5,
-  },
-  urgencyContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  urgencyCard: {
-    width: '48%',
-    backgroundColor: '#fff',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 10,
-    borderWidth: 2,
-    alignItems: 'center',
-  },
-  selectedUrgencyCard: {
-    backgroundColor: '#f8f9fa',
-  },
-  urgencyName: {
+  serviceName: {
     fontSize: 16,
     fontWeight: '600',
-    marginBottom: 4,
-  },
-  selectedUrgencyName: {
     color: '#333',
-  },
-  urgencyDescription: {
-    fontSize: 12,
-    color: '#6c757d',
+    marginBottom: 8,
     textAlign: 'center',
   },
-  selectedUrgencyDescription: {
-    color: '#495057',
+  serviceDescription: {
+    fontSize: 12,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 12,
+    lineHeight: 16,
   },
-  scheduleContainer: {
+  serviceAction: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  scheduleInput: {
-    width: '48%',
-  },
-  submitButton: {
-    backgroundColor: '#0d6efd',
-    padding: 16,
-    borderRadius: 8,
     alignItems: 'center',
+    gap: 4,
+  },
+  serviceActionText: {
+    fontSize: 14,
+    color: '#007AFF',
+    fontWeight: '600',
+  },
+  emergencyNote: {
+    backgroundColor: '#fff5f5',
+    borderRadius: 12,
+    padding: 20,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    borderLeftWidth: 4,
+    borderLeftColor: '#dc3545',
     marginTop: 20,
-    marginBottom: 30,
   },
-  disabledButton: {
-    backgroundColor: '#6c757d',
+  emergencyTextContainer: {
+    flex: 1,
+    marginLeft: 15,
   },
-  submitButtonText: {
-    color: '#fff',
-    fontSize: 18,
+  emergencyTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#dc3545',
+    marginBottom: 8,
+  },
+  emergencyDescription: {
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 20,
+    marginBottom: 15,
+  },
+  emergencyButton: {
+    backgroundColor: '#dc3545',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+  },
+  emergencyButtonText: {
+    color: 'white',
+    fontSize: 14,
     fontWeight: '600',
   },
 });

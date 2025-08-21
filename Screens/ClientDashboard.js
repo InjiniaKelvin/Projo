@@ -7,32 +7,32 @@ import { useAuth } from '../contexts/SimpleAuthContext';
 export default function ClientDashboard() {
   const { user, logout } = useAuth();
   const router = useRouter();
-  const [stats, setStats] = useState({
+  const [stats] = useState({
     activeBookings: 0,
     completedBookings: 0,
     walletBalance: 0,
     pendingPayments: 0
   });
-  const [recentBookings, setRecentBookings] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [recentBookings] = useState([]);
+  const [isLoading] = useState(false);
 
   const handleNavigateToServiceRequest = () => {
-    console.log('🚀 Navigating to service request...');
+    console.log('� Navigating to regular services...');
     try {
-      router.push('/services/request');
+      router.push('/booking/regular-services');
     } catch (error) {
       console.error('Navigation error:', error);
-      Alert.alert('Navigation Error', 'Unable to navigate to service request. Feature coming soon.');
+      Alert.alert('Navigation Error', 'Unable to navigate to services. Please try again.');
     }
   };
 
   const handleNavigateToBookings = () => {
-    console.log('🚀 Navigating to bookings...');
+    console.log('� Navigating to booking tracking...');
     try {
-      router.push('/bookings');
+      router.push('/booking/tracking');
     } catch (error) {
       console.error('Navigation error:', error);
-      Alert.alert('Navigation Error', 'Unable to navigate to bookings. Feature coming soon.');
+      Alert.alert('Navigation Error', 'Unable to navigate to bookings. Please try again.');
     }
   };
 
@@ -57,12 +57,12 @@ export default function ClientDashboard() {
   };
 
   const handleNavigateToEmergency = () => {
-    console.log('🚀 Navigating to emergency service...');
+    console.log('� Navigating to emergency services...');
     try {
-      router.push('/services/emergency');
+      router.push('/booking/emergency-services');
     } catch (error) {
       console.error('Navigation error:', error);
-      Alert.alert('Emergency Service', 'Emergency service feature is being developed. For urgent issues, please call emergency services.');
+      Alert.alert('Navigation Error', 'Unable to navigate to emergency services. Please try again.');
     }
   };
 

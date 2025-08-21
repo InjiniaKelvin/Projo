@@ -1,0 +1,136 @@
+10:58:46.868 detox[87107] [90mB[39m node_modules/.bin/detox test --configuration ios.sim.debug
+  data: {
+    "id": "691e5931-5705-7a00-a9a6-dbdc0ddc6e4c",
+    "detoxConfig": {
+      "configurationName": "ios.sim.debug",
+      "apps": {
+        "default": {
+          "type": "ios.app",
+          "binaryPath": "ios/build/Build/Products/Debug-iphonesimulator/Projo.app",
+          "build": "xcodebuild -workspace ios/Projo.xcworkspace -scheme Projo -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build"
+        }
+      },
+      "artifacts": {
+        "rootDir": "e2e/artifacts/ios.sim.debug.2025-08-13 07-58-46Z",
+        "plugins": {
+          "log": {
+            "enabled": true,
+            "keepOnlyFailedTestsArtifacts": false
+          },
+          "screenshot": {
+            "enabled": true,
+            "shouldTakeAutomaticSnapshots": true,
+            "keepOnlyFailedTestsArtifacts": false,
+            "takeWhen": {
+              "testStart": false,
+              "testDone": true,
+              "testFailure": true
+            }
+          },
+          "video": {
+            "enabled": true,
+            "keepOnlyFailedTestsArtifacts": false,
+            "takeWhen": {
+              "testStart": false,
+              "testDone": true,
+              "testFailure": true
+            }
+          },
+          "instruments": {
+            "enabled": false,
+            "keepOnlyFailedTestsArtifacts": false
+          },
+          "uiHierarchy": {
+            "enabled": false,
+            "keepOnlyFailedTestsArtifacts": false
+          },
+          "timeline": {
+            "enabled": false
+          }
+        }
+      },
+      "behavior": {
+        "init": {
+          "keepLockFile": false,
+          "reinstallApp": true,
+          "exposeGlobals": false
+        },
+        "cleanup": {
+          "shutdownDevice": false
+        },
+        "launchApp": "auto"
+      },
+      "cli": {
+        "configuration": "ios.sim.debug",
+        "start": true
+      },
+      "commands": [
+        {
+          "appName": "default",
+          "build": "xcodebuild -workspace ios/Projo.xcworkspace -scheme Projo -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build"
+        }
+      ],
+      "device": {
+        "type": "ios.simulator",
+        "device": {
+          "type": "iPhone 15 Pro"
+        }
+      },
+      "logger": {
+        "level": "info",
+        "overrideConsole": true,
+        "options": {
+          "showLoggerName": true,
+          "showPid": true,
+          "showLevel": false,
+          "showMetadata": false,
+          "basepath": "/home/engkejumwa/Desktop/PROJO12/Projo/node_modules/detox/src",
+          "prefixers": {},
+          "stringifiers": {}
+        }
+      },
+      "testRunner": {
+        "retries": 0,
+        "forwardEnv": false,
+        "detached": false,
+        "bail": false,
+        "noRetryArgs": [
+          "shard"
+        ],
+        "jest": {
+          "setupTimeout": 300000,
+          "teardownTimeout": 30000,
+          "retryAfterCircusRetries": false,
+          "reportWorkerAssign": true,
+          "setupFilesAfterEnv": [
+            "./e2e/init.js"
+          ]
+        },
+        "args": {
+          "$0": "jest",
+          "_": [],
+          "config": "e2e/jest.config.js",
+          "--": []
+        }
+      },
+      "session": {
+        "autoStart": true,
+        "debugSynchronization": 10000
+      }
+    },
+    "detoxIPCServer": "primary-87107",
+    "testResults": [],
+    "testSessionIndex": 0,
+    "workersCount": 0
+  }
+10:58:46.937 detox[87107] [90mi[39m Server path not specified, so defaulting to ipc.config.socketRoot + ipc.config.appspace + ipc.config.id /tmp/detox.primary-87107
+10:58:46.944 detox[87107] [90mi[39m starting server on  /tmp/detox.primary-87107 
+10:58:46.944 detox[87107] [90mi[39m starting TLS server false
+10:58:46.945 detox[87107] [90mi[39m starting server as Unix || Windows Socket
+10:58:46.983 detox[87107] [90mi[39m Detox server listening on localhost:39791...
+10:58:47.022 detox[87107] [90mi[39m Serialized the session state at: /tmp/691e5931-5705-7a00-a9a6-dbdc0ddc6e4c.detox.json
+10:58:47.031 detox[87107] [90mB[39m jest --config e2e/jest.config.js
+10:58:56.063 detox[87107] [90mE[39m Command failed with exit code = 1:
+jest --config e2e/jest.config.js
+10:58:56.119 detox[87107] [90mi[39m Detox server has been closed gracefully
+10:58:56.126 detox[87107] [90mE[39m node_modules/.bin/detox test --configuration ios.sim.debug

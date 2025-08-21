@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
     FlatList,
     RefreshControl,
@@ -10,53 +10,69 @@ import {
     View
 } from 'react-native';
 import { useAuth } from '../contexts/SimpleAuthContext';
+import apiClient from '../config/api';
 
 export default function BookingsScreen() {
   const { user } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('active'); // 'active', 'completed', 'cancelled'
   const [refreshing, setRefreshing] = useState(false);
-  
-  // Mock data - in a real app, this would come from an API
-  const [bookings] = useState([
-    {
-      id: '1',
-      service: 'Plumbing Repair',
-      technician: 'John Doe',
-      date: '2024-01-15',
-      time: '10:00 AM',
-      status: 'active',
-      location: 'Nairobi, Kenya',
-      amount: 2500,
-    },
-    {
-      id: '2',
-      service: 'AC Installation',
-      technician: 'Jane Smith',
-      date: '2024-01-10',
-      time: '2:00 PM',
-      status: 'completed',
-      location: 'Mombasa, Kenya',
-      amount: 8000,
-    },
-    {
-      id: '3',
-      service: 'Electrical Wiring',
-      technician: 'Mike Johnson',
-      date: '2024-01-05',
-      time: '9:00 AM',
-      status: 'cancelled',
-      location: 'Kisumu, Kenya',
-      amount: 5500,
-    },
-  ]);
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const onRefresh = () => {
+  // Fetch bookings from API
+  const fetchBookings = useCallback(async () => {
+    if (!user?.phoneNumber) {
+      console.log('📱 No phone number available for user');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      console.log('📱 Fetching bookings for phone:', user.phoneNumber);
+      const response = await apiClient.get(`/bookings/phone/${user.phoneNumber}`);
+      
+      if (response.data.success) {
+        const apiBookings = response.data.data.map(booking => ({
+          id: booking._id,
+          service: booking.serviceCategory || 'Service',
+          technician: booking.technicianName || 'Technician TBD',
+          date: new Date(booking.preferredDate).toLocaleDateString(),
+          time: booking.preferredTime || 'TBD',
+          status: booking.status,
+          location: `${booking.location?.area || ''}, ${booking.location?.city || ''}`.trim().replace(/^,\s*/, ''),
+          amount: booking.estimatedCost || 0,
+          phone: booking.clientPhone,
+          description: booking.description
+        }));
+        
+        setBookings(apiBookings);
+        console.log(`📱 Successfully fetched ${apiBookings.length} bookings`);
+      } else {
+        console.error('❌ Failed to fetch bookings:', response.data.message);
+        setBookings([]);
+      }
+    } catch (error) {
+      console.error('❌ Error fetching bookings:', error);
+      // If it's a 404 or network error, just show empty state
+      setBookings([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [user?.phoneNumber]);
+
+  useEffect(() => {
+    if (user?.phoneNumber) {
+      fetchBookings();
+    } else {
+      setLoading(false);
+    }
+  }, [user?.phoneNumber, fetchBookings]);
+
+  const onRefresh = async () => {
     setRefreshing(true);
-    // Simulate API call
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 2000);
+    await fetchBookings();
+    setRefreshing(false);
   };
 
   const getFilteredBookings = () => {
@@ -129,26 +145,38 @@ export default function BookingsScreen() {
     </View>
   );
 
-  const renderEmptyState = () => (
-    <View style={styles.emptyState}>
-      <Ionicons name="clipboard-outline" size={64} color="#6c757d" />
-      <Text style={styles.emptyTitle}>No {activeTab} bookings</Text>
-      <Text style={styles.emptySubtitle}>
-        {activeTab === 'active' 
-          ? 'Book a service to see your active bookings here'
-          : `You don't have any ${activeTab} bookings yet`
-        }
-      </Text>
-      {activeTab === 'active' && (
-        <TouchableOpacity 
-          style={styles.createBookingButton}
-          onPress={() => router.push('/services/request')}
-        >
-          <Text style={styles.createBookingText}>Find a Technician</Text>
-        </TouchableOpacity>
-      )}
-    </View>
-  );
+  const renderEmptyState = () => {
+    if (loading) {
+      return (
+        <View style={styles.emptyState}>
+          <Ionicons name="refresh-outline" size={64} color="#6c757d" />
+          <Text style={styles.emptyTitle}>Loading your bookings...</Text>
+          <Text style={styles.emptySubtitle}>Please wait while we fetch your booking history</Text>
+        </View>
+      );
+    }
+
+    return (
+      <View style={styles.emptyState}>
+        <Ionicons name="clipboard-outline" size={64} color="#6c757d" />
+        <Text style={styles.emptyTitle}>No {activeTab} bookings</Text>
+        <Text style={styles.emptySubtitle}>
+          {activeTab === 'active' 
+            ? 'Book a service to see your active bookings here'
+            : `You don't have any ${activeTab} bookings yet`
+          }
+        </Text>
+        {activeTab === 'active' && (
+          <TouchableOpacity 
+            style={styles.createBookingButton}
+            onPress={() => router.push('/services/request')}
+          >
+            <Text style={styles.createBookingText}>Book a Service</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
