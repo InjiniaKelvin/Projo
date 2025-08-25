@@ -16,6 +16,39 @@ export default function ClientDashboard() {
   const [recentBookings] = useState([]);
   const [isLoading] = useState(false);
 
+  // Time-based greeting function with QuickFix creativity
+  const getTimeBasedGreeting = () => {
+    const hour = new Date().getHours();
+    const name = user?.firstName || user?.name || user?.email?.split('@')[0] || 'Guest';
+    
+    // 12:00 AM to 11:59 AM - Good Morning
+    if (hour >= 0 && hour < 12) {
+      return `Good morning, ${name}! ☀️ Ready to fix your day?`;
+    } 
+    // 12:01 PM to 3:59 PM - Good Afternoon
+    else if (hour >= 12 && hour < 16) {
+      return `Good afternoon, ${name}! 🌤️ Let's get things done!`;
+    } 
+    // 4:00 PM to 9:59 PM - Good Evening
+    else if (hour >= 16 && hour < 22) {
+      return `Good evening, ${name}! 🌙 Time to wrap up the day!`;
+    } 
+    // 10:00 PM to 11:59 PM - Late Night QuickFix Quote
+    else {
+      const lateNightQuotes = [
+        `"Great fixes happen when others sleep!" 🌟 Keep going, ${name}!`,
+        `"Night owls get the best solutions!" 🦉 Working late, ${name}?`,
+        `"QuickFix never sleeps when you need us!" ⚡ Evening, ${name}!`,
+        `"Burning the midnight oil? We're here to help!" 🕯️ Hi ${name}!`,
+        `"Late night? Perfect time for planning tomorrow's fixes!" 🌙 Hello ${name}!`
+      ];
+      
+      // Rotate quotes based on the day to keep it fresh
+      const quoteIndex = new Date().getDate() % lateNightQuotes.length;
+      return lateNightQuotes[quoteIndex];
+    }
+  };
+
   const handleNavigateToServiceRequest = () => {
     console.log('� Navigating to regular services...');
     try {
@@ -171,7 +204,7 @@ export default function ClientDashboard() {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.welcomeSection}>
-          <Text style={styles.welcomeText}>Welcome back!</Text>
+          <Text style={styles.welcomeText}>{getTimeBasedGreeting()}</Text>
           <Text style={styles.userName}>{user?.firstName} {user?.lastName}</Text>
           <Text style={styles.userRole}>Client Account</Text>
         </View>

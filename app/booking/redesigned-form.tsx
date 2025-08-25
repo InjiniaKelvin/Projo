@@ -10,11 +10,12 @@
 
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
-import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
 import {
     ActivityIndicator,
     Alert,
+    Platform,
     ScrollView,
     StyleSheet,
     Text,
@@ -22,7 +23,9 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
-import { simpleNairobiLocations } from '../../data/simpleLocations';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { completeNairobiLocations } from '../../data/completeNairobiLocations';
+import { useAuth } from '../../contexts/SimpleAuthContext';
 
 // TYPE DEFINITIONS
 interface LocationData {
@@ -36,6 +39,7 @@ interface LocationData {
 interface BookingFormData {
   clientName: string;
   clientPhone: string;
+  clientPhone2?: string; // Optional alternate phone number
   clientEmail: string;
   serviceType: string;
   serviceDescription: string;
@@ -44,16 +48,6 @@ interface BookingFormData {
   preferredDate: string;
   preferredTimeSlot: string;
   specialRequirements: string;
-}
-
-interface NairobiWard {
-  name: string;
-  roads: string[];
-}
-
-interface NairobiConstituency {
-  name: string;
-  wards: NairobiWard[];
 }
 
 // SERVICE TYPES - MATCHING BACKEND EXACTLY
@@ -84,15 +78,10 @@ const TIME_SLOTS = [
   { value: 'flexible', label: 'Flexible' }
 ];
 
-// URGENCY LEVELS - MATCHING BACKEND EXACTLY
-const URGENCY_LEVELS = [
-  { value: 'normal', label: 'Normal' },
-  { value: 'urgent', label: 'Urgent' },
-  { value: 'emergency', label: 'Emergency' }
-];
-
 export default function RedesignedBookingForm() {
   const router = useRouter();
+  const params = useLocalSearchParams();
+  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   // BOOKING DATA - MATCHING BACKEND STRUCTURE EXACTLY
@@ -100,6 +89,7 @@ export default function RedesignedBookingForm() {
     // CLIENT DETAILS
     clientName: '',
     clientPhone: '',
+    clientPhone2: '', // Optional alternate phone
     clientEmail: '',
     
     // SERVICE DETAILS
@@ -126,7 +116,47 @@ export default function RedesignedBookingForm() {
   
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [selectedConstituency, setSelectedConstituency] = useState<string>('');
-  const [availableWards, setAvailableWards] = useState<NairobiWard[]>([]);
+  const [availableWards, setAvailableWards] = useState<any[]>([]);
+  const [availableRoads, setAvailableRoads] = useState<string[]>([]);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
+  // Handle booking parameters from navigation (both emergency and regular)
+  useEffect(() => {
+    if (params) {
+      console.log('📋 Loading booking form with params:', params);
+      setBookingData(prev => ({
+        ...prev,
+        serviceType: params.serviceType as string || '',
+        // DO NOT autopopulate serviceDescription - let user input it manually
+        urgency: params.isEmergency === 'true' ? 'emergency' : 'normal',
+        // DO NOT autopopulate specialRequirements from params
+      }));
+    }
+  }, [params]);
+
+  // Auto-populate user data when user context is available
+  useEffect(() => {
+    if (user) {
+      console.log('📋 Auto-populating user data:', user);
+      setBookingData(prev => ({
+        ...prev,
+        clientName: user.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : user.name || '',
+        clientPhone: user.phoneNumber || '',
+        clientEmail: user.email || ''
+      }));
+    }
+  }, [user]);
+
+  // Handle date selection
+  const handleDateChange = (event: any, date?: Date) => {
+    setShowDatePicker(false); // Always close on selection
+    if (date) {
+      setSelectedDate(date);
+      const formattedDate = date.toISOString().split('T')[0]; // YYYY-MM-DD format
+      setBookingData(prev => ({ ...prev, preferredDate: formattedDate }));
+    }
+  };
 
   /**
    * HANDLE CONSTITUENCY CHANGE
@@ -139,12 +169,35 @@ export default function RedesignedBookingForm() {
         ...prev.location,
         constituency,
         ward: '', // Reset ward when constituency changes
+        road: '' // Reset road when constituency changes
       }
     }));
     
-    // Get wards for selected constituency
-    const constituencyData = simpleNairobiLocations.constituencies.find((c: NairobiConstituency) => c.name === constituency);
+    // Get wards for selected constituency using the new complete data
+    const constituencyData = completeNairobiLocations.find(c => c.name === constituency);
     setAvailableWards(constituencyData ? constituencyData.wards : []);
+    setAvailableRoads([]);
+  };
+
+  /**
+   * HANDLE WARD CHANGE
+   */
+  const handleWardChange = (ward: string) => {
+    setBookingData(prev => ({
+      ...prev,
+      location: {
+        ...prev.location,
+        ward,
+        road: '' // Reset road when ward changes
+      }
+    }));
+    
+    // Get roads for selected ward
+    const constituencyData = completeNairobiLocations.find(c => c.name === selectedConstituency);
+    if (constituencyData) {
+      const wardData = constituencyData.wards.find(w => w.name === ward);
+      setAvailableRoads(wardData ? wardData.roads : []);
+    }
   };
 
   /**
@@ -211,6 +264,24 @@ export default function RedesignedBookingForm() {
     
     if (!bookingData.preferredTimeSlot) {
       newErrors.preferredTimeSlot = 'Time slot is required';
+    } else if (bookingData.preferredDate && bookingData.preferredTimeSlot) {
+      // Enhanced time validation - 2-hour minimum advance booking
+      const prefDate = new Date(bookingData.preferredDate);
+      const now = new Date();
+      
+      // Parse time slot (format: "09:00-12:00", "14:00-17:00", etc.)
+      const timeSlotMatch = bookingData.preferredTimeSlot.match(/(\d{2}):(\d{2})/);
+      if (timeSlotMatch) {
+        const [, hours, minutes] = timeSlotMatch;
+        prefDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+        
+        // Calculate minimum booking time (2 hours from now)
+        const minimumBookingTime = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+        
+        if (prefDate < minimumBookingTime && bookingData.urgency !== 'emergency') {
+          newErrors.preferredTimeSlot = 'Regular bookings must be scheduled at least 2 hours in advance. For urgent needs, please select emergency booking.';
+        }
+      }
     }
     
     setErrors(newErrors);
@@ -229,7 +300,7 @@ export default function RedesignedBookingForm() {
     setIsSubmitting(true);
     
     try {
-      const response = await fetch('http://localhost:3000/api/bookings/redesigned', {
+      const response = await fetch('http://localhost:3000/api/bookings-redesigned', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -330,6 +401,21 @@ export default function RedesignedBookingForm() {
         </View>
         
         <View style={styles.inputGroup}>
+          <Text style={styles.label}>Alternate Phone Number (Optional)</Text>
+          <TextInput
+            style={styles.input}
+            value={bookingData.clientPhone2 || ''}
+            onChangeText={(text) => {
+              const formatted = formatPhoneNumber(text);
+              setBookingData(prev => ({ ...prev, clientPhone2: formatted }));
+            }}
+            placeholder="0722 123 456 (Optional backup number)"
+            placeholderTextColor="#999"
+            keyboardType="phone-pad"
+          />
+        </View>
+        
+        <View style={styles.inputGroup}>
           <Text style={styles.label}>Email (Optional)</Text>
           <TextInput
             style={[styles.input, errors.clientEmail && styles.inputError]}
@@ -379,21 +465,6 @@ export default function RedesignedBookingForm() {
           />
           {errors.serviceDescription && <Text style={styles.errorText}>{errors.serviceDescription}</Text>}
         </View>
-        
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Urgency Level</Text>
-          <View style={styles.pickerContainer}>
-            <Picker
-              selectedValue={bookingData.urgency}
-              onValueChange={(value) => setBookingData(prev => ({ ...prev, urgency: value }))}
-              style={styles.picker}
-            >
-              {URGENCY_LEVELS.map(level => (
-                <Picker.Item key={level.value} label={level.label} value={level.value} />
-              ))}
-            </Picker>
-          </View>
-        </View>
       </View>
 
       {/* LOCATION */}
@@ -409,7 +480,7 @@ export default function RedesignedBookingForm() {
               style={styles.picker}
             >
               <Picker.Item label="Select constituency" value="" />
-              {simpleNairobiLocations.constituencies.map((constituency: NairobiConstituency) => (
+              {completeNairobiLocations.map((constituency) => (
                 <Picker.Item 
                   key={constituency.name} 
                   label={constituency.name} 
@@ -426,15 +497,12 @@ export default function RedesignedBookingForm() {
           <View style={[styles.pickerContainer, errors.ward && styles.inputError]}>
             <Picker
               selectedValue={bookingData.location.ward}
-              onValueChange={(value) => setBookingData(prev => ({
-                ...prev,
-                location: { ...prev.location, ward: value }
-              }))}
+              onValueChange={handleWardChange}
               style={styles.picker}
               enabled={availableWards.length > 0}
             >
               <Picker.Item label="Select ward" value="" />
-              {availableWards.map((ward: NairobiWard) => (
+              {availableWards.map((ward: any) => (
                 <Picker.Item key={ward.name} label={ward.name} value={ward.name} />
               ))}
             </Picker>
@@ -444,16 +512,22 @@ export default function RedesignedBookingForm() {
         
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Road/Street *</Text>
-          <TextInput
-            style={[styles.input, errors.road && styles.inputError]}
-            value={bookingData.location.road}
-            onChangeText={(text) => setBookingData(prev => ({
-              ...prev,
-              location: { ...prev.location, road: text }
-            }))}
-            placeholder="Enter road or street name"
-            placeholderTextColor="#999"
-          />
+          <View style={[styles.pickerContainer, errors.road && styles.inputError]}>
+            <Picker
+              selectedValue={bookingData.location.road}
+              onValueChange={(road) => setBookingData(prev => ({
+                ...prev,
+                location: { ...prev.location, road }
+              }))}
+              style={styles.picker}
+              enabled={availableRoads.length > 0}
+            >
+              <Picker.Item label={availableRoads.length > 0 ? "Select road" : "Select ward first"} value="" />
+              {availableRoads.map((road: string) => (
+                <Picker.Item key={road} label={road} value={road} />
+              ))}
+            </Picker>
+          </View>
           {errors.road && <Text style={styles.errorText}>{errors.road}</Text>}
         </View>
         
@@ -496,13 +570,46 @@ export default function RedesignedBookingForm() {
         
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Preferred Date *</Text>
-          <TextInput
-            style={[styles.input, errors.preferredDate && styles.inputError]}
-            value={bookingData.preferredDate}
-            onChangeText={(text) => setBookingData(prev => ({ ...prev, preferredDate: text }))}
-            placeholder="YYYY-MM-DD (e.g., 2024-12-25)"
-            placeholderTextColor="#999"
-          />
+          {Platform.OS === 'web' ? (
+            <View style={[styles.datePickerButton, errors.preferredDate && styles.inputError]}>
+              <Ionicons name="calendar-outline" size={20} color="#666" />
+              <input
+                type="date"
+                style={{
+                  fontSize: 16,
+                  color: '#333',
+                  flex: 1,
+                  border: 'none',
+                  outline: 'none',
+                  backgroundColor: 'transparent',
+                  fontFamily: 'inherit'
+                }}
+                value={bookingData.preferredDate}
+                onChange={(e) => setBookingData(prev => ({ ...prev, preferredDate: e.target.value }))}
+              />
+            </View>
+          ) : (
+            <>
+              <TouchableOpacity 
+                style={[styles.datePickerButton, errors.preferredDate && styles.inputError]}
+                onPress={() => setShowDatePicker(true)}
+              >
+                <Ionicons name="calendar-outline" size={20} color="#666" />
+                <Text style={styles.datePickerText}>
+                  {bookingData.preferredDate || 'Select preferred date'}
+                </Text>
+              </TouchableOpacity>
+              {showDatePicker && (
+                <DateTimePicker
+                  value={selectedDate}
+                  mode="date"
+                  display="default"
+                  minimumDate={new Date()}
+                  onChange={handleDateChange}
+                />
+              )}
+            </>
+          )}
           {errors.preferredDate && <Text style={styles.errorText}>{errors.preferredDate}</Text>}
         </View>
         
@@ -638,6 +745,28 @@ const styles = StyleSheet.create({
   },
   picker: {
     height: 50,
+  },
+  datePickerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 12,
+    backgroundColor: '#fff',
+    gap: 10,
+  },
+  datePickerText: {
+    fontSize: 16,
+    color: '#333',
+    flex: 1,
+  },
+  dateInputWeb: {
+    fontSize: 16,
+    color: '#333',
+    flex: 1,
+    borderWidth: 0,
+    backgroundColor: 'transparent',
   },
   inputError: {
     borderColor: '#ff4444',

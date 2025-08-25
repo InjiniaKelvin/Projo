@@ -78,6 +78,28 @@ const TIME_SLOTS = [
   { value: 'flexible', label: 'Flexible', type: 'normal' }
 ];
 
+// Helper function to provide context-aware placeholder text
+const getServiceDescriptionPlaceholder = (serviceType: string): string => {
+  const placeholders: Record<string, string> = {
+    'plumbing': 'Describe your plumbing issue in detail. For example: "Kitchen sink tap is leaking from the base, needs washer replacement" or "Toilet won\'t flush properly, handle seems loose"',
+    'electrical': 'Describe your electrical issue. For example: "Need to install new power outlet in bedroom for TV" or "Circuit breaker keeps tripping in kitchen area"',
+    'carpentry': 'Describe your carpentry needs. For example: "Custom kitchen cabinet doors need repair, hinges are broken" or "Install floating shelves in living room"',
+    'painting': 'Describe your painting project. For example: "Paint interior walls of bedroom, need primer and 2 coats" or "Touch up exterior house paint on front wall"',
+    'cleaning': 'Describe your cleaning requirements. For example: "Deep clean entire house including carpets and windows" or "Post-construction cleanup needed"',
+    'appliance_repair': 'Describe your appliance issue. For example: "Washing machine won\'t spin, makes loud noise during cycle" or "Refrigerator not cooling properly"',
+    'air_conditioning': 'Describe your AC/HVAC issue. For example: "Air conditioner not cooling, seems to be low on refrigerant" or "Install new split unit AC in master bedroom"',
+    'roofing': 'Describe your roofing needs. For example: "Roof leaking during rain, tiles appear damaged on east side" or "Gutter cleaning and minor repairs needed"',
+    'gardening': 'Describe your gardening needs. For example: "Lawn mowing and hedge trimming for front and back yard" or "Plant flower beds and install irrigation"',
+    'pest_control': 'Describe your pest problem. For example: "Ant infestation in kitchen area, need treatment and prevention" or "Termite inspection and treatment required"',
+    'security_systems': 'Describe your security needs. For example: "Install CCTV cameras around property perimeter" or "Repair existing alarm system, sensors not working"',
+    'solar_installation': 'Describe your solar project. For example: "Install solar panels on roof for home electricity" or "Solar water heater installation needed"',
+    'general_maintenance': 'Describe your maintenance needs. For example: "Fix squeaky door hinges and replace broken window latch" or "General home inspection and minor repairs"',
+    'other': 'Describe exactly what work needs to be done. Please be as specific as possible about the issue, location, and any relevant details.'
+  };
+
+  return placeholders[serviceType] || 'Describe what specific work needs to be done. For example: "Fix leaking kitchen sink tap and replace worn-out washers" or "Install new electrical outlet in bedroom"';
+};
+
 export default function RedesignedBookingForm() {
   const router = useRouter();
   const params = useLocalSearchParams();
@@ -87,8 +109,40 @@ export default function RedesignedBookingForm() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [successData, setSuccessData] = useState<{bookingId: string, phone: string} | null>(null);
   
-  // Parse service data from params
+  // Parse service data from params - Handle both emergency and regular service formats
   const serviceData = params.serviceData ? JSON.parse(params.serviceData as string) : null;
+  
+  // Handle emergency service parameters (individual params) - only if isEmergency is explicitly true
+  const emergencyServiceData = (params.isEmergency === 'true' && params.serviceId) ? {
+    id: params.serviceId as string,
+    name: params.serviceName as string,
+    description: params.serviceDescription as string,
+    category: params.category as string,
+    responseTime: params.responseTime as string,
+    priceRange: params.priceRange as string,
+    urgencyLevel: params.urgencyLevel as string,
+    isEmergency: true
+  } : null;
+  
+  // Map emergency service categories to backend serviceType enum values
+  const mapEmergencyCategory = (category: string): string => {
+    const categoryMap: Record<string, string> = {
+      'Transport Emergency': 'general_maintenance',
+      'Home Emergency': 'general_maintenance', 
+      'Electrical Emergency': 'electrical',
+      'Plumbing Emergency': 'plumbing',
+      'Security Emergency': 'security_systems',
+      'Medical Emergency': 'other',
+      'Fire Emergency': 'other',
+      'Gas Emergency': 'appliance_repair',
+      'HVAC Emergency': 'air_conditioning',
+      'Business Emergency': 'general_maintenance'
+    };
+    return categoryMap[category] || 'other';
+  };
+  
+  // Use emergency data if available, otherwise use regular serviceData
+  const activeServiceData = emergencyServiceData || serviceData;
   
   // BOOKING DATA - AUTO-POPULATED WITH USER AND SERVICE DATA
   const [bookingData, setBookingData] = useState<BookingFormData>({
@@ -101,7 +155,7 @@ export default function RedesignedBookingForm() {
     communicationPhone: '',
     
     // SERVICE DETAILS - ONLY SERVICE TYPE AUTO-POPULATED
-    serviceType: serviceData?.category || '',
+    serviceType: activeServiceData?.category || '',
     serviceDescription: '', // User will write this manually
     urgency: 'normal',
     
@@ -133,14 +187,17 @@ export default function RedesignedBookingForm() {
       }));
     }
     
-    if (serviceData) {
+    if (activeServiceData) {
       setBookingData(prev => ({
         ...prev,
-        serviceType: serviceData.category || '',
-        // serviceDescription left empty for user to write manually
+        serviceType: activeServiceData.isEmergency 
+          ? mapEmergencyCategory(activeServiceData.category) 
+          : activeServiceData.category || '',
+        // serviceDescription: Leave empty for user to write manually
+        urgency: activeServiceData.isEmergency ? 'emergency' : 'normal'
       }));
     }
-  }, [user, serviceData]);
+  }, [user, activeServiceData]);
   
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [selectedConstituency, setSelectedConstituency] = useState<string>('');
@@ -395,13 +452,27 @@ export default function RedesignedBookingForm() {
               <View style={styles.receiptRow}>
                 <Text style={styles.receiptLabel}>Service Type:</Text>
                 <Text style={styles.receiptValue}>
-                  {SERVICE_TYPES.find(s => s.value === bookingData.serviceType)?.label || bookingData.serviceType}
+                  {activeServiceData?.name || SERVICE_TYPES.find(s => s.value === bookingData.serviceType)?.label || bookingData.serviceType}
                 </Text>
               </View>
               <View style={styles.receiptRow}>
                 <Text style={styles.receiptLabel}>Description:</Text>
                 <Text style={styles.receiptValue}>{bookingData.serviceDescription}</Text>
               </View>
+              {activeServiceData?.isEmergency && (
+                <>
+                  <View style={styles.receiptRow}>
+                    <Text style={styles.receiptLabel}>Response Time:</Text>
+                    <Text style={[styles.receiptValue, styles.emergencyText]}>
+                      ⚡ {activeServiceData.responseTime}
+                    </Text>
+                  </View>
+                  <View style={styles.receiptRow}>
+                    <Text style={styles.receiptLabel}>Price Range:</Text>
+                    <Text style={styles.receiptValue}>{activeServiceData.priceRange}</Text>
+                  </View>
+                </>
+              )}
               <View style={styles.receiptRow}>
                 <Text style={styles.receiptLabel}>Priority:</Text>
                 <Text style={[styles.receiptValue, 
@@ -572,6 +643,26 @@ export default function RedesignedBookingForm() {
             </Picker>
           </View>
           {errors.serviceType && <Text style={styles.errorText}>{errors.serviceType}</Text>}
+          
+          {/* Show selected service info if coming from service selection */}
+          {activeServiceData && (
+            <View style={styles.selectedServiceInfo}>
+              <Text style={styles.selectedServiceTitle}>
+                📋 Selected Service: {activeServiceData.name}
+              </Text>
+              <Text style={styles.selectedServiceDescription}>
+                {activeServiceData.description}
+              </Text>
+              {activeServiceData.isEmergency && (
+                <Text style={styles.emergencyServiceNote}>
+                  🚨 Emergency Service - Priority Response: {activeServiceData.responseTime}
+                </Text>
+              )}
+              <Text style={styles.customDescriptionNote}>
+                💡 Please describe your specific issue below to help our technicians prepare:
+              </Text>
+            </View>
+          )}
         </View>
         
         <View style={styles.inputGroup}>
@@ -580,7 +671,7 @@ export default function RedesignedBookingForm() {
             style={[styles.textArea, errors.serviceDescription && styles.inputError]}
             value={bookingData.serviceDescription}
             onChangeText={(text) => setBookingData(prev => ({ ...prev, serviceDescription: text }))}
-            placeholder="Describe what specific work needs to be done. For example: 'Fix leaking kitchen sink tap and replace worn-out washers' or 'Install new electrical outlet in bedroom'"
+            placeholder={getServiceDescriptionPlaceholder(bookingData.serviceType)}
             placeholderTextColor="#999"
             multiline
             numberOfLines={4}
@@ -1114,5 +1205,38 @@ const styles = StyleSheet.create({
   },
   tipBold: {
     fontWeight: '600',
+  },
+  // Selected Service Info Styles
+  selectedServiceInfo: {
+    backgroundColor: '#f0f9ff',
+    borderRadius: 8,
+    padding: 15,
+    marginTop: 10,
+    borderLeftWidth: 4,
+    borderLeftColor: '#007AFF',
+  },
+  selectedServiceTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1e40af',
+    marginBottom: 8,
+  },
+  selectedServiceDescription: {
+    fontSize: 14,
+    color: '#374151',
+    lineHeight: 20,
+    marginBottom: 8,
+  },
+  emergencyServiceNote: {
+    fontSize: 14,
+    color: '#dc2626',
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  customDescriptionNote: {
+    fontSize: 13,
+    color: '#059669',
+    fontWeight: '500',
+    fontStyle: 'italic',
   },
 });

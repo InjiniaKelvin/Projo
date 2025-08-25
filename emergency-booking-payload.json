@@ -1,0 +1,20 @@
+{
+  "name": "John Doe",
+  "phone": "+254712345678", 
+  "email": "john.doe@example.com",
+  "serviceName": "Emergency Plumbing Repair",
+  "serviceDescription": "Burst pipe flooding kitchen - URGENT!",
+  "category": "Plumbing",
+  "price": 2500,
+  "constituency": "Embakasi South",
+  "ward": "Pipeline", 
+  "road": "Pipeline Road",
+  "houseNumber": "45A",
+  "landmark": "Near Pipeline Estate Main Gate",
+  "date": "2025-08-24",
+  "time": "ASAP",
+  "urgency": "emergency",
+  "notes": "Water flooding entire kitchen floor - need immediate assistance!",
+  "bookingType": "emergency",
+  "emergencyLevel": "high"
+}

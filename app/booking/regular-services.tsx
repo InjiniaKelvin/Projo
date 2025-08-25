@@ -355,30 +355,35 @@ const RegularServicesScreen = () => {
   }, [user]);
 
   useEffect(() => {
-    setIsLoading(true);
-    setRegularServices(comprehensiveRegularServices.sort((a, b) => b.popularityScore - a.popularityScore));
-    setIsLoading(false);
+    const loadServices = async () => {
+      setIsLoading(true);
+      try {
+        // Simulate a brief async operation to prevent rapid state changes
+        await new Promise(resolve => setTimeout(resolve, 50));
+        const sortedServices = [...comprehensiveRegularServices].sort((a, b) => (b.popularityScore || 0) - (a.popularityScore || 0));
+        setRegularServices(sortedServices);
+      } catch (error) {
+        console.error('Error loading services:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadServices();
   }, []);
 
   const handleServiceBooking = (service: RegularService) => {
-    const serviceData = {
-      id: service.id,
-      name: service.name,
-      description: service.description,
-      category: service.category,
-      priceRange: { 
-        min: parseInt(service.priceRange.split(' - ')[0].replace(/[^\d]/g, '')),
-        max: parseInt(service.priceRange.split(' - ')[1].replace(/[^\d]/g, ''))
-      },
-      estimatedDuration: parseInt(service.estimatedDuration.replace(/[^\d]/g, '')),
-      isEmergencyService: false
-    };
-
+    console.log('🔧 Regular service booking selected:', service.name);
     router.push({
-      pathname: '/booking/details',
+      pathname: '/booking/redesigned-form',
       params: {
-        serviceId: service.id,
-        serviceData: JSON.stringify(serviceData)
+        serviceType: service.category,
+        serviceName: service.name,
+        // DO NOT pass serviceDescription - let user input their specific needs
+        urgency: 'normal',
+        isEmergency: 'false',
+        priceRange: service.priceRange,
+        estimatedDuration: service.estimatedDuration
       }
     });
   };
@@ -428,7 +433,7 @@ const RegularServicesScreen = () => {
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => router.back()}
+          onPress={() => router.replace('/dashboard/client')}
         >
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
@@ -489,34 +494,34 @@ const RegularServicesScreen = () => {
                   />
                 </View>
                 <View style={styles.popularityBadge}>
-                  <Text style={styles.popularityText}>{service.popularityScore}%</Text>
+                  <Text style={styles.popularityText}>{service.popularityScore || 0}%</Text>
                 </View>
               </View>
 
-              <Text style={styles.serviceName}>{service.name}</Text>
+              <Text style={styles.serviceName}>{service.name || 'Unnamed Service'}</Text>
               <Text style={styles.serviceDescription} numberOfLines={2}>
-                {service.description}
+                {service.description || 'No description available'}
               </Text>
 
               <View style={styles.serviceDetails}>
                 <View style={styles.detailItem}>
                   <Ionicons name="time-outline" size={14} color="#6b7280" />
-                  <Text style={styles.detailText}>{service.estimatedDuration}</Text>
+                  <Text style={styles.detailText}>{service.estimatedDuration || 'N/A'}</Text>
                 </View>
                 <View style={styles.detailItem}>
                   <Ionicons name="cash-outline" size={14} color="#6b7280" />
-                  <Text style={styles.detailText}>{service.priceRange}</Text>
+                  <Text style={styles.detailText}>{service.priceRange || 'Price on request'}</Text>
                 </View>
               </View>
 
               <View style={styles.skillsContainer}>
-                {service.skills.slice(0, 2).map((skill, index) => (
+                {(service.skills || []).slice(0, 2).map((skill, index) => (
                   <View key={index} style={styles.skillChip}>
-                    <Text style={styles.skillText}>{skill}</Text>
+                    <Text style={styles.skillText}>{skill || 'Skill'}</Text>
                   </View>
                 ))}
-                {service.skills.length > 2 && (
-                  <Text style={styles.moreSkills}>+{service.skills.length - 2}</Text>
+                {(service.skills || []).length > 2 && (
+                  <Text style={styles.moreSkills}>+{Math.max(0, (service.skills || []).length - 2)}</Text>
                 )}
               </View>
 

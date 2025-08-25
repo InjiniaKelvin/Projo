@@ -79,6 +79,7 @@ export default function ServiceSelectionScreen() {
     
     // Fallback to mock data
     const mockCategories: Category[] = [
+      { id: 'emergency', name: '🚨 Emergency', icon: 'flash', color: '#dc2626', description: '24/7 Emergency Services', serviceCount: 25 },
       { id: '1', name: 'Plumbing', icon: 'water', color: '#3b82f6', description: 'Water pipes and fixtures', serviceCount: 15 },
       { id: '2', name: 'Electrical', icon: 'flash', color: '#f59e0b', description: 'Electrical installations and repairs', serviceCount: 12 },
       { id: '3', name: 'Appliance Repair', icon: 'construct', color: '#10b981', description: 'Home appliance services', serviceCount: 18 },
@@ -196,48 +197,19 @@ export default function ServiceSelectionScreen() {
     loadInitialData();
   }, [loadInitialData]);
 
-  const loadServicesByCategory = async (categoryId: string) => {
-    setIsLoading(true);
-    try {
-      // Mock services by category
-      const mockServices: Service[] = [
-        {
-          id: '1',
-          name: 'Pipe Repair & Replacement',
-          description: 'Professional pipe repair and replacement services for all types of plumbing issues',
-          category: 'plumbing',
-          priceRange: { min: 1500, max: 8000 },
-          estimatedDuration: 120,
-          averageRating: 4.8,
-          totalRatings: 124,
-          isEmergencyService: true
-        },
-        {
-          id: '2',
-          name: 'Toilet Installation & Repair',
-          description: 'Complete toilet installation, repair, and maintenance services',
-          category: 'plumbing',
-          priceRange: { min: 2000, max: 12000 },
-          estimatedDuration: 90,
-          averageRating: 4.7,
-          totalRatings: 87,
-          isEmergencyService: false
-        }
-      ];
-      setServices(mockServices);
-    } catch (error) {
-      console.error('Error loading services:', error);
-    } finally {
-      setIsLoading(false);
+  // Handle category selection
+  const handleCategorySelect = useCallback((category: Category) => {
+    // If emergency category is selected, navigate to emergency services page
+    if (category.id === 'emergency') {
+      router.push('/booking/emergency-services');
+      return;
     }
-  };
 
-  const handleCategorySelect = (category: Category) => {
     setSelectedCategory(category);
-    loadServicesByCategory(category.id);
-  };
+    // Note: Service filtering by category could be implemented here if needed
+  }, [router]);
 
-  const handleServiceSelect = (service: Service) => {
+  const handleServiceSelect = useCallback((service: Service) => {
     router.push({
       pathname: '/booking/details',
       params: { 
@@ -246,9 +218,9 @@ export default function ServiceSelectionScreen() {
         serviceData: JSON.stringify(service)
       }
     });
-  };
+  }, [router]);
 
-  const handleSearch = async (query: string) => {
+  const handleSearch = useCallback(async (query: string) => {
     setSearchQuery(query);
     if (query.length < 2) {
       setServices([]);
@@ -269,22 +241,22 @@ export default function ServiceSelectionScreen() {
     } finally {
       setIsSearching(false);
     }
-  };
+  }, [popularServices]);
 
-  const onRefresh = async () => {
+  const onRefresh = useCallback(async () => {
     setIsRefreshing(true);
     await loadInitialData();
     setIsRefreshing(false);
-  };
+  }, [loadInitialData]);
 
-  const formatPrice = (priceRange: PriceRange): string => {
+  const formatPrice = useCallback((priceRange: PriceRange): string => {
     if (priceRange.min === priceRange.max) {
       return `KSh ${priceRange.min.toLocaleString()}`;
     }
     return `KSh ${priceRange.min.toLocaleString()} - ${priceRange.max.toLocaleString()}`;
-  };
+  }, []);
 
-  const formatDuration = (minutes: number): string => {
+  const formatDuration = useCallback((minutes: number): string => {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     
@@ -295,7 +267,7 @@ export default function ServiceSelectionScreen() {
     } else {
       return `${hours}h ${mins}m`;
     }
-  };
+  }, []);
 
   const renderCategoryCard = ({ item }: { item: Category }) => (
     <TouchableOpacity
@@ -306,7 +278,7 @@ export default function ServiceSelectionScreen() {
         <Ionicons name={(item.icon as any) || 'business'} size={24} color={item.color} />
       </View>
       <Text style={styles.categoryName}>{item.name}</Text>
-      <Text style={styles.categoryCount}>{item.serviceCount} services</Text>
+      <Text style={styles.categoryCount}>{item.serviceCount || 0} services</Text>
     </TouchableOpacity>
   );
 
@@ -316,8 +288,8 @@ export default function ServiceSelectionScreen() {
       onPress={() => handleServiceSelect(item)}
     >
       <View style={styles.serviceHeader}>
-        <View style={[styles.serviceIcon, { backgroundColor: item.color + '20' }]}>
-          <Ionicons name={(item.icon as any) || 'construct'} size={20} color={item.color} />
+        <View style={[styles.serviceIcon, { backgroundColor: (item.color || '#6b7280') + '20' }]}>
+          <Ionicons name={(item.icon as any) || 'construct'} size={20} color={item.color || '#6b7280'} />
         </View>
         <View style={styles.serviceInfo}>
           <Text style={styles.serviceName}>{item.name}</Text>
@@ -350,7 +322,7 @@ export default function ServiceSelectionScreen() {
     </TouchableOpacity>
   );
 
-  const renderEmergencyServices = () => {
+  const renderEmergencyServices = useCallback(() => {
     const emergencyServices = popularServices.filter(service => service.isEmergencyService);
     
     if (emergencyServices.length === 0) return null;
@@ -372,7 +344,7 @@ export default function ServiceSelectionScreen() {
               style={styles.emergencyCard}
               onPress={() => handleServiceSelect(service)}
             >
-              <View style={[styles.emergencyIcon, { backgroundColor: service.color }]}>
+              <View style={[styles.emergencyIcon, { backgroundColor: service.color || '#ef4444' }]}>
                 <Ionicons name={(service.icon as any) || 'flash'} size={24} color="#fff" />
               </View>
               <Text style={styles.emergencyServiceName}>{service.name}</Text>
@@ -382,7 +354,7 @@ export default function ServiceSelectionScreen() {
         </ScrollView>
       </View>
     );
-  };
+  }, [popularServices, handleServiceSelect, formatPrice]);
 
   if (isLoading && !isRefreshing) {
     return (

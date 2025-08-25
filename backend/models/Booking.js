@@ -15,19 +15,32 @@ const mongoosePaginate = require('mongoose-paginate-v2');
  * Simplified Booking Schema with Phone-Based Client ID
  */
 const bookingSchema = new mongoose.Schema({
-  // UNIFIED BOOKING ID - replaces both bookingId and serviceId
+  // CUSTOM BOOKING ID FORMAT: q[phone-first-2]b[phone-last-3]t[timestamp][r/e]
   bookingId: {
     type: String,
     required: true,
     unique: true,
     default: function() {
-      // Format: QF[YYYYMMDD][HHMM][PHONE_LAST4][RANDOM]
-      const now = new Date();
-      const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
-      const timeStr = now.toTimeString().slice(0, 5).replace(':', '');
-      const phoneLast4 = this.clientPhone ? this.clientPhone.slice(-4) : '0000';
-      const random = Math.random().toString(36).substr(2, 4).toUpperCase();
-      return `QF${dateStr}${timeStr}${phoneLast4}${random}`;
+      // Custom format as requested: Q[phone-first-2]B[phone-last-3]T[timestamp][R/E] - CAPITAL LETTERS
+      if (!this.clientPhone) {
+        console.warn('No client phone for booking ID generation, using default');
+        return `Q00B000T${Date.now()}R`;
+      }
+      
+      const cleanPhone = this.clientPhone.replace(/[\s\-\+]/g, '');
+      const phoneDigits = cleanPhone.replace(/\D/g, ''); // Extract only digits
+      
+      // Get first 2 digits and last 3 digits from phone
+      const phoneFirst2 = phoneDigits.length >= 2 ? phoneDigits.slice(0, 2) : phoneDigits.padStart(2, '0');
+      const phoneLast3 = phoneDigits.length >= 3 ? phoneDigits.slice(-3) : phoneDigits.padEnd(3, '0');
+      
+      // Generate timestamp
+      const timestamp = Date.now();
+      
+      // Determine booking type (R = regular, E = emergency) - CAPITAL LETTERS
+      const bookingType = (this.urgency === 'emergency') ? 'E' : 'R';
+      
+      return `Q${phoneFirst2}B${phoneLast3}T${timestamp}${bookingType}`;
     }
   },
   

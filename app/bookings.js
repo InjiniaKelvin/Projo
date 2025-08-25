@@ -15,7 +15,7 @@ import apiClient from '../config/api';
 export default function BookingsScreen() {
   const { user } = useAuth();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState('active'); // 'active', 'completed', 'cancelled'
+  const [activeTab, setActiveTab] = useState('all'); // 'all', 'emergency', 'regular', 'completed'
   const [refreshing, setRefreshing] = useState(false);
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -76,6 +76,15 @@ export default function BookingsScreen() {
   };
 
   const getFilteredBookings = () => {
+    if (activeTab === 'all') {
+      return bookings;
+    } else if (activeTab === 'emergency') {
+      return bookings.filter(booking => booking.urgency === 'emergency');
+    } else if (activeTab === 'regular') {
+      return bookings.filter(booking => booking.urgency !== 'emergency');
+    } else if (activeTab === 'completed') {
+      return bookings.filter(booking => booking.status === 'completed');
+    }
     return bookings.filter(booking => booking.status === activeTab);
   };
 
@@ -191,20 +200,25 @@ export default function BookingsScreen() {
 
       {/* Tabs */}
       <View style={styles.tabContainer}>
-        {['active', 'completed', 'cancelled'].map((tab) => (
+        {[
+          { key: 'all', label: 'All' },
+          { key: 'emergency', label: '🚨 Emergency' },
+          { key: 'regular', label: 'Regular' },
+          { key: 'completed', label: 'Completed' }
+        ].map((tab) => (
           <TouchableOpacity
-            key={tab}
+            key={tab.key}
             style={[
               styles.tab,
-              activeTab === tab && styles.activeTab
+              activeTab === tab.key && styles.activeTab
             ]}
-            onPress={() => setActiveTab(tab)}
+            onPress={() => setActiveTab(tab.key)}
           >
             <Text style={[
               styles.tabText,
-              activeTab === tab && styles.activeTabText
+              activeTab === tab.key && styles.activeTabText
             ]}>
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              {tab.label}
             </Text>
           </TouchableOpacity>
         ))}

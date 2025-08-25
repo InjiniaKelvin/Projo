@@ -65,6 +65,24 @@ function validateBookingData(data) {
   
   if (!data.preferredTimeSlot) {
     errors.push('Preferred time slot is required');
+  } else if (data.preferredDate && data.preferredTimeSlot) {
+    // Enhanced time validation - 2-hour minimum advance booking
+    const prefDate = new Date(data.preferredDate);
+    const now = new Date();
+    
+    // Parse time slot (format: "09:00-12:00", "14:00-17:00", etc.)
+    const timeSlotMatch = data.preferredTimeSlot.match(/(\d{2}):(\d{2})/);
+    if (timeSlotMatch) {
+      const [, hours, minutes] = timeSlotMatch;
+      prefDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+      
+      // Calculate minimum booking time (2 hours from now)
+      const minimumBookingTime = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+      
+      if (prefDate < minimumBookingTime && data.urgency !== 'emergency') {
+        errors.push('Regular bookings must be scheduled at least 2 hours in advance. For urgent needs, please select emergency booking.');
+      }
+    }
   }
   
   return errors;

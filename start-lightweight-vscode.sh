@@ -1,26 +1,21 @@
 #!/bin/bash
+# Lightweight VS Code Launcher for QuickFix Development
 
-# QuickFix Development - Lightweight VS Code Setup
-# This script starts VS Code with minimal resource usage
+echo "🚀 Starting VS Code in lightweight mode..."
 
-echo "🚀 Starting QuickFix Development Environment..."
-
-# Kill any hanging VS Code processes
-pkill -f "code.*tsserver" 2>/dev/null
-pkill -f "code.*typescript" 2>/dev/null
-
-# Set environment variables for performance
+# Set resource limits
 export NODE_OPTIONS="--max-old-space-size=2048"
-export VSCODE_DISABLE_WORKSPACE_TRUST=true
 
-# Start VS Code with performance flags
+# Disable some VS Code features for performance
 code \
-    --max-memory=2048 \
-    --disable-extensions \
-    --disable-telemetry \
-    --disable-crash-reporter \
-    --disable-updates \
-    --no-sandbox \
-    "$@"
+  --disable-gpu \
+  --disable-gpu-sandbox \
+  --disable-software-rasterizer \
+  --disable-background-timer-throttling \
+  --disable-renderer-backgrounding \
+  --disable-backgrounding-occluded-windows \
+  --max-memory=2048 \
+  /home/engkejumwa/Desktop/PROJO12/Projo &
 
-echo "✅ Lightweight VS Code started!"
+echo "✅ VS Code started in lightweight mode"
+echo "💡 Tip: Use Ctrl+Shift+P -> 'Developer: Show Running Extensions' to monitor extension usage"

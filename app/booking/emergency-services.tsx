@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import {
     ActivityIndicator,
     Alert,
+    Platform,
     SafeAreaView,
     ScrollView,
     StyleSheet,
@@ -224,9 +225,41 @@ const EmergencyServicesScreen = () => {
   }, [user]);
 
   useEffect(() => {
-    setEmergencyServices(comprehensiveEmergencyServices);
-    setIsLoading(false);
-  }, []);  const handleEmergencyBooking = (service: EmergencyService) => {
+    const loadEmergencyServices = async () => {
+      try {
+        // Simulate a brief async operation to prevent rapid state changes
+        await new Promise(resolve => setTimeout(resolve, 50));
+        setEmergencyServices(comprehensiveEmergencyServices);
+      } catch (error) {
+        console.error('Error loading emergency services:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadEmergencyServices();
+  }, []);
+
+  const handleEmergencyBooking = (service: EmergencyService) => {
+    // For web compatibility, navigate directly without alert for now
+    if (Platform.OS === 'web') {
+      console.log('🚨 Emergency booking selected:', service.name);
+      router.push({
+        pathname: '/booking/emergency-form',
+        params: {
+          serviceType: service.id,
+          serviceName: service.name,
+          urgency: 'emergency',
+          isEmergency: 'true',
+          category: service.category,
+          responseTime: service.responseTime,
+          priceRange: service.priceRange
+        }
+      });
+      return;
+    }
+
+    // Native alert for mobile
     Alert.alert(
       '🚨 EMERGENCY SERVICE BOOKING',
       `You are about to book "${service.name}"\n\nResponse Time: ${service.responseTime}\nPrice Range: ${service.priceRange}\n\nThis is an EMERGENCY service with priority response.`,
@@ -239,17 +272,17 @@ const EmergencyServicesScreen = () => {
           text: 'BOOK NOW',
           style: 'destructive',
           onPress: () => {
+            console.log('🚨 Emergency booking selected:', service.name);
             router.push({
-              pathname: '/booking/details',
+              pathname: '/booking/emergency-form',
               params: {
-                serviceId: service.id,
+                serviceType: service.id,
                 serviceName: service.name,
-                serviceDescription: service.description,
-                responseTime: service.responseTime,
-                priceRange: service.priceRange,
-                urgencyLevel: service.urgencyLevel,
+                urgency: 'emergency',
+                isEmergency: 'true',
                 category: service.category,
-                isEmergency: 'true'
+                responseTime: service.responseTime,
+                priceRange: service.priceRange
               }
             });
           }
