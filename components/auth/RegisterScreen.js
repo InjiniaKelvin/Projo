@@ -8,6 +8,7 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
     Alert,
+    Dimensions,
     KeyboardAvoidingView,
     Platform,
     ScrollView,
@@ -19,6 +20,9 @@ import {
 } from 'react-native';
 import { useAuth } from '../../contexts/SimpleAuthContext';
 import WebCompatibleButton from '../WebCompatibleButton';
+
+// Get screen dimensions for responsive design
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 export default function RegisterScreen() {
   const [formData, setFormData] = useState({
@@ -167,9 +171,15 @@ export default function RegisterScreen() {
   return (
     <KeyboardAvoidingView 
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === 'ios' ? 'padding' : Platform.OS === 'android' ? 'height' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
     >
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        style={styles.scrollView} 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={styles.content}>
           <Text style={styles.title}>Create Account</Text>
           <Text style={styles.subtitle}>Join QuickFix today</Text>
@@ -178,51 +188,69 @@ export default function RegisterScreen() {
             <TextInput
               style={styles.input}
               placeholder="First Name"
+              placeholderTextColor="#999"
               value={formData.firstName}
               onChangeText={(value) => handleInputChange('firstName', value)}
               autoCapitalize="words"
+              textContentType="givenName"
+              autoComplete="name-given"
             />
 
             <TextInput
               style={styles.input}
               placeholder="Last Name"
+              placeholderTextColor="#999"
               value={formData.lastName}
               onChangeText={(value) => handleInputChange('lastName', value)}
               autoCapitalize="words"
+              textContentType="familyName"
+              autoComplete="name-family"
             />
 
             <TextInput
               style={styles.input}
               placeholder="Email"
+              placeholderTextColor="#999"
               value={formData.email}
               onChangeText={(value) => handleInputChange('email', value)}
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
+              textContentType="emailAddress"
+              autoComplete="email"
             />
 
             <TextInput
               style={styles.input}
               placeholder="Phone Number (e.g., +254712345678)"
+              placeholderTextColor="#999"
               value={formData.phoneNumber}
               onChangeText={(value) => handleInputChange('phoneNumber', value)}
               keyboardType="phone-pad"
+              textContentType="telephoneNumber"
+              autoComplete="tel"
             />
 
             <View style={styles.passwordContainer}>
               <TextInput
                 style={styles.passwordInput}
                 placeholder="Password"
+                placeholderTextColor="#999"
                 value={formData.password}
                 onChangeText={(value) => handleInputChange('password', value)}
                 secureTextEntry={!showPassword}
                 autoCapitalize="none"
+                textContentType="newPassword"
+                autoComplete="password-new"
               />
               <TouchableOpacity
                 style={styles.eyeButton}
                 onPress={() => setShowPassword(!showPassword)}
+                accessible={true}
+                accessibilityLabel={showPassword ? "Hide password" : "Show password"}
+                accessibilityRole="button"
               >
-                <Text style={styles.eyeText}>{showPassword ? '👁️' : '🙈'}</Text>
+                <Text style={styles.eyeText}>{showPassword ? 'Hide' : 'Show'}</Text>
               </TouchableOpacity>
             </View>
 
@@ -230,16 +258,21 @@ export default function RegisterScreen() {
               <TextInput
                 style={styles.passwordInput}
                 placeholder="Confirm Password"
+                placeholderTextColor="#999"
                 value={formData.confirmPassword}
                 onChangeText={(value) => handleInputChange('confirmPassword', value)}
                 secureTextEntry={!showConfirmPassword}
                 autoCapitalize="none"
+                textContentType="newPassword"
               />
               <TouchableOpacity
                 style={styles.eyeButton}
                 onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                accessible={true}
+                accessibilityLabel={showConfirmPassword ? "Hide password" : "Show password"}
+                accessibilityRole="button"
               >
-                <Text style={styles.eyeText}>{showConfirmPassword ? '👁️' : '🙈'}</Text>
+                <Text style={styles.eyeText}>{showConfirmPassword ? 'Hide' : 'Show'}</Text>
               </TouchableOpacity>
             </View>
 
@@ -318,62 +351,146 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1
   },
+  scrollContent: {
+    flexGrow: 1,
+    paddingVertical: 20
+  },
   content: {
-    paddingHorizontal: 24,
-    paddingVertical: 32
+    paddingHorizontal: SCREEN_WIDTH < 768 ? 20 : 40,
+    paddingVertical: 20,
+    maxWidth: Platform.OS === 'web' ? 500 : '100%',
+    width: '100%',
+    alignSelf: 'center'
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
+    fontSize: Platform.select({
+      ios: 32,
+      android: 30,
+      web: 36
+    }),
+    fontWeight: Platform.OS === 'ios' ? '700' : 'bold',
     textAlign: 'center',
     marginBottom: 8,
-    color: '#333'
+    color: '#333',
+    ...Platform.select({
+      web: {
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+      }
+    })
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: Platform.select({
+      ios: 16,
+      android: 15,
+      web: 17
+    }),
     textAlign: 'center',
     marginBottom: 32,
-    color: '#666'
+    color: '#666',
+    ...Platform.select({
+      web: {
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+      }
+    })
   },
   form: {
-    marginBottom: 32
+    marginBottom: 32,
+    width: '100%'
   },
   input: {
     borderWidth: 1,
     borderColor: '#ddd',
-    borderRadius: 8,
+    borderRadius: Platform.OS === 'ios' ? 10 : 8,
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
+    paddingVertical: Platform.OS === 'ios' ? 14 : 12,
+    fontSize: Platform.select({
+      ios: 16,
+      android: 15,
+      web: 16
+    }),
     marginBottom: 16,
-    backgroundColor: '#fff'
+    backgroundColor: '#fff',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 2
+      },
+      android: {
+        elevation: 1
+      },
+      web: {
+        boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+        transition: 'border-color 0.2s ease',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+      }
+    })
   },
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#ddd',
-    borderRadius: 8,
+    borderRadius: Platform.OS === 'ios' ? 10 : 8,
     backgroundColor: '#fff',
     marginBottom: 16,
-    paddingRight: 8
+    paddingRight: 8,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 2
+      },
+      android: {
+        elevation: 1
+      },
+      web: {
+        boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+      }
+    })
   },
   passwordInput: {
     flex: 1,
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16
+    paddingVertical: Platform.OS === 'ios' ? 14 : 12,
+    fontSize: Platform.select({
+      ios: 16,
+      android: 15,
+      web: 16
+    }),
+    ...Platform.select({
+      web: {
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+      }
+    })
   },
   eyeButton: {
-    paddingHorizontal: 8,
-    paddingVertical: 4
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    ...Platform.select({
+      web: {
+        cursor: 'pointer'
+      }
+    })
   },
   eyeText: {
-    fontSize: 18
+    fontSize: Platform.select({
+      ios: 14,
+      android: 13,
+      web: 14
+    }),
+    color: '#007AFF',
+    fontWeight: '600'
   },
   passwordMismatchText: {
     color: '#ff4444',
-    fontSize: 14,
+    fontSize: Platform.select({
+      ios: 14,
+      android: 13,
+      web: 14
+    }),
     marginTop: -8,
     marginBottom: 16,
     fontStyle: 'italic'
@@ -382,7 +499,11 @@ const styles = StyleSheet.create({
     marginBottom: 16
   },
   label: {
-    fontSize: 16,
+    fontSize: Platform.select({
+      ios: 16,
+      android: 15,
+      web: 16
+    }),
     fontWeight: '600',
     marginBottom: 8,
     color: '#333'
@@ -390,8 +511,22 @@ const styles = StyleSheet.create({
   picker: {
     borderWidth: 1,
     borderColor: '#ddd',
-    borderRadius: 8,
-    backgroundColor: '#fff'
+    borderRadius: Platform.OS === 'ios' ? 10 : 8,
+    backgroundColor: '#fff',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 2
+      },
+      android: {
+        elevation: 1
+      },
+      web: {
+        boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+      }
+    })
   },
   skillsSection: {
     marginBottom: 16
@@ -409,12 +544,33 @@ const styles = StyleSheet.create({
   addButton: {
     backgroundColor: '#007AFF',
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 8
+    paddingVertical: Platform.OS === 'ios' ? 14 : 12,
+    borderRadius: Platform.OS === 'ios' ? 10 : 8,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#007AFF',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4
+      },
+      android: {
+        elevation: 2
+      },
+      web: {
+        boxShadow: '0 2px 8px rgba(0,122,255,0.2)',
+        cursor: 'pointer',
+        transition: 'all 0.2s ease'
+      }
+    })
   },
   addButtonText: {
     color: '#fff',
-    fontWeight: '600'
+    fontWeight: '600',
+    fontSize: Platform.select({
+      ios: 15,
+      android: 14,
+      web: 15
+    })
   },
   skillsList: {
     flexDirection: 'row',
@@ -431,39 +587,98 @@ const styles = StyleSheet.create({
   },
   skillText: {
     color: '#1976d2',
-    marginRight: 8
+    marginRight: 8,
+    fontSize: Platform.select({
+      ios: 14,
+      android: 13,
+      web: 14
+    })
   },
   removeSkill: {
     color: '#1976d2',
-    fontSize: 18,
-    fontWeight: 'bold'
+    fontSize: 20,
+    fontWeight: 'bold',
+    lineHeight: 20,
+    ...Platform.select({
+      web: {
+        cursor: 'pointer'
+      }
+    })
   },
   registerButton: {
     backgroundColor: '#007AFF',
-    borderRadius: 8,
-    paddingVertical: 16,
-    alignItems: 'center'
+    borderRadius: Platform.OS === 'ios' ? 10 : 8,
+    paddingVertical: Platform.OS === 'ios' ? 16 : 14,
+    alignItems: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#007AFF',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4
+      },
+      android: {
+        elevation: 3
+      },
+      web: {
+        boxShadow: '0 2px 8px rgba(0,122,255,0.2)',
+        cursor: 'pointer',
+        transition: 'all 0.2s ease'
+      }
+    })
   },
   disabledButton: {
-    backgroundColor: '#ccc'
+    backgroundColor: '#ccc',
+    ...Platform.select({
+      ios: {
+        shadowOpacity: 0
+      },
+      android: {
+        elevation: 0
+      },
+      web: {
+        boxShadow: 'none',
+        cursor: 'not-allowed'
+      }
+    })
   },
   registerButtonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: Platform.select({
+      ios: 16,
+      android: 15,
+      web: 16
+    }),
     fontWeight: '600'
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    paddingBottom: 20
   },
   footerText: {
-    fontSize: 16,
+    fontSize: Platform.select({
+      ios: 16,
+      android: 15,
+      web: 16
+    }),
     color: '#666'
   },
   signInText: {
-    fontSize: 16,
+    fontSize: Platform.select({
+      ios: 16,
+      android: 15,
+      web: 16
+    }),
     color: '#007AFF',
-    fontWeight: '600'
+    fontWeight: '600',
+    ...Platform.select({
+      web: {
+        cursor: 'pointer',
+        transition: 'opacity 0.2s ease'
+      }
+    })
   }
 });

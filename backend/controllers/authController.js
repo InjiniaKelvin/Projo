@@ -40,10 +40,14 @@ class AuthController {
     try {
       const { email, password, firstName, lastName, phoneNumber, role = 'client' } = req.body;
       
+      console.log('Registration starting for:', email);
+      
       // Check if user already exists
+      const startCheck = Date.now();
       const existingUser = await User.findOne({
         $or: [{ email }, { phoneNumber }]
       });
+      console.log(`OK: User existence check: ${Date.now() - startCheck}ms`);
       
       if (existingUser) {
         const field = existingUser.email === email ? 'email' : 'phone number';
@@ -54,6 +58,7 @@ class AuthController {
       }
       
       // Create new user
+      const startUserCreation = Date.now();
       const user = new User({
         email,
         password,
@@ -63,22 +68,33 @@ class AuthController {
         role
       });
       
+      // First save - this triggers password hashing
       await user.save();
+      console.log(`OK: User saved (including password hash): ${Date.now() - startUserCreation}ms`);
       
-      // Create wallet for the user
-      const wallet = await Wallet.createWallet(user._id);
-      user.walletId = wallet._id;
-      await user.save();
+      // Create wallet for the user (in parallel with token generation)
+      const startWallet = Date.now();
+      const [wallet, tokens] = await Promise.all([
+        Wallet.createWallet(user._id),
+        Promise.resolve(AuthController.generateTokens(user._id))
+      ]);
+      console.log(`OK: Wallet created: ${Date.now() - startWallet}ms`);
       
-      // Generate tokens
-      const { accessToken, refreshToken } = AuthController.generateTokens(user._id);
-      
-      // Save refresh token
-      await user.addRefreshToken(refreshToken);
+      // Update user with wallet (using updateOne to avoid re-hashing password)
+      await User.updateOne(
+        { _id: user._id },
+        { 
+          walletId: wallet._id,
+          $push: { refreshTokens: tokens.refreshToken }
+        }
+      );
+      console.log(`OK: User updated with wallet and token`);
       
       // Remove sensitive data from response
       const userResponse = user.toJSON();
       delete userResponse.password;
+      
+      console.log(`SUCCESS: Registration complete for ${email} - Total: ${Date.now() - startCheck}ms`);
       
       res.status(201).json({
         success: true,
@@ -86,8 +102,8 @@ class AuthController {
         data: {
           user: userResponse,
           tokens: {
-            accessToken,
-            refreshToken
+            accessToken: tokens.accessToken,
+            refreshToken: tokens.refreshToken
           }
         }
       });
@@ -111,10 +127,19 @@ class AuthController {
     try {
       const { email, password } = req.body;
       
-      // Find user by email
-      const user = await User.findByEmail(email).populate('walletId');
+      const startTime = Date.now();
+      console.log('Login attempt for:', email);
+      
+      // Find user by email with optimized query
+      // Note: password has select:false, so we must explicitly include it with +password
+      const findStart = Date.now();
+      const user = await User.findOne({ email: email.toLowerCase() })
+        .select('+password')
+        .populate('walletId');
+      console.log(`OK: User lookup: ${Date.now() - findStart}ms`);
       
       if (!user) {
+        console.log('ERROR: User not found');
         return res.status(401).json({
           success: false,
           message: 'Invalid email or password'
@@ -123,16 +148,20 @@ class AuthController {
       
       // Check if account is active
       if (!user.isActive) {
+        console.log('ERROR: Account deactivated');
         return res.status(401).json({
           success: false,
           message: 'Account is deactivated. Please contact support.'
         });
       }
       
-      // Verify password
+      // Verify password (this is the slow part with bcrypt)
+      const passwordStart = Date.now();
       const isPasswordValid = await user.comparePassword(password);
+      console.log(`OK: Password verification: ${Date.now() - passwordStart}ms`);
       
       if (!isPasswordValid) {
+        console.log('ERROR: Invalid password');
         return res.status(401).json({
           success: false,
           message: 'Invalid email or password'
@@ -140,14 +169,34 @@ class AuthController {
       }
       
       // Generate tokens
+      const tokenStart = Date.now();
       const { accessToken, refreshToken } = AuthController.generateTokens(user._id);
+      console.log(`OK: Token generation: ${Date.now() - tokenStart}ms`);
       
-      // Save refresh token and update last login
-      await user.addRefreshToken(refreshToken);
-      await user.updateLastLogin();
+      // Update user data (refresh token and last login) in one save operation
+      const updateStart = Date.now();
+      
+      // Add refresh token
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 7); // 7 days
+      user.refreshTokens.push({ token: refreshToken, expiresAt });
+      
+      // Keep only the latest 5 refresh tokens
+      if (user.refreshTokens.length > 5) {
+        user.refreshTokens = user.refreshTokens.slice(-5);
+      }
+      
+      // Update last login
+      user.lastLogin = new Date();
+      
+      // Save once
+      await user.save({ validateBeforeSave: false });
+      console.log(`OK: User updates: ${Date.now() - updateStart}ms`);
       
       // Remove sensitive data from response
       const userResponse = user.toJSON();
+      
+      console.log(`SUCCESS: Login successful for ${email} - Total: ${Date.now() - startTime}ms`);
       
       res.json({
         success: true,
@@ -162,7 +211,7 @@ class AuthController {
       });
       
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('ERROR: Login error:', error);
       res.status(500).json({
         success: false,
         message: 'Login failed',

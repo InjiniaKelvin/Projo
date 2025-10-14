@@ -23,13 +23,13 @@ export default function BookingsScreen() {
   // Fetch bookings from API
   const fetchBookings = useCallback(async () => {
     if (!user?.phoneNumber) {
-      console.log('📱 No phone number available for user');
+      console.log(' No phone number available for user');
       setLoading(false);
       return;
     }
 
     try {
-      console.log('📱 Fetching bookings for phone:', user.phoneNumber);
+      console.log(' Fetching bookings for phone:', user.phoneNumber);
       const response = await apiClient.get(`/bookings/phone/${user.phoneNumber}`);
       
       if (response.data.success) {
@@ -47,13 +47,13 @@ export default function BookingsScreen() {
         }));
         
         setBookings(apiBookings);
-        console.log(`📱 Successfully fetched ${apiBookings.length} bookings`);
+        console.log(` Successfully fetched ${apiBookings.length} bookings`);
       } else {
-        console.error('❌ Failed to fetch bookings:', response.data.message);
+        console.error(' Failed to fetch bookings:', response.data.message);
         setBookings([]);
       }
     } catch (error) {
-      console.error('❌ Error fetching bookings:', error);
+      console.error(' Error fetching bookings:', error);
       // If it's a 404 or network error, just show empty state
       setBookings([]);
     } finally {

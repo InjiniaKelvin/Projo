@@ -20,7 +20,7 @@ export default function Index() {
   console.log('Index: isLoading:', isLoading, 'user:', user, 'showSplash:', showSplash);
 
   const handleGetStarted = () => {
-    console.log('🔥 Index: Get Started button pressed! Setting showSplash to false');
+    console.log(' Index: Get Started button pressed! Setting showSplash to false');
     setShowSplash(false);
   };
 
@@ -66,7 +66,7 @@ export default function Index() {
   useEffect(() => {
     const timer = setTimeout(() => {
       if (showSplash) {
-        console.log('🔥 Index: Auto-proceeding after 5 seconds (button fallback)');
+        console.log(' Index: Auto-proceeding after 5 seconds (button fallback)');
         setShowSplash(false);
       }
     }, 5000);
@@ -76,7 +76,7 @@ export default function Index() {
 
   // Show splash screen
   if (showSplash) {
-    console.log('🔥 Index: Rendering splash screen with button');
+    console.log(' Index: Rendering splash screen with button');
     
     // Show different content for authenticated users
     if (user) {
@@ -104,9 +104,9 @@ export default function Index() {
         <Pressable 
           style={[styles.button]} 
           onPress={handleGetStarted}
-          onPointerDown={() => console.log('🔥 Index: Button pointer down!')}
-          onPressIn={() => console.log('🔥 Index: Button press in!')}
-          onPressOut={() => console.log('🔥 Index: Button press out!')}
+          onPointerDown={() => console.log(' Index: Button pointer down!')}
+          onPressIn={() => console.log(' Index: Button press in!')}
+          onPressOut={() => console.log(' Index: Button press out!')}
           accessible={true}
           accessibilityRole="button"
           accessibilityLabel="Get Started"
@@ -131,11 +131,11 @@ export default function Index() {
             transition: 'all 0.2s ease'
           }}
           onClick={() => {
-            console.log('🔥 Index: HTML div clicked!');
+            console.log(' Index: HTML div clicked!');
             handleGetStarted();
           }}
-          onMouseDown={() => console.log('🔥 Index: HTML div mouse down!')}
-          onMouseUp={() => console.log('🔥 Index: HTML div mouse up!')}
+          onMouseDown={() => console.log(' Index: HTML div mouse down!')}
+          onMouseUp={() => console.log(' Index: HTML div mouse up!')}
         >
           Get Started (HTML)
         </div>

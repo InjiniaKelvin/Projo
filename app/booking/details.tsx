@@ -20,10 +20,38 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
-    View
+    View,
+    Platform
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { NairobiWard, getWardsForConstituency, getRoadsForWard, getAllConstituencies } from '../../data/completeNairobiLocations';
 import { useAuth } from '../../contexts/SimpleAuthContext';
+
+// Storage helper for web/native compatibility
+const storage = {
+  async setItem(key: string, value: string) {
+    if (Platform.OS === 'web') {
+      localStorage.setItem(key, value);
+    } else {
+      await AsyncStorage.setItem(key, value);
+    }
+  },
+  async getItem(key: string): Promise<string | null> {
+    if (Platform.OS === 'web') {
+      return localStorage.getItem(key);
+    } else {
+      return await AsyncStorage.getItem(key);
+    }
+  },
+  async removeItem(key: string) {
+    if (Platform.OS === 'web') {
+      localStorage.removeItem(key);
+    } else {
+      await AsyncStorage.removeItem(key);
+    }
+  }
+};
 
 // TYPE DEFINITIONS
 interface LocationData {
@@ -73,7 +101,7 @@ const TIME_SLOTS = [
   { value: '12:00-14:00', label: '12:00 PM - 2:00 PM', type: 'normal' },
   { value: '14:00-16:00', label: '2:00 PM - 4:00 PM', type: 'normal' },
   { value: '16:00-18:00', label: '4:00 PM - 6:00 PM', type: 'normal' },
-  { value: 'emergency-asap', label: '🚨 Emergency - ASAP (Within 2 hours)', type: 'emergency' },
+  { value: 'emergency-asap', label: 'EMERGENCY - ASAP (Within 2 hours)', type: 'emergency' },
   { value: 'emergency-today', label: '⚡ Same Day Emergency', type: 'emergency' },
   { value: 'flexible', label: 'Flexible', type: 'normal' }
 ];
@@ -86,6 +114,13 @@ export default function RedesignedBookingForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [successData, setSuccessData] = useState<{bookingId: string, phone: string} | null>(null);
+  
+  // Critical booking state - for emergency/urgent bookings
+  const [isCritical, setIsCritical] = useState(false);
+  
+  // DateTimePicker state
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
   
   // Parse service data from params
   const serviceData = params.serviceData ? JSON.parse(params.serviceData as string) : null;
@@ -132,7 +167,9 @@ export default function RedesignedBookingForm() {
         clientEmail: user.email || '',
       }));
     }
-    
+  }, [user?.firstName, user?.lastName, user?.phoneNumber, user?.email]);
+  
+  useEffect(() => {
     if (serviceData) {
       setBookingData(prev => ({
         ...prev,
@@ -140,7 +177,14 @@ export default function RedesignedBookingForm() {
         // serviceDescription left empty for user to write manually
       }));
     }
-  }, [user, serviceData]);
+  }, [serviceData?.category]);
+  
+  // Check if user came from emergency button and auto-check critical booking
+  useEffect(() => {
+    if (params.isEmergency === 'true') {
+      setIsCritical(true);
+    }
+  }, [params.isEmergency]);
   
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [selectedConstituency, setSelectedConstituency] = useState<string>('');
@@ -187,11 +231,29 @@ export default function RedesignedBookingForm() {
   };
 
   /**
+   * HANDLE DATE CHANGE - From DateTimePicker
+   */
+  const handleDateChange = (event: any, date?: Date) => {
+    setShowDatePicker(Platform.OS === 'ios'); // Keep open on iOS, close on Android
+    
+    if (date) {
+      setSelectedDate(date);
+      const formattedDate = date.toISOString().split('T')[0]; // YYYY-MM-DD format
+      const urgency: 'normal' | 'urgent' | 'emergency' = determineUrgency(bookingData.preferredTimeSlot, formattedDate);
+      setBookingData(prev => ({ 
+        ...prev, 
+        preferredDate: formattedDate,
+        urgency: urgency
+      }));
+    }
+  };
+
+  /**
    * COMPREHENSIVE FORM VALIDATION
    */
   const validateForm = (): boolean => {
-    console.log('🔍 Starting form validation...');
-    console.log('📋 Current booking data:', bookingData);
+    console.log(' Starting form validation...');
+    console.log(' Current booking data:', bookingData);
     
     const newErrors: Record<string, string> = {};
     
@@ -238,25 +300,49 @@ export default function RedesignedBookingForm() {
       newErrors.locationDescription = 'Location description is required';
     }
     
-    // SCHEDULING
-    if (!bookingData.preferredDate) {
-      newErrors.preferredDate = 'Preferred date is required';
-    } else {
-      const selectedDate = new Date(bookingData.preferredDate);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+    // SCHEDULING - Skip validation for critical bookings
+    if (!isCritical) {
+      if (!bookingData.preferredDate) {
+        newErrors.preferredDate = 'Preferred date is required';
+      } else {
+        const selectedDate = new Date(bookingData.preferredDate);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        if (selectedDate < today) {
+          newErrors.preferredDate = 'Date cannot be in the past';
+        }
+      }
       
-      if (selectedDate < today) {
-        newErrors.preferredDate = 'Date cannot be in the past';
+      if (!bookingData.preferredTimeSlot) {
+        newErrors.preferredTimeSlot = 'Time slot is required';
+      } else {
+        // 2-HOUR BOOKING DEADLINE VALIDATION
+        const now = new Date();
+        const bookingDateTime = new Date(bookingData.preferredDate);
+        
+        // Parse time slot (e.g., "08:00-10:00" -> start time 08:00)
+        const timeSlot = bookingData.preferredTimeSlot;
+        if (!timeSlot.includes('emergency') && !timeSlot.includes('flexible')) {
+          const startTime = timeSlot.split('-')[0];
+          const [hours, minutes] = startTime.split(':').map(Number);
+          bookingDateTime.setHours(hours, minutes, 0, 0);
+          
+          // Calculate time difference in hours
+          const timeDiffMs = bookingDateTime.getTime() - now.getTime();
+          const hoursDiff = timeDiffMs / (1000 * 60 * 60);
+          
+          if (hoursDiff < 2) {
+            newErrors.preferredTimeSlot = 
+              'Bookings must be made at least 2 hours in advance. ' +
+              'For urgent needs, please check "Critical Booking" above.';
+          }
+        }
       }
     }
     
-    if (!bookingData.preferredTimeSlot) {
-      newErrors.preferredTimeSlot = 'Time slot is required';
-    }
-    
-    console.log('🔍 Validation errors found:', newErrors);
-    console.log('✅ Validation result:', Object.keys(newErrors).length === 0 ? 'PASSED' : 'FAILED');
+    console.log(' Validation errors found:', newErrors);
+    console.log(' Validation result:', Object.keys(newErrors).length === 0 ? 'PASSED' : 'FAILED');
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -266,38 +352,54 @@ export default function RedesignedBookingForm() {
    * SUBMIT BOOKING
    */
   const handleSubmit = async () => {
-    console.log('🚀 Starting booking submission...');
-    console.log('📋 Form data:', bookingData);
+    console.log(' Starting booking submission...');
+    console.log(' Form data:', bookingData);
     
     if (!validateForm()) {
-      console.log('❌ Form validation failed');
+      console.log(' Form validation failed');
       Alert.alert('Validation Error', 'Please check all required fields');
       return;
     }
     
-    console.log('✅ Form validation passed');
+    console.log(' Form validation passed');
     setIsSubmitting(true);
     
     try {
-      console.log('📡 Sending request to:', 'http://localhost:3000/api/bookings-redesigned/redesigned');
-      console.log('📋 Request payload:', JSON.stringify(bookingData, null, 2));
+      // Get auth token from storage - use 'authToken' key (matches auth context)
+      const token = await storage.getItem('authToken');
+      console.log(' Auth token:', token ? 'Found' : 'Not found');
       
-      const response = await fetch('http://localhost:3000/api/bookings-redesigned/redesigned', {
+      // Prepare submission data - set urgency to emergency for critical bookings
+      const submissionData = {
+        ...bookingData,
+        isCritical, // Send critical booking flag to backend
+        urgency: isCritical ? 'emergency' : bookingData.urgency,
+        // For critical bookings, set immediate time slot
+        preferredTimeSlot: isCritical ? 'emergency-asap' : bookingData.preferredTimeSlot,
+        preferredDate: isCritical ? new Date().toISOString().split('T')[0] : bookingData.preferredDate
+      };
+      
+      console.log(` ${isCritical ? 'CRITICAL' : 'NORMAL'} Booking Submission`);
+      console.log(' Sending request to:', 'http://localhost:5000/api/bookings-redesigned/redesigned');
+      console.log(' Request payload:', JSON.stringify(submissionData, null, 2));
+      
+      const response = await fetch('http://localhost:5000/api/bookings-redesigned/redesigned', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : '',
         },
-        body: JSON.stringify(bookingData)
+        body: JSON.stringify(submissionData)
       });
       
-      console.log('📡 Response status:', response.status);
-      console.log('📡 Response headers:', response.headers);
+      console.log(' Response status:', response.status);
+      console.log(' Response headers:', response.headers);
       
       const result = await response.json();
-      console.log('📋 Response data:', result);
+      console.log(' Response data:', result);
       
       if (result.success) {
-        console.log('✅ Booking submitted successfully:', result.data.bookingId);
+        console.log(' Booking submitted successfully:', result.data.bookingId);
         
         // Set success state for UI feedback
         setIsSuccess(true);
@@ -307,34 +409,34 @@ export default function RedesignedBookingForm() {
         });
         
         // Show success in console for debugging
-        console.log('%c🎉 BOOKING SUBMITTED SUCCESSFULLY! 🎉', 'background: green; color: white; padding: 10px; font-size: 16px; font-weight: bold;');
-        console.log(`📋 Booking ID: ${result.data.bookingId}`);
-        console.log(`📞 Contact Phone: ${result.data.clientPhone}`);
+        console.log('%c BOOKING SUBMITTED SUCCESSFULLY! ', 'background: green; color: white; padding: 10px; font-size: 16px; font-weight: bold;');
+        console.log(` Booking ID: ${result.data.bookingId}`);
+        console.log(` Contact Phone: ${result.data.clientPhone}`);
         
         // Navigate to my bookings after showing success for 3 seconds
         setTimeout(() => {
-          console.log('📋 Navigating to My Bookings...');
+          console.log(' Navigating to My Bookings...');
           router.replace('/bookings');
         }, 3000);
         
       } else {
-        console.log('❌ Booking submission failed:', result.message);
-        console.log('%c❌ BOOKING FAILED', 'background: red; color: white; padding: 10px; font-size: 16px; font-weight: bold;');
+        console.log(' Booking submission failed:', result.message);
+        console.log('%c BOOKING FAILED', 'background: red; color: white; padding: 10px; font-size: 16px; font-weight: bold;');
         
         try {
           Alert.alert('Submission Failed', result.message || 'Please try again');
         } catch (alertError) {
-          console.log('❌ Error:', result.message || 'Please try again');
-          console.log('❌ Alert error:', alertError);
+          console.log(' Error:', result.message || 'Please try again');
+          console.log(' Alert error:', alertError);
         }
       }
       
     } catch (error) {
-      console.error('💥 Booking submission error:', error);
+      console.error(' Booking submission error:', error);
       Alert.alert('Network Error', 'Please check your connection and try again');
     } finally {
       setIsSubmitting(false);
-      console.log('🏁 Booking submission finished');
+      console.log(' Booking submission finished');
     }
   };
 
@@ -407,8 +509,6 @@ export default function RedesignedBookingForm() {
                 <Text style={[styles.receiptValue, 
                   bookingData.urgency === 'emergency' && styles.emergencyText
                 ]}>
-                  {bookingData.urgency === 'emergency' && '🚨 '}
-                  {bookingData.urgency === 'normal' && '📅 '}
                   {bookingData.urgency.charAt(0).toUpperCase() + bookingData.urgency.slice(1)}
                 </Text>
               </View>
@@ -469,9 +569,9 @@ export default function RedesignedBookingForm() {
             <View style={styles.nextStepsSection}>
               <Text style={styles.nextStepsTitle}>What&apos;s Next?</Text>
               <Text style={styles.nextStepsText}>
-                • We&apos;ll assign a qualified technician{'\n'}
-                • You&apos;ll receive a confirmation call within 30 minutes{'\n'}
-                • Track your booking progress in &quot;My Bookings&quot;
+                We&apos;ll assign a qualified technician{'\n'}
+                You&apos;ll receive a confirmation call within 30 minutes{'\n'}
+                Track your booking progress in &quot;My Bookings&quot;
               </Text>
             </View>
             
@@ -557,6 +657,34 @@ export default function RedesignedBookingForm() {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Service Details</Text>
         
+        {/* CRITICAL BOOKING CHECKBOX */}
+        <TouchableOpacity 
+          style={styles.criticalBookingContainer}
+          onPress={() => setIsCritical(!isCritical)}
+          activeOpacity={0.7}
+        >
+          <View style={[styles.checkbox, isCritical && styles.checkboxChecked]}>
+            {isCritical && <Ionicons name="checkmark" size={18} color="#fff" />}
+          </View>
+          <View style={styles.criticalBookingTextContainer}>
+            <Text style={styles.criticalBookingLabel}>
+              [CRITICAL] Emergency Booking
+            </Text>
+            <Text style={styles.criticalBookingSubtext}>
+              Check this for urgent issues requiring immediate attention
+            </Text>
+          </View>
+        </TouchableOpacity>
+        
+        {isCritical && (
+          <View style={styles.criticalInfoBox}>
+            <Ionicons name="information-circle" size={20} color="#dc3545" />
+            <Text style={styles.criticalInfoText}>
+              Critical bookings will be prioritized for immediate dispatch. A technician will be assigned ASAP.
+            </Text>
+          </View>
+        )}
+        
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Service Type *</Text>
           <View style={[styles.pickerContainer, errors.serviceType && styles.inputError]}>
@@ -588,17 +716,17 @@ export default function RedesignedBookingForm() {
           />
           {errors.serviceDescription && <Text style={styles.errorText}>{errors.serviceDescription}</Text>}
           
-          {/* 💡 HELPFUL TIP FOR WRITING DESCRIPTIONS */}
+          {/*  HELPFUL TIP FOR WRITING DESCRIPTIONS */}
           <View style={styles.tipContainer}>
             <View style={{flexDirection: 'row', alignItems: 'flex-start'}}>
-              <Text style={styles.tipIcon}>💡</Text>
+              <Text style={styles.tipIcon}>TIP:</Text>
               <View style={{flex: 1}}>
                 <Text style={styles.tipText}>
                   <Text style={styles.tipBold}>Writing a good description helps:</Text>{'\n'}
-                  • Technicians prepare the right tools{'\n'}
-                  • Get accurate cost estimates{'\n'}
-                  • Schedule appropriate time slots{'\n'}
-                  • Avoid multiple trips
+                  Technicians prepare the right tools{'\n'}
+                  Get accurate cost estimates{'\n'}
+                  Schedule appropriate time slots{'\n'}
+                  Avoid multiple trips
                 </Text>
               </View>
             </View>
@@ -706,83 +834,93 @@ export default function RedesignedBookingForm() {
         </View>
       </View>
 
-      {/* SCHEDULING */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Scheduling</Text>
-        
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Preferred Date *</Text>
-          <TextInput
-            style={[styles.input, errors.preferredDate && styles.inputError]}
-            value={bookingData.preferredDate}
-            onChangeText={(text) => {
-              const urgency: 'normal' | 'urgent' | 'emergency' = determineUrgency(bookingData.preferredTimeSlot, text);
-              setBookingData(prev => ({ 
-                ...prev, 
-                preferredDate: text,
-                urgency: urgency
-              }));
-            }}
-            placeholder="YYYY-MM-DD (e.g., 2024-12-25)"
-            placeholderTextColor="#999"
-          />
-          {errors.preferredDate && <Text style={styles.errorText}>{errors.preferredDate}</Text>}
-        </View>
-        
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Preferred Time Slot *</Text>
-          <View style={[styles.pickerContainer, errors.preferredTimeSlot && styles.inputError]}>
-            <Picker
-              selectedValue={bookingData.preferredTimeSlot}
-              onValueChange={(value) => {
-                const urgency: 'normal' | 'urgent' | 'emergency' = determineUrgency(value, bookingData.preferredDate);
-                setBookingData(prev => ({ 
-                  ...prev, 
-                  preferredTimeSlot: value,
-                  urgency: urgency
-                }));
-              }}
-              style={styles.picker}
+      {/* SCHEDULING - Hidden for critical bookings */}
+      {!isCritical && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Scheduling</Text>
+          
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Preferred Date *</Text>
+            <TouchableOpacity
+              style={[styles.datePickerButton, errors.preferredDate && styles.inputError]}
+              onPress={() => setShowDatePicker(true)}
             >
-              <Picker.Item label="Select time slot" value="" />
-              {TIME_SLOTS.map(slot => (
-                <Picker.Item key={slot.value} label={slot.label} value={slot.value} />
-              ))}
-            </Picker>
-          </View>
-          {errors.preferredTimeSlot && <Text style={styles.errorText}>{errors.preferredTimeSlot}</Text>}
-          
-          {/* Show urgency level indicator */}
-          {bookingData.preferredTimeSlot && (
-            <View style={styles.urgencyIndicator}>
-              <View style={[
-                styles.urgencyBadge, 
-                bookingData.urgency === 'emergency' && styles.emergencyBadge,
-                bookingData.urgency === 'normal' && styles.normalBadge
+              <Ionicons name="calendar-outline" size={20} color="#007AFF" />
+              <Text style={[
+                styles.datePickerText,
+                !bookingData.preferredDate && styles.datePickerPlaceholder
               ]}>
-                <Text style={[
-                  styles.urgencyText,
-                  bookingData.urgency === 'emergency' && styles.emergencyText
-                ]}>
-                  {bookingData.urgency === 'emergency' && '🚨 '}
-                  {bookingData.urgency === 'normal' && '📅 '}
-                  {bookingData.urgency.charAt(0).toUpperCase() + bookingData.urgency.slice(1)} Booking
-                </Text>
-              </View>
-              {bookingData.urgency === 'emergency' && (
-                <Text style={styles.emergencyNote}>
-                  Emergency bookings incur additional charges for immediate response
-                </Text>
-              )}
-            </View>
-          )}
+                {bookingData.preferredDate || 'Select date'}
+              </Text>
+              <Ionicons name="chevron-down" size={20} color="#999" />
+            </TouchableOpacity>
+            {errors.preferredDate && <Text style={styles.errorText}>{errors.preferredDate}</Text>}
+            
+            {/* DateTimePicker Modal */}
+            {showDatePicker && (
+              <DateTimePicker
+                value={selectedDate}
+                mode="date"
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                onChange={handleDateChange}
+                minimumDate={new Date()} // Prevent past dates
+              />
+            )}
+          </View>
           
-          {/* Helpful note about auto-determined urgency */}
-          <Text style={styles.helpText}>
-            💡 Urgency level is automatically determined based on your selected time slot and date
-          </Text>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Preferred Time Slot *</Text>
+            <View style={[styles.pickerContainer, errors.preferredTimeSlot && styles.inputError]}>
+              <Picker
+                selectedValue={bookingData.preferredTimeSlot}
+                onValueChange={(value) => {
+                  const urgency: 'normal' | 'urgent' | 'emergency' = determineUrgency(value, bookingData.preferredDate);
+                  setBookingData(prev => ({ 
+                    ...prev, 
+                    preferredTimeSlot: value,
+                    urgency: urgency
+                  }));
+                }}
+                style={styles.picker}
+              >
+                <Picker.Item label="Select time slot" value="" />
+                {TIME_SLOTS.map(slot => (
+                  <Picker.Item key={slot.value} label={slot.label} value={slot.value} />
+                ))}
+              </Picker>
+            </View>
+            {errors.preferredTimeSlot && <Text style={styles.errorText}>{errors.preferredTimeSlot}</Text>}
+            
+            {/* Show urgency level indicator */}
+            {bookingData.preferredTimeSlot && (
+              <View style={styles.urgencyIndicator}>
+                <View style={[
+                  styles.urgencyBadge, 
+                  bookingData.urgency === 'emergency' && styles.emergencyBadge,
+                  bookingData.urgency === 'normal' && styles.normalBadge
+                ]}>
+                  <Text style={[
+                    styles.urgencyText,
+                    bookingData.urgency === 'emergency' && styles.emergencyText
+                  ]}>
+                    {bookingData.urgency.charAt(0).toUpperCase() + bookingData.urgency.slice(1)} Booking
+                  </Text>
+                </View>
+                {bookingData.urgency === 'emergency' && (
+                  <Text style={styles.emergencyNote}>
+                    WARNING: Emergency bookings incur additional charges for immediate response
+                  </Text>
+                )}
+              </View>
+            )}
+            
+            {/* Helpful note about auto-determined urgency */}
+            <Text style={styles.helpText}>
+              INFO: Urgency level is automatically determined based on your selected time slot and date
+            </Text>
+          </View>
         </View>
-      </View>
+      )}
 
       {/* ADDITIONAL REQUIREMENTS */}
       <View style={styles.section}>
@@ -807,7 +945,7 @@ export default function RedesignedBookingForm() {
       <TouchableOpacity 
         style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
         onPress={() => {
-          console.log('🖱️ Submit button pressed!');
+          console.log(' Submit button pressed!');
           handleSubmit();
         }}
         disabled={isSubmitting}
@@ -1114,5 +1252,80 @@ const styles = StyleSheet.create({
   },
   tipBold: {
     fontWeight: '600',
+  },
+  // DATE PICKER BUTTON STYLES
+  datePickerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 10,
+    padding: 15,
+    gap: 10,
+  },
+  datePickerText: {
+    flex: 1,
+    fontSize: 16,
+    color: '#333',
+  },
+  datePickerPlaceholder: {
+    color: '#999',
+  },
+  // CRITICAL BOOKING STYLES
+  criticalBookingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff5f5',
+    borderWidth: 2,
+    borderColor: '#dc3545',
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 15,
+  },
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderWidth: 2,
+    borderColor: '#dc3545',
+    borderRadius: 5,
+    marginRight: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+  },
+  checkboxChecked: {
+    backgroundColor: '#dc3545',
+    borderColor: '#dc3545',
+  },
+  criticalBookingTextContainer: {
+    flex: 1,
+  },
+  criticalBookingLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#dc3545',
+    marginBottom: 4,
+  },
+  criticalBookingSubtext: {
+    fontSize: 13,
+    color: '#666',
+  },
+  criticalInfoBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff5f5',
+    borderWidth: 1,
+    borderColor: '#dc3545',
+    borderRadius: 8,
+    padding: 12,
+    marginBottom: 15,
+    gap: 10,
+  },
+  criticalInfoText: {
+    flex: 1,
+    fontSize: 13,
+    color: '#dc3545',
+    lineHeight: 18,
   },
 });

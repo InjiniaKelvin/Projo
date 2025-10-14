@@ -3,25 +3,10 @@
  * 
  * This controller handles payment processing, wallet management,
  * and transaction recording with MongoDB integration.
+ * Payment processing is handled through M-Pesa integration.
  */
 
 const { Wallet, Transaction, User } = require('../models');
-
-// Initialize Stripe with proper error handling
-let stripe = null;
-if (process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRET_KEY.startsWith('sk_')) {
-  stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-} else {
-  console.warn('⚠️  Stripe not configured - using mock payments for development');
-  // Create a mock stripe object for development
-  stripe = {
-    paymentIntents: {
-      create: async () => ({ id: 'pi_mock_' + Date.now(), client_secret: 'mock_secret' }),
-      confirm: async () => ({ status: 'succeeded' }),
-      retrieve: async () => ({ status: 'succeeded' })
-    }
-  };
-}
 
 class PaymentController {
   /**
@@ -110,19 +95,13 @@ class PaymentController {
         case 'mpesa':
           paymentResult = await this.processMpesaPayment(amount, paymentDetails, transaction);
           break;
-        case 'card':
-          paymentResult = await this.processStripePayment(amount, paymentDetails, transaction);
-          break;
-        case 'paypal':
-          paymentResult = await this.processPayPalPayment(amount, paymentDetails, transaction);
-          break;
         case 'bank':
           paymentResult = await this.processBankTransfer(amount, paymentDetails, transaction);
           break;
         default:
           return res.status(400).json({
             success: false,
-            message: 'Invalid payment method'
+            message: 'Invalid payment method. Only M-Pesa and bank transfer supported.'
           });
       }
       
@@ -686,86 +665,6 @@ class PaymentController {
         success: false,
         error: error.message,
         errorCode: 'MPESA_EXCEPTION'
-      };
-    }
-  }
-
-  /**
-   * Process Stripe payment
-   * @param {number} amount - Payment amount
-   * @param {Object} details - Payment details
-   * @param {Object} transaction - Transaction object
-   * @returns {Object} Payment result
-   */
-  async processStripePayment(amount, details, transaction) {
-    try {
-      // Create payment intent with Stripe
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: Math.round(amount * 100), // Convert to cents
-        currency: 'kes',
-        payment_method: details.paymentMethodId,
-        confirm: true,
-        description: `Wallet deposit - ${transaction.transactionId}`
-      });
-      
-      if (paymentIntent.status === 'succeeded') {
-        return {
-          success: true,
-          externalTransactionId: paymentIntent.id,
-          gatewayResponse: paymentIntent
-        };
-      } else {
-        return {
-          success: false,
-          error: 'Stripe payment failed',
-          errorCode: paymentIntent.status
-        };
-      }
-    } catch (error) {
-      return {
-        success: false,
-        error: error.message,
-        errorCode: 'STRIPE_ERROR'
-      };
-    }
-  }
-
-  /**
-   * Process PayPal payment (mock implementation)
-   * @param {number} amount - Payment amount
-   * @param {Object} details - Payment details
-   * @param {Object} transaction - Transaction object
-   * @returns {Object} Payment result
-   */
-  async processPayPalPayment(amount, details, transaction) {
-    try {
-      // Mock PayPal implementation
-      // In production, integrate with PayPal API
-      
-      const mockSuccess = Math.random() > 0.05; // 95% success rate for demo
-      
-      if (mockSuccess) {
-        return {
-          success: true,
-          externalTransactionId: 'PP' + Date.now(),
-          gatewayResponse: {
-            status: 'COMPLETED',
-            transactionId: 'PP' + Date.now(),
-            payerId: details.payerId
-          }
-        };
-      } else {
-        return {
-          success: false,
-          error: 'PayPal payment failed',
-          errorCode: 'PAYPAL_ERROR'
-        };
-      }
-    } catch (error) {
-      return {
-        success: false,
-        error: error.message,
-        errorCode: 'PAYPAL_EXCEPTION'
       };
     }
   }

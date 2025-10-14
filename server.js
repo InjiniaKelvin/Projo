@@ -176,14 +176,14 @@ app.use('*', (req, res) => {
  */
 async function ensureIndexes() {
   try {
-    console.log('🔍 Ensuring database indexes...');
+    console.log(' Ensuring database indexes...');
     
     // Ensure Booking model indexes are created
     await Booking.createIndexes();
-    console.log('✅ Booking indexes created successfully');
+    console.log(' Booking indexes created successfully');
     
   } catch (error) {
-    console.error('⚠️ Error creating indexes:', error.message);
+    console.error(' Error creating indexes:', error.message);
     // Don't fail the server startup for index creation errors
   }
 }
@@ -195,41 +195,41 @@ async function startServer() {
   try {
     // Connect to MongoDB
     await database.connect();
-    console.log('✅ Database connected successfully');
+    console.log(' Database connected successfully');
     
     // Ensure indexes are created
     await ensureIndexes();
     
     // Start HTTP server with Socket.IO
     server.listen(PORT, () => {
-      console.log(`🚀 QuickFix server running on http://localhost:${PORT}`);
-      console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`🔍 Health check: http://localhost:${PORT}/health`);
-      console.log(`📚 API base URL: http://localhost:${PORT}/api`);
-      console.log(`🔌 WebSocket server initialized`);
-      console.log(`📱 Real-time features enabled`);
+      console.log(` QuickFix server running on http://localhost:${PORT}`);
+      console.log(` Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(` Health check: http://localhost:${PORT}/health`);
+      console.log(` API base URL: http://localhost:${PORT}/api`);
+      console.log(` WebSocket server initialized`);
+      console.log(` Real-time features enabled`);
     });
     
     // Graceful shutdown
     process.on('SIGTERM', async () => {
-      console.log('🛑 SIGTERM received. Shutting down gracefully...');
+      console.log(' SIGTERM received. Shutting down gracefully...');
       server.close(async () => {
         await database.disconnect();
-        console.log('✅ Server shut down successfully');
+        console.log(' Server shut down successfully');
         process.exit(0);
       });
     });
     
     process.on('SIGINT', async () => {
-      console.log('🛑 SIGINT received. Shutting down gracefully...');
+      console.log(' SIGINT received. Shutting down gracefully...');
       server.close(async () => {
         await database.disconnect();
-        console.log('✅ Server shut down successfully');
+        console.log(' Server shut down successfully');
         process.exit(0);
       });
     });
   } catch (error) {
-    console.error('❌ Failed to start server:', error.message);
+    console.error(' Failed to start server:', error.message);
     process.exit(1);
   }
 }

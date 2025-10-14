@@ -6,7 +6,7 @@ import StorageService from './StorageService';
 
 // Escrow configuration
 const ESCROW_CONFIG = {
-  API_BASE_URL: 'http://localhost:3000/api',
+  API_BASE_URL: 'http://localhost:5000/api',
   ESCROW_HOLD_DURATION: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
   AUTO_RELEASE_DELAY: 48 * 60 * 60 * 1000,   // 48 hours in milliseconds
   DISPUTE_TIMEOUT: 7 * 24 * 60 * 60 * 1000,  // 7 days in milliseconds
@@ -126,24 +126,6 @@ class EscrowService {
       let paymentResult;
       
       switch (fundingData.paymentMethod) {
-        case 'stripe_card':
-          paymentResult = await PaymentService.processStripePayment({
-            amount: fundingData.amount * 100, // Convert to cents
-            currency: fundingData.currency,
-            paymentMethodId: fundingData.stripePaymentMethodId,
-            description: 'Wallet funding',
-            userId: fundingData.userId,
-          });
-          break;
-
-        case 'paypal':
-          paymentResult = await PaymentService.processPayPalPayment({
-            amount: fundingData.amount,
-            currency: fundingData.currency,
-            description: 'Wallet funding',
-          });
-          break;
-
         case 'mpesa':
           paymentResult = await PaymentService.processMPesaPayment({
             amount: fundingData.amount,
@@ -515,9 +497,9 @@ class EscrowService {
           id: 'txn_002',
           type: 'wallet_credit',
           amount: 500.00,
-          currency: 'USD',
+          currency: 'KES',
           status: 'completed',
-          paymentMethod: 'stripe_card',
+          paymentMethod: 'mpesa',
           description: 'Wallet funding',
           createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
         },

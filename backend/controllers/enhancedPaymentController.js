@@ -2,28 +2,17 @@
  * Enhanced Payment Controller
  * 
  * This controller handles all payment operations including:
- * - Stripe integration for international payments
- * - PayPal integration for global coverage
  * - M-Pesa integration for Kenyan mobile payments
  * - Escrow system for secure transactions
  * - Automatic payment processing and release
  * - Transaction history and reporting
  */
 
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const paypal = require('paypal-rest-sdk');
 const axios = require('axios');
 const User = require('../models/User');
 const Booking = require('../models/Booking');
 const Transaction = require('../models/Transaction');
 const NotificationService = require('../services/NotificationService');
-
-// PayPal Configuration
-paypal.configure({
-  mode: process.env.PAYPAL_MODE || 'sandbox',
-  client_id: process.env.PAYPAL_CLIENT_ID,
-  client_secret: process.env.PAYPAL_CLIENT_SECRET
-});
 
 // M-Pesa Configuration (Safaricom Daraja API)
 const MPESA_CONFIG = {
@@ -65,8 +54,8 @@ const createPaymentIntent = async (req, res) => {
     const { 
       bookingId, 
       amount, 
-      paymentMethod, // 'stripe', 'paypal', 'mpesa'
-      currency = 'USD',
+      paymentMethod = 'mpesa', // Default to M-Pesa
+      currency = 'KES',
       phoneNumber // Required for M-Pesa
     } = req.body;
 
@@ -84,18 +73,11 @@ const createPaymentIntent = async (req, res) => {
 
     let paymentResult;
 
-    switch (paymentMethod) {
-      case 'stripe':
-        paymentResult = await createStripePaymentIntent(amount, currency, booking);
-        break;
-      case 'paypal':
-        paymentResult = await createPayPalPayment(amount, currency, booking);
-        break;
-      case 'mpesa':
-        paymentResult = await initiateMpesaPayment(amount, phoneNumber, booking);
-        break;
-      default:
-        return res.status(400).json({ message: 'Invalid payment method' });
+    // Only M-Pesa payments supported
+    if (paymentMethod === 'mpesa') {
+      paymentResult = await initiateMpesaPayment(amount, phoneNumber, booking);
+    } else {
+      return res.status(400).json({ message: 'Only M-Pesa payment method is supported' });
     }
 
     // Create transaction record
@@ -124,81 +106,6 @@ const createPaymentIntent = async (req, res) => {
       message: 'Failed to create payment intent', 
       error: error.message 
     });
-  }
-};
-
-/**
- * Create Stripe payment intent
- */
-const createStripePaymentIntent = async (amount, currency, booking) => {
-  try {
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Stripe expects cents
-      currency: currency.toLowerCase(),
-      metadata: {
-        bookingId: booking._id.toString(),
-        clientId: booking.clientId._id.toString(),
-        technicianId: booking.technicianId ? booking.technicianId._id.toString() : null
-      },
-      description: `QuickFix ${booking.serviceType} service`
-    });
-
-    return {
-      id: paymentIntent.id,
-      clientSecret: paymentIntent.client_secret,
-      metadata: {
-        stripePaymentIntentId: paymentIntent.id
-      }
-    };
-  } catch (error) {
-    console.error('Stripe payment intent error:', error);
-    throw new Error('Failed to create Stripe payment intent');
-  }
-};
-
-/**
- * Create PayPal payment
- */
-const createPayPalPayment = async (amount, currency, booking) => {
-  try {
-    const payment = {
-      intent: 'sale',
-      payer: {
-        payment_method: 'paypal'
-      },
-      redirect_urls: {
-        return_url: `${process.env.FRONTEND_URL}/payment/success`,
-        cancel_url: `${process.env.FRONTEND_URL}/payment/cancel`
-      },
-      transactions: [{
-        amount: {
-          currency: currency.toUpperCase(),
-          total: amount.toString()
-        },
-        description: `QuickFix ${booking.serviceType} service`,
-        custom: booking._id.toString()
-      }]
-    };
-
-    return new Promise((resolve, reject) => {
-      paypal.payment.create(payment, (error, payment) => {
-        if (error) {
-          reject(error);
-        } else {
-          const approvalUrl = payment.links.find(link => link.rel === 'approval_url');
-          resolve({
-            id: payment.id,
-            approvalUrl: approvalUrl.href,
-            metadata: {
-              paypalPaymentId: payment.id
-            }
-          });
-        }
-      });
-    });
-  } catch (error) {
-    console.error('PayPal payment error:', error);
-    throw new Error('Failed to create PayPal payment');
   }
 };
 
@@ -285,23 +192,8 @@ const confirmPayment = async (req, res) => {
     let paymentConfirmed = false;
     let paymentDetails = {};
 
-    // Verify payment based on provider
-    switch (transaction.paymentMethod) {
-      case 'stripe':
-        const stripeResult = await verifyStripePayment(paymentIntentId);
-        paymentConfirmed = stripeResult.confirmed;
-        paymentDetails = stripeResult.details;
-        break;
-      case 'paypal':
-        const paypalResult = await verifyPayPalPayment(paymentIntentId);
-        paymentConfirmed = paypalResult.confirmed;
-        paymentDetails = paypalResult.details;
-        break;
-      case 'mpesa':
-        // M-Pesa payments are verified via callback
-        paymentConfirmed = transaction.status === 'completed';
-        break;
-    }
+    // M-Pesa payments are verified via callback
+    paymentConfirmed = transaction.status === 'completed';
 
     if (paymentConfirmed) {
       // Update transaction status
@@ -357,54 +249,6 @@ const confirmPayment = async (req, res) => {
       message: 'Failed to confirm payment', 
       error: error.message 
     });
-  }
-};
-
-/**
- * Verify Stripe payment
- */
-const verifyStripePayment = async (paymentIntentId) => {
-  try {
-    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
-    
-    return {
-      confirmed: paymentIntent.status === 'succeeded',
-      details: {
-        stripePaymentIntentId: paymentIntent.id,
-        stripeChargeId: paymentIntent.charges.data[0]?.id,
-        paymentMethodType: paymentIntent.payment_method_types[0]
-      }
-    };
-  } catch (error) {
-    console.error('Stripe verification error:', error);
-    return { confirmed: false, details: {} };
-  }
-};
-
-/**
- * Verify PayPal payment
- */
-const verifyPayPalPayment = async (paymentId) => {
-  try {
-    return new Promise((resolve) => {
-      paypal.payment.get(paymentId, (error, payment) => {
-        if (error) {
-          resolve({ confirmed: false, details: {} });
-        } else {
-          const confirmed = payment.state === 'approved';
-          resolve({
-            confirmed,
-            details: {
-              paypalPaymentId: payment.id,
-              paypalState: payment.state
-            }
-          });
-        }
-      });
-    });
-  } catch (error) {
-    console.error('PayPal verification error:', error);
-    return { confirmed: false, details: {} };
   }
 };
 

@@ -37,7 +37,7 @@ export default function ClientDashboard() {
   };
 
   const handleNavigateToWallet = () => {
-    console.log('🚀 Navigating to wallet...');
+    console.log(' Navigating to wallet...');
     try {
       router.push('/wallet');
     } catch (error) {
@@ -47,7 +47,7 @@ export default function ClientDashboard() {
   };
 
   const handleNavigateToMessages = () => {
-    console.log('🚀 Navigating to messages...');
+    console.log(' Navigating to messages...');
     try {
       router.push('/messages');
     } catch (error) {
@@ -57,17 +57,17 @@ export default function ClientDashboard() {
   };
 
   const handleNavigateToEmergency = () => {
-    console.log('� Navigating to emergency services...');
+    console.log('🚨 Navigating to emergency booking...');
     try {
-      router.push('/booking/emergency-services');
+      router.push('/booking/details?isEmergency=true');
     } catch (error) {
       console.error('Navigation error:', error);
-      Alert.alert('Navigation Error', 'Unable to navigate to emergency services. Please try again.');
+      Alert.alert('Navigation Error', 'Unable to navigate to emergency booking. Please try again.');
     }
   };
 
   const handleNavigateToSupport = () => {
-    console.log('🚀 Navigating to support...');
+    console.log(' Navigating to support...');
     try {
       router.push('/support');
     } catch (error) {
@@ -77,7 +77,7 @@ export default function ClientDashboard() {
   };
 
   const handleNavigateToRating = () => {
-    console.log('🚀 Navigating to rating...');
+    console.log(' Navigating to rating...');
     try {
       router.push('/rating');
     } catch (error) {
@@ -87,7 +87,7 @@ export default function ClientDashboard() {
   };
 
   const handleLogout = async () => {
-    console.log('🚪 handleLogout called - attempting web-compatible confirmation');
+    console.log(' handleLogout called - attempting web-compatible confirmation');
     
     // For web compatibility, use confirm() instead of Alert.alert
     const confirmLogout = () => {
@@ -110,41 +110,41 @@ export default function ClientDashboard() {
     };
 
     try {
-      console.log('🚪 Showing confirmation dialog...');
+      console.log(' Showing confirmation dialog...');
       const confirmed = await confirmLogout();
       
       if (!confirmed) {
-        console.log('🚪 User cancelled logout');
+        console.log(' User cancelled logout');
         return;
       }
 
-      console.log('🚪 Logout confirmed by user - initiating logout...');
-      console.log('🚪 Current auth state before logout:', { isAuthenticated: user !== null, userExists: !!user });
+      console.log(' Logout confirmed by user - initiating logout...');
+      console.log(' Current auth state before logout:', { isAuthenticated: user !== null, userExists: !!user });
       
       // Call logout and wait for it to complete
-      console.log('🚪 Calling logout function...');
+      console.log(' Calling logout function...');
       await logout();
-      console.log('🚪 Logout function completed successfully');
+      console.log(' Logout function completed successfully');
       
       // Log router state before navigation
-      console.log('🚪 Router object:', router);
+      console.log(' Router object:', router);
       
       // Try immediate navigation first
-      console.log('🚪 Attempting immediate navigation to /auth/login...');
+      console.log(' Attempting immediate navigation to /auth/login...');
       try {
         router.replace('/auth/login');
-        console.log('🚪 Immediate navigation successful');
+        console.log(' Immediate navigation successful');
       } catch (navError) {
-        console.error('🚪 Immediate navigation failed:', navError);
+        console.error(' Immediate navigation failed:', navError);
         
         // Fallback: try with timeout
         setTimeout(() => {
-          console.log('🚪 Attempting delayed navigation to /auth/login...');
+          console.log(' Attempting delayed navigation to /auth/login...');
           try {
             router.replace('/auth/login');
-            console.log('🚪 Delayed navigation successful');
+            console.log(' Delayed navigation successful');
           } catch (delayedNavError) {
-            console.error('🚪 Delayed navigation also failed:', delayedNavError);
+            console.error(' Delayed navigation also failed:', delayedNavError);
             // Last resort: try push instead of replace
             router.push('/auth/login');
           }
@@ -152,7 +152,7 @@ export default function ClientDashboard() {
       }
       
     } catch (error) {
-      console.error('🚪 Logout error:', error);
+      console.error(' Logout error:', error);
       Alert.alert('Error', 'Failed to logout. Please try again.');
     }
   };

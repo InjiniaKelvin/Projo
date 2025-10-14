@@ -85,9 +85,9 @@ export default function ServiceRequestScreen() {
             </Text>
             <TouchableOpacity 
               style={styles.emergencyButton}
-              onPress={() => router.push('/booking/emergency-services')}
+              onPress={() => router.push('/booking/details?isEmergency=true')}
             >
-              <Text style={styles.emergencyButtonText}>Emergency Services</Text>
+              <Text style={styles.emergencyButtonText}>Emergency Booking</Text>
             </TouchableOpacity>
           </View>
         </View>

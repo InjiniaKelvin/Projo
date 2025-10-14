@@ -122,7 +122,7 @@ export default function BookingTrackingScreen() {
         throw new Error(result.message || 'Failed to fetch tracking data');
       }
     } catch (error) {
-      console.error('❌ Error fetching tracking data:', error);
+      console.error(' Error fetching tracking data:', error);
       setError('Failed to load tracking information');
     } finally {
       setIsLoading(false);

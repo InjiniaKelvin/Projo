@@ -9,7 +9,7 @@ import { StyleSheet, Text, View } from 'react-native';
 const MockModeIndicator = () => {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>🧪 DEMO MODE - Backend Offline</Text>
+      <Text style={styles.text}> DEMO MODE - Backend Offline</Text>
     </View>
   );
 };

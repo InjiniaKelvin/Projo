@@ -20,7 +20,7 @@ export default function TechnicianDashboard() {
 
   // Navigation handlers for technician-specific features
   const handleBrowseJobs = () => {
-    console.log('🔍 TECH: Navigating to browse jobs...');
+    console.log(' TECH: Navigating to browse jobs...');
     try {
       router.push('/technician/jobs/browse');
     } catch (error) {
@@ -30,7 +30,7 @@ export default function TechnicianDashboard() {
   };
 
   const handleMyJobs = () => {
-    console.log('📋 TECH: Navigating to my jobs...');
+    console.log(' TECH: Navigating to my jobs...');
     try {
       router.push('/technician/jobs/my-jobs');
     } catch (error) {
@@ -40,7 +40,7 @@ export default function TechnicianDashboard() {
   };
 
   const handleEarnings = () => {
-    console.log('💰 TECH: Navigating to earnings...');
+    console.log(' TECH: Navigating to earnings...');
     try {
       router.push('/technician/earnings');
     } catch (error) {
@@ -50,7 +50,7 @@ export default function TechnicianDashboard() {
   };
 
   const handleProfile = () => {
-    console.log('👤 TECH: Navigating to profile...');
+    console.log(' TECH: Navigating to profile...');
     try {
       router.push('/technician/profile');
     } catch (error) {
@@ -60,7 +60,7 @@ export default function TechnicianDashboard() {
   };
 
   const handleJobDetails = (jobId) => {
-    console.log('📝 TECH: Navigating to job details for:', jobId);
+    console.log(' TECH: Navigating to job details for:', jobId);
     try {
       router.push(`/technician/jobs/${jobId}`);
     } catch (error) {
@@ -70,7 +70,7 @@ export default function TechnicianDashboard() {
   };
 
   const handleQuickAcceptJob = () => {
-    console.log('⚡ TECH: Quick accept next available job...');
+    console.log(' TECH: Quick accept next available job...');
     Alert.alert(
       'Quick Accept',
       'Accept the next available job in your area?',
@@ -87,7 +87,7 @@ export default function TechnicianDashboard() {
   };
 
   const handleUpdateAvailability = () => {
-    console.log('🕒 TECH: Update availability status...');
+    console.log(' TECH: Update availability status...');
     Alert.alert(
       'Availability Status',
       'Update your work availability:',
@@ -101,7 +101,7 @@ export default function TechnicianDashboard() {
   };
 
   const handleEmergencySupport = () => {
-    console.log('🚨 TECH: Emergency support...');
+    console.log(' TECH: Emergency support...');
     Alert.alert(
       'Emergency Support',
       'Need immediate assistance?',
@@ -145,7 +145,7 @@ export default function TechnicianDashboard() {
   };
 
   const handleLogout = async () => {
-    console.log('🚪 TECH: handleLogout called - attempting web-compatible confirmation');
+    console.log(' TECH: handleLogout called - attempting web-compatible confirmation');
     
     // For web compatibility, use confirm() instead of Alert.alert
     const confirmLogout = () => {
@@ -168,41 +168,41 @@ export default function TechnicianDashboard() {
     };
 
     try {
-      console.log('🚪 TECH: Showing confirmation dialog...');
+      console.log(' TECH: Showing confirmation dialog...');
       const confirmed = await confirmLogout();
       
       if (!confirmed) {
-        console.log('🚪 TECH: User cancelled logout');
+        console.log(' TECH: User cancelled logout');
         return;
       }
 
-      console.log('🚪 TECH: Logout confirmed by user - initiating logout...');
-      console.log('🚪 TECH: Current auth state before logout:', { isAuthenticated: user !== null, userExists: !!user });
+      console.log(' TECH: Logout confirmed by user - initiating logout...');
+      console.log(' TECH: Current auth state before logout:', { isAuthenticated: user !== null, userExists: !!user });
       
       // Call logout and wait for it to complete
-      console.log('🚪 TECH: Calling logout function...');
+      console.log(' TECH: Calling logout function...');
       await logout();
-      console.log('🚪 TECH: Logout function completed successfully');
+      console.log(' TECH: Logout function completed successfully');
       
       // Log router state before navigation
-      console.log('🚪 TECH: Router object:', router);
+      console.log(' TECH: Router object:', router);
       
       // Try immediate navigation first
-      console.log('🚪 TECH: Attempting immediate navigation to /auth/login...');
+      console.log(' TECH: Attempting immediate navigation to /auth/login...');
       try {
         router.replace('/auth/login');
-        console.log('🚪 TECH: Immediate navigation successful');
+        console.log(' TECH: Immediate navigation successful');
       } catch (navError) {
-        console.error('🚪 TECH: Immediate navigation failed:', navError);
+        console.error(' TECH: Immediate navigation failed:', navError);
         
         // Fallback: try with timeout
         setTimeout(() => {
-          console.log('🚪 TECH: Attempting delayed navigation to /auth/login...');
+          console.log(' TECH: Attempting delayed navigation to /auth/login...');
           try {
             router.replace('/auth/login');
-            console.log('🚪 TECH: Delayed navigation successful');
+            console.log(' TECH: Delayed navigation successful');
           } catch (delayedNavError) {
-            console.error('🚪 TECH: Delayed navigation also failed:', delayedNavError);
+            console.error(' TECH: Delayed navigation also failed:', delayedNavError);
             // Last resort: try push instead of replace
             router.push('/auth/login');
           }
@@ -210,7 +210,7 @@ export default function TechnicianDashboard() {
       }
       
     } catch (error) {
-      console.error('🚪 TECH: Logout error:', error);
+      console.error(' TECH: Logout error:', error);
       Alert.alert('Error', 'Failed to logout. Please try again.');
     }
   };
@@ -236,7 +236,7 @@ export default function TechnicianDashboard() {
       </View>
       <Text style={styles.jobDetails} numberOfLines={2}>{item.description}</Text>
       <Text style={styles.jobAddress} numberOfLines={1}>
-        📍 {item.location?.address || 'Location not specified'}
+         {item.location?.address || 'Location not specified'}
       </Text>
       <View style={styles.jobFooter}>
         <Text style={styles.jobDate}>

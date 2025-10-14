@@ -38,17 +38,17 @@ export const WebSocketProvider = ({ children }) => {
       if (reconnectAttempts.current < maxReconnectAttempts) {
         const delay = Math.pow(2, reconnectAttempts.current) * 1000; // Exponential backoff
         setTimeout(() => {
-          console.log(`🔄 Attempting to reconnect... (${reconnectAttempts.current + 1}/${maxReconnectAttempts})`);
+          console.log(` Attempting to reconnect... (${reconnectAttempts.current + 1}/${maxReconnectAttempts})`);
           reconnectAttempts.current++;
           connectSocket();
         }, delay);
       } else {
-        console.log('❌ Max reconnection attempts reached');
+        console.log(' Max reconnection attempts reached');
       }
     };
 
     try {
-      const socketInstance = io(process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000', {
+      const socketInstance = io(process.env.EXPO_PUBLIC_API_URL || 'http://localhost:5000', {
         auth: {
           token: token
         },
@@ -57,7 +57,7 @@ export const WebSocketProvider = ({ children }) => {
       });
 
       socketInstance.on('connect', () => {
-        console.log('✅ WebSocket connected');
+        console.log(' WebSocket connected');
         setConnected(true);
         setSocket(socketInstance);
         reconnectAttempts.current = 0;
@@ -70,7 +70,7 @@ export const WebSocketProvider = ({ children }) => {
       });
 
       socketInstance.on('disconnect', (reason) => {
-        console.log('❌ WebSocket disconnected:', reason);
+        console.log(' WebSocket disconnected:', reason);
         setConnected(false);
         
         if (reason === 'io server disconnect') {
@@ -87,7 +87,7 @@ export const WebSocketProvider = ({ children }) => {
 
       // Booking update events
       socketInstance.on('booking-updated', (data) => {
-        console.log('📦 Booking updated:', data);
+        console.log(' Booking updated:', data);
         setBookingUpdates(prev => ({
           ...prev,
           [data.bookingId]: data
@@ -106,7 +106,7 @@ export const WebSocketProvider = ({ children }) => {
 
       // Technician assignment events
       socketInstance.on('technician-assigned', (data) => {
-        console.log('👨‍🔧 Technician assigned:', data);
+        console.log(' Technician assigned:', data);
         setBookingUpdates(prev => ({
           ...prev,
           [data.bookingId]: {
@@ -128,7 +128,7 @@ export const WebSocketProvider = ({ children }) => {
 
       // Location updates
       socketInstance.on('technician-location-update', (data) => {
-        console.log('📍 Technician location updated:', data);
+        console.log(' Technician location updated:', data);
         setTechnicianLocations(prev => ({
           ...prev,
           [data.technicianId]: data.location
@@ -137,7 +137,7 @@ export const WebSocketProvider = ({ children }) => {
 
       // Chat message events
       socketInstance.on('new-message', (data) => {
-        console.log('💬 New message:', data);
+        console.log(' New message:', data);
         addNotification({
           id: Date.now().toString(),
           type: 'new_message',
@@ -150,7 +150,7 @@ export const WebSocketProvider = ({ children }) => {
 
       // Payment events
       socketInstance.on('payment-status-updated', (data) => {
-        console.log('💳 Payment status updated:', data);
+        console.log(' Payment status updated:', data);
         addNotification({
           id: Date.now().toString(),
           type: 'payment_update',
@@ -163,7 +163,7 @@ export const WebSocketProvider = ({ children }) => {
 
       // Emergency alerts
       socketInstance.on('emergency-alert', (data) => {
-        console.log('🚨 Emergency alert:', data);
+        console.log(' Emergency alert:', data);
         addNotification({
           id: Date.now().toString(),
           type: 'emergency_alert',

@@ -138,15 +138,6 @@ export default function AddFundsScreen({ navigation }) {
         case 'bank_transfer':
           fundingData.bankAccount = bankAccount;
           break;
-          
-        case 'stripe_card':
-          // In real implementation, this would come from Stripe Elements
-          fundingData.stripePaymentMethodId = 'pm_mock_card';
-          break;
-          
-        case 'paypal':
-          // PayPal specific data would be handled by PayPal SDK
-          break;
       }
 
       // Process the funding
@@ -269,24 +260,6 @@ export default function AddFundsScreen({ navigation }) {
             
             <Text style={styles.fieldNote}>
               Bank transfers may take 1-3 business days to process
-            </Text>
-          </View>
-        );
-
-      case 'stripe_card':
-        return (
-          <View style={styles.methodFields}>
-            <Text style={styles.fieldNote}>
-              You will be redirected to secure card payment
-            </Text>
-          </View>
-        );
-
-      case 'paypal':
-        return (
-          <View style={styles.methodFields}>
-            <Text style={styles.fieldNote}>
-              You will be redirected to PayPal to complete payment
             </Text>
           </View>
         );

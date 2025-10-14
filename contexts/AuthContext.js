@@ -129,19 +129,19 @@ function authReducer(state, action) {
 
 // Authentication Context Provider Component
 export function AuthProvider({ children }) {
-  console.log('🚨 AuthProvider: Component rendered');
+  console.log(' AuthProvider: Component rendered');
   
   const [state, dispatch] = useReducer(authReducer, initialState);
   
-  console.log('🚨 AuthProvider: state after useReducer:', state);
+  console.log(' AuthProvider: state after useReducer:', state);
 
   // Restore user session on app startup
   useEffect(() => {
-    console.log('🚨 AuthContext: useEffect called - starting session restore');
+    console.log(' AuthContext: useEffect called - starting session restore');
     
     // For debugging: immediately set as unauthenticated to bypass storage issues
     setTimeout(() => {
-      console.log('🚨 AuthContext: Force setting unauthenticated to bypass storage issues');
+      console.log(' AuthContext: Force setting unauthenticated to bypass storage issues');
       dispatch({
         type: AUTH_ACTIONS.RESTORE_SESSION,
         payload: {

@@ -35,7 +35,7 @@ class NotificationService {
       const notification = await this.createNotification({
         recipientId: technicianId,
         type: 'booking_opportunity',
-        title: '🔧 New Job Opportunity',
+        title: ' New Job Opportunity',
         message: `${booking.service} needed in ${booking.location}`,
         data: {
           bookingId,
@@ -72,29 +72,29 @@ class NotificationService {
       
       const statusMessages = {
         'assigned': {
-          title: '👨‍🔧 Technician Assigned',
+          title: ' Technician Assigned',
           message: `Your technician is on the way! ETA: ${booking.estimatedArrival || 'TBD'}`
         },
         'in_progress': {
-          title: '🔨 Work Started',
+          title: ' Work Started',
           message: 'Your technician has started working on your service request'
         },
         'completed': {
-          title: '✅ Service Completed',
+          title: ' Service Completed',
           message: 'Your service has been completed. Please rate your experience!'
         },
         'cancelled': {
-          title: '❌ Booking Cancelled',
+          title: ' Booking Cancelled',
           message: 'Your booking has been cancelled. Refund will be processed if applicable.'
         },
         'on_hold': {
-          title: '⏸️ Service On Hold',
+          title: '⏸ Service On Hold',
           message: 'Your service is temporarily on hold. Technician will update you shortly.'
         }
       };
       
       const messageData = statusMessages[status] || {
-        title: '📋 Booking Update',
+        title: ' Booking Update',
         message: `Your booking status has been updated to: ${status}`
       };
       
@@ -132,7 +132,7 @@ class NotificationService {
       const notification = await this.createNotification({
         recipientId: customerId,
         type: 'assignment_confirmation',
-        title: '👨‍🔧 Technician Assigned!',
+        title: ' Technician Assigned!',
         message: `${technician.firstName} ${technician.lastName} will handle your service request`,
         data: {
           bookingId: booking._id,
@@ -168,7 +168,7 @@ class NotificationService {
       const notification = await this.createNotification({
         recipientId: technicianId,
         type: 'job_assignment',
-        title: '🎯 Job Assigned to You',
+        title: ' Job Assigned to You',
         message: `You've been assigned: ${booking.serviceId.name}`,
         data: {
           bookingId: booking._id,
@@ -204,7 +204,7 @@ class NotificationService {
       const notification = await this.createNotification({
         recipientId: customerId,
         type: 'auto_assignment',
-        title: '🤖 Auto-Assigned Technician',
+        title: ' Auto-Assigned Technician',
         message: `We've automatically assigned ${technician.firstName} to your request for faster service`,
         data: {
           bookingId: booking._id,
@@ -240,7 +240,7 @@ class NotificationService {
         admins.map(admin => this.createNotification({
           recipientId: admin._id,
           type: 'escalation_alert',
-          title: '🚨 Booking Requires Attention',
+          title: ' Booking Requires Attention',
           message: `Booking ${booking.bookingId} couldn't find technician - needs manual assignment`,
           data: {
             bookingId: booking._id,

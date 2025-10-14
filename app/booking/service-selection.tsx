@@ -350,37 +350,31 @@ export default function ServiceSelectionScreen() {
     </TouchableOpacity>
   );
 
-  const renderEmergencyServices = () => {
-    const emergencyServices = popularServices.filter(service => service.isEmergencyService);
-    
-    if (emergencyServices.length === 0) return null;
-
+  const renderCriticalBookingBanner = () => {
     return (
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Ionicons name="flash" size={20} color="#ef4444" />
-          <Text style={styles.sectionTitle}>Emergency Services</Text>
-          <View style={styles.liveBadge}>
-            <View style={styles.liveIndicator} />
-            <Text style={styles.liveText}>24/7</Text>
+      <TouchableOpacity 
+        style={styles.criticalBanner}
+        onPress={() => router.push('/booking/details?isEmergency=true')}
+      >
+        <View style={styles.criticalBannerLeft}>
+          <View style={styles.criticalIconContainer}>
+            <Ionicons name="flash" size={28} color="#fff" />
+          </View>
+          <View style={styles.criticalTextContainer}>
+            <View style={styles.criticalTitleRow}>
+              <Text style={styles.criticalTitle}>Critical Emergency Booking</Text>
+              <View style={styles.liveBadge}>
+                <View style={styles.liveIndicator} />
+                <Text style={styles.liveText}>24/7</Text>
+              </View>
+            </View>
+            <Text style={styles.criticalSubtext}>
+              Need immediate assistance? Get urgent help now
+            </Text>
           </View>
         </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {emergencyServices.map((service) => (
-            <TouchableOpacity
-              key={service.id}
-              style={styles.emergencyCard}
-              onPress={() => handleServiceSelect(service)}
-            >
-              <View style={[styles.emergencyIcon, { backgroundColor: service.color }]}>
-                <Ionicons name={(service.icon as any) || 'flash'} size={24} color="#fff" />
-              </View>
-              <Text style={styles.emergencyServiceName}>{service.name}</Text>
-              <Text style={styles.emergencyPrice}>{formatPrice(service.priceRange)}</Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
+        <Ionicons name="chevron-forward" size={24} color="#dc3545" />
+      </TouchableOpacity>
     );
   };
 
@@ -428,8 +422,8 @@ export default function ServiceSelectionScreen() {
           </View>
         </View>
 
-        {/* Emergency Services */}
-        {!selectedCategory && !searchQuery && renderEmergencyServices()}
+        {/* Critical Booking Banner */}
+        {!selectedCategory && !searchQuery && renderCriticalBookingBanner()}
 
         {/* Service Categories */}
         {!selectedCategory && !searchQuery && (
@@ -638,38 +632,54 @@ const styles = StyleSheet.create({
     color: '#6b7280',
     textAlign: 'center',
   },
-  emergencyCard: {
+  criticalBanner: {
+    flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    justifyContent: 'space-between',
+    backgroundColor: '#fff5f5',
+    borderWidth: 2,
+    borderColor: '#dc3545',
     borderRadius: 12,
-    padding: 15,
-    marginRight: 15,
-    width: 120,
-    shadowColor: '#000',
+    padding: 16,
+    marginHorizontal: 20,
+    marginBottom: 20,
+    shadowColor: '#dc3545',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 3,
   },
-  emergencyIcon: {
+  criticalBannerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  criticalIconContainer: {
     width: 48,
     height: 48,
     borderRadius: 24,
+    backgroundColor: '#dc3545',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 8,
+    marginRight: 12,
   },
-  emergencyServiceName: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#111827',
-    textAlign: 'center',
+  criticalTextContainer: {
+    flex: 1,
+  },
+  criticalTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 4,
   },
-  emergencyPrice: {
-    fontSize: 12,
-    color: '#0d6efd',
-    fontWeight: '500',
+  criticalTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#dc3545',
+    marginRight: 8,
+  },
+  criticalSubtext: {
+    fontSize: 13,
+    color: '#666',
   },
   serviceCard: {
     backgroundColor: '#fff',

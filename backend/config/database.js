@@ -19,7 +19,7 @@ class Database {
    */
   async connect(uri = null) {
     try {
-      const connectionUri = uri || process.env.MONGODB_URI || 'mongodb://localhost:27017/quickfix';
+      const connectionUri = uri || process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/quickfix';
       
       // Mongoose connection options for optimal performance and stability
       const options = {
@@ -31,13 +31,13 @@ class Database {
 
       this.connection = await mongoose.connect(connectionUri, options);
       
-      console.log(`✅ MongoDB connected successfully to: ${connectionUri}`);
-      console.log(`📊 Database: ${this.connection.connection.name}`);
-      console.log(`🌐 Host: ${this.connection.connection.host}:${this.connection.connection.port}`);
+      console.log(` MongoDB connected successfully to: ${connectionUri}`);
+      console.log(` Database: ${this.connection.connection.name}`);
+      console.log(` Host: ${this.connection.connection.host}:${this.connection.connection.port}`);
       
       return this.connection;
     } catch (error) {
-      console.error('❌ MongoDB connection error:', error.message);
+      console.error(' MongoDB connection error:', error.message);
       throw error;
     }
   }
@@ -51,10 +51,10 @@ class Database {
       if (this.connection) {
         await mongoose.disconnect();
         this.connection = null;
-        console.log('📴 MongoDB disconnected successfully');
+        console.log(' MongoDB disconnected successfully');
       }
     } catch (error) {
-      console.error('❌ MongoDB disconnection error:', error.message);
+      console.error(' MongoDB disconnection error:', error.message);
       throw error;
     }
   }
@@ -78,15 +78,15 @@ class Database {
    */
   setupEventListeners() {
     mongoose.connection.on('connected', () => {
-      console.log('🔗 Mongoose connected to MongoDB');
+      console.log(' Mongoose connected to MongoDB');
     });
 
     mongoose.connection.on('error', (err) => {
-      console.error('❌ Mongoose connection error:', err);
+      console.error(' Mongoose connection error:', err);
     });
 
     mongoose.connection.on('disconnected', () => {
-      console.log('📴 Mongoose disconnected from MongoDB');
+      console.log(' Mongoose disconnected from MongoDB');
     });
 
     // Graceful shutdown
@@ -112,9 +112,9 @@ class Database {
       }
       
       await mongoose.connection.db.dropDatabase();
-      console.log('🗑️ Database dropped successfully');
+      console.log(' Database dropped successfully');
     } catch (error) {
-      console.error('❌ Error dropping database:', error.message);
+      console.error(' Error dropping database:', error.message);
       throw error;
     }
   }

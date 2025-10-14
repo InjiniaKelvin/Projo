@@ -474,7 +474,7 @@ async function seedServices() {
 
     // Insert new services
     const insertedServices = await Service.insertMany(services);
-    console.log(`✅ Successfully seeded ${insertedServices.length} services`);
+    console.log(` Successfully seeded ${insertedServices.length} services`);
 
     // Update popularity for some services to simulate usage
     const popularServiceNames = [
@@ -496,11 +496,11 @@ async function seedServices() {
       }
     }
 
-    console.log('✅ Updated popularity metrics for featured services');
+    console.log(' Updated popularity metrics for featured services');
 
     process.exit(0);
   } catch (error) {
-    console.error('❌ Error seeding services:', error);
+    console.error(' Error seeding services:', error);
     process.exit(1);
   }
 }

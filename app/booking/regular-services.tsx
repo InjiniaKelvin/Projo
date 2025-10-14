@@ -31,7 +31,7 @@ const comprehensiveRegularServices: RegularService[] = [
   // **HOME REPAIR & MAINTENANCE**
   {
     id: 'home-plumbing-repair',
-    name: '🔧 Residential Plumbing Repair',
+    name: ' Residential Plumbing Repair',
     description: 'Leaky faucets, clogged drains, toilet repairs, pipe maintenance',
     icon: 'water-outline',
     category: 'plumbing',
@@ -43,7 +43,7 @@ const comprehensiveRegularServices: RegularService[] = [
   },
     {
       id: 'home-electrical-repair',
-      name: '⚡ Home Electrical Services',
+      name: ' Home Electrical Services',
       description: 'Wiring, switches, outlets, lighting installation, electrical troubleshooting',
       icon: 'flash-outline',
       category: 'electrical',
@@ -55,7 +55,7 @@ const comprehensiveRegularServices: RegularService[] = [
     },
     {
       id: 'home-painting-services',
-      name: '🎨 Interior & Exterior Painting',
+      name: ' Interior & Exterior Painting',
       description: 'Room painting, exterior walls, ceiling painting, wallpaper removal',
       icon: 'brush-outline',
       category: 'painting',
@@ -79,7 +79,7 @@ const comprehensiveRegularServices: RegularService[] = [
     },
     {
       id: 'home-tile-flooring',
-      name: '🧱 Tiling & Flooring Services',
+      name: ' Tiling & Flooring Services',
       description: 'Ceramic tiles, bathroom tiling, floor installation, tile repair',
       icon: 'grid-outline',
       category: 'general_maintenance',
@@ -91,7 +91,7 @@ const comprehensiveRegularServices: RegularService[] = [
     },
     {
       id: 'home-roofing-repair',
-      name: '🏠 Roofing & Waterproofing',
+      name: ' Roofing & Waterproofing',
       description: 'Leak repairs, gutter cleaning, roof maintenance, waterproofing',
       icon: 'home-outline',
       category: 'roofing',
@@ -105,7 +105,7 @@ const comprehensiveRegularServices: RegularService[] = [
     // **APPLIANCE REPAIR & INSTALLATION**
     {
       id: 'appliance-washing-machine',
-      name: '👕 Washing Machine Repair',
+      name: ' Washing Machine Repair',
       description: 'Not spinning, water issues, electrical problems, installation',
       icon: 'shirt-outline',
       category: 'appliance_repair',
@@ -117,7 +117,7 @@ const comprehensiveRegularServices: RegularService[] = [
     },
     {
       id: 'appliance-refrigerator',
-      name: '🧊 Refrigerator Repair',
+      name: ' Refrigerator Repair',
       description: 'Not cooling, compressor issues, thermostat, gas refill',
       icon: 'snow-outline',
       category: 'appliance_repair',
@@ -129,7 +129,7 @@ const comprehensiveRegularServices: RegularService[] = [
     },
     {
       id: 'appliance-microwave',
-      name: '📱 Microwave & Small Appliances',
+      name: ' Microwave & Small Appliances',
       description: 'Microwave repair, blender, iron, kettle, toaster repair',
       icon: 'radio-outline',
       category: 'appliance_repair',
@@ -141,7 +141,7 @@ const comprehensiveRegularServices: RegularService[] = [
     },
     {
       id: 'appliance-tv-installation',
-      name: '📺 TV Installation & Repair',
+      name: ' TV Installation & Repair',
       description: 'TV mounting, screen repair, antenna installation, sound system setup',
       icon: 'tv-outline',
       category: 'other',
@@ -155,7 +155,7 @@ const comprehensiveRegularServices: RegularService[] = [
     // **BUSINESS & OFFICE SERVICES**
     {
       id: 'office-furniture-assembly',
-      name: '🏢 Office Furniture Assembly',
+      name: ' Office Furniture Assembly',
       description: 'Desk assembly, chair repair, filing cabinets, office layout',
       icon: 'business-outline',
       category: 'other',
@@ -167,7 +167,7 @@ const comprehensiveRegularServices: RegularService[] = [
     },
     {
       id: 'office-network-setup',
-      name: '🌐 Network & Internet Setup',
+      name: ' Network & Internet Setup',
       description: 'WiFi installation, router setup, ethernet cables, network troubleshooting',
       icon: 'wifi-outline',
       category: 'other',
@@ -179,7 +179,7 @@ const comprehensiveRegularServices: RegularService[] = [
     },
     {
       id: 'office-computer-repair',
-      name: '💻 Computer & Laptop Repair',
+      name: ' Computer & Laptop Repair',
       description: 'Hardware repair, software installation, virus removal, data recovery',
       icon: 'laptop-outline',
       category: 'other',
@@ -191,7 +191,7 @@ const comprehensiveRegularServices: RegularService[] = [
     },
     {
       id: 'office-cctv-installation',
-      name: '📹 CCTV & Security Systems',
+      name: ' CCTV & Security Systems',
       description: 'Security camera installation, access control, alarm systems',
       icon: 'camera-outline',
       category: 'security_systems',
@@ -203,7 +203,7 @@ const comprehensiveRegularServices: RegularService[] = [
     },
     {
       id: 'office-aircon-service',
-      name: '❄️ Air Conditioning Service',
+      name: ' Air Conditioning Service',
       description: 'AC installation, cleaning, gas refill, duct cleaning, maintenance',
       icon: 'snow-outline',
       category: 'air_conditioning',
@@ -217,7 +217,7 @@ const comprehensiveRegularServices: RegularService[] = [
     // **SPECIALIZED URBAN SERVICES**
     {
       id: 'solar-installation',
-      name: '☀️ Solar Panel Installation',
+      name: ' Solar Panel Installation',
       description: 'Solar panels, inverters, battery backup, grid-tie systems',
       icon: 'sunny-outline',
       category: 'solar_installation',
@@ -229,7 +229,7 @@ const comprehensiveRegularServices: RegularService[] = [
     },
     {
       id: 'water-tank-installation',
-      name: '💧 Water Tank & Pump Services',
+      name: ' Water Tank & Pump Services',
       description: 'Water tank installation, pressure pumps, water filtration systems',
       icon: 'water-outline',
       category: 'plumbing',
@@ -241,7 +241,7 @@ const comprehensiveRegularServices: RegularService[] = [
     },
     {
       id: 'generator-service',
-      name: '🔌 Generator Repair & Maintenance',
+      name: ' Generator Repair & Maintenance',
       description: 'Generator repair, maintenance, fuel system, electrical connections',
       icon: 'battery-charging-outline',
       category: 'other',
@@ -253,7 +253,7 @@ const comprehensiveRegularServices: RegularService[] = [
     },
     {
       id: 'gate-automation',
-      name: '🚪 Gate Automation & Access Control',
+      name: ' Gate Automation & Access Control',
       description: 'Automatic gates, remote controls, access cards, barrier systems',
       icon: 'key-outline',
       category: 'security_systems',
@@ -267,7 +267,7 @@ const comprehensiveRegularServices: RegularService[] = [
     // **SPECIALIZED REPAIR SERVICES**
     {
       id: 'phone-laptop-repair',
-      name: '📱 Phone & Tablet Repair',
+      name: ' Phone & Tablet Repair',
       description: 'Screen replacement, battery change, charging port, software issues',
       icon: 'phone-portrait-outline',
       category: 'other',
@@ -279,7 +279,7 @@ const comprehensiveRegularServices: RegularService[] = [
     },
     {
       id: 'gardening-maintenance',
-      name: '🌱 Garden & Landscaping',
+      name: ' Garden & Landscaping',
       description: 'Lawn mowing, tree trimming, garden design, irrigation systems',
       icon: 'leaf-outline',
       category: 'gardening',
@@ -291,7 +291,7 @@ const comprehensiveRegularServices: RegularService[] = [
     },
     {
       id: 'pest-control',
-      name: '🐛 Pest Control Services',
+      name: ' Pest Control Services',
       description: 'Termite control, cockroach treatment, rat control, fumigation',
       icon: 'bug-outline',
       category: 'pest_control',
@@ -303,7 +303,7 @@ const comprehensiveRegularServices: RegularService[] = [
     },
     {
       id: 'cleaning-services',
-      name: '🧽 Deep Cleaning Services',
+      name: ' Deep Cleaning Services',
       description: 'House cleaning, office cleaning, carpet cleaning, window washing',
       icon: 'sparkles-outline',
       category: 'Cleaning',
@@ -317,7 +317,7 @@ const comprehensiveRegularServices: RegularService[] = [
     // **TRANSPORT & VEHICLE SERVICES**
     {
       id: 'vehicle-diagnostics',
-      name: '🔍 Vehicle Diagnostics & Repair',
+      name: ' Vehicle Diagnostics & Repair',
       description: 'Engine diagnostics, electrical systems, brake repair, oil change',
       icon: 'car-outline',
       category: 'Automotive',
@@ -329,7 +329,7 @@ const comprehensiveRegularServices: RegularService[] = [
     },
     {
       id: 'motorcycle-repair',
-      name: '🏍️ Motorcycle Repair & Service',
+      name: ' Motorcycle Repair & Service',
       description: 'Engine repair, brake service, tire change, chain maintenance',
       icon: 'bicycle-outline',
       category: 'Automotive',
@@ -350,8 +350,8 @@ const RegularServicesScreen = () => {
 
   // Debug logging
   useEffect(() => {
-    console.log('🔧 RegularServicesScreen: Component mounted');
-    console.log('🔧 User context:', user ? 'Available' : 'Not available');
+    console.log(' RegularServicesScreen: Component mounted');
+    console.log(' User context:', user ? 'Available' : 'Not available');
   }, [user]);
 
   useEffect(() => {
@@ -432,7 +432,7 @@ const RegularServicesScreen = () => {
         >
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>🔧 REPAIR SERVICES</Text>
+        <Text style={styles.headerTitle}> REPAIR SERVICES</Text>
         <View style={styles.headerSpacer} />
       </View>
 

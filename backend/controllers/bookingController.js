@@ -12,9 +12,9 @@ const Booking = require('../models/Booking');
 const User = require('../models/User');
 
 /**
- * VALIDATION HELPER
+ * VALIDATION HELPER - Updated to handle critical/emergency bookings
  */
-function validateBookingData(data) {
+function validateBookingData(data, isCritical = false) {
   const errors = [];
   
   if (!data.clientName?.trim()) {
@@ -51,20 +51,23 @@ function validateBookingData(data) {
     errors.push('Location description is required');
   }
   
-  if (!data.preferredDate) {
-    errors.push('Preferred date is required');
-  } else {
-    const prefDate = new Date(data.preferredDate);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    if (prefDate < today) {
-      errors.push('Preferred date cannot be in the past');
+  // Skip date/time validation for critical/emergency bookings
+  if (!isCritical) {
+    if (!data.preferredDate) {
+      errors.push('Preferred date is required');
+    } else {
+      const prefDate = new Date(data.preferredDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      if (prefDate < today) {
+        errors.push('Preferred date cannot be in the past');
+      }
     }
-  }
-  
-  if (!data.preferredTimeSlot) {
-    errors.push('Preferred time slot is required');
+    
+    if (!data.preferredTimeSlot) {
+      errors.push('Preferred time slot is required');
+    }
   }
   
   return errors;
@@ -100,7 +103,7 @@ const BookingControllerRedesigned = {
    */
   async createBooking(req, res) {
     try {
-      console.log('📝 Creating redesigned booking with data:', req.body);
+      console.log('Creating redesigned booking with data:', req.body);
       
       // EXTRACT AND VALIDATE REQUIRED FIELDS
       const {
@@ -123,15 +126,25 @@ const BookingControllerRedesigned = {
           landmarks
         } = {},
         
-        // SCHEDULING (REQUIRED)
+        // SCHEDULING (REQUIRED for normal, optional for critical)
         preferredDate,
         preferredTimeSlot,
         
         // OPTIONAL
-        specialRequirements
+        specialRequirements,
+        
+        // CRITICAL BOOKING FLAG
+        isCritical = false
       } = req.body;
       
-      // COMPREHENSIVE VALIDATION
+      // Detect if this is a critical/emergency booking
+      const isEmergencyBooking = isCritical || urgency === 'emergency' || 
+                                  preferredTimeSlot === 'emergency-asap' ||
+                                  preferredTimeSlot === 'emergency-today';
+      
+      console.log(`CRITICAL: Booking type: ${isEmergencyBooking ? 'CRITICAL/EMERGENCY' : 'NORMAL'}`);
+      
+      // COMPREHENSIVE VALIDATION (skip date/time for emergency)
       const validationErrors = validateBookingData({
         clientName,
         clientPhone,
@@ -143,7 +156,7 @@ const BookingControllerRedesigned = {
         locationDescription,
         preferredDate,
         preferredTimeSlot
-      });
+      }, isEmergencyBooking);
       
       if (validationErrors.length > 0) {
         return res.status(400).json({
@@ -161,10 +174,10 @@ const BookingControllerRedesigned = {
       const existingUser = await User.findOne({ phoneNumber: normalizedPhone });
       if (existingUser) {
         userId = existingUser._id;
-        console.log('📱 Found existing user for phone:', normalizedPhone);
+        console.log('👤 Found existing user for phone:', normalizedPhone);
       }
       
-      // CREATE BOOKING
+      // PREPARE BOOKING DATA
       const bookingData = {
         clientPhone: normalizedPhone,
         clientName: clientName.trim(),
@@ -173,7 +186,7 @@ const BookingControllerRedesigned = {
         
         serviceType,
         serviceDescription: serviceDescription.trim(),
-        urgency,
+        urgency: isEmergencyBooking ? 'emergency' : urgency,
         
         location: {
           constituency: constituency.trim(),
@@ -183,8 +196,9 @@ const BookingControllerRedesigned = {
           landmarks: landmarks?.trim()
         },
         
-        preferredDate: new Date(preferredDate),
-        preferredTimeSlot,
+        // For critical bookings, use today's date and emergency-asap slot if not provided
+        preferredDate: preferredDate ? new Date(preferredDate) : new Date(),
+        preferredTimeSlot: preferredTimeSlot || 'emergency-asap',
         
         specialRequirements: specialRequirements?.trim(),
         
@@ -192,29 +206,35 @@ const BookingControllerRedesigned = {
         submittedAt: new Date()
       };
       
+      // CREATE BOOKING
       const booking = new Booking(bookingData);
       await booking.save();
       
-      console.log('✅ Booking created successfully:', booking.bookingId);
+      console.log('SUCCESS: Booking created successfully:', booking.bookingId);
+      console.log(`INFO: Urgency: ${booking.urgency}, Time Slot: ${booking.preferredTimeSlot}`);
       
       // RESPONSE WITH ESSENTIAL DATA
       res.status(201).json({
         success: true,
-        message: 'Booking submitted successfully',
+        message: isEmergencyBooking 
+          ? 'Critical booking submitted successfully - Technician will be assigned ASAP!' 
+          : 'Booking submitted successfully',
         data: {
           bookingId: booking.bookingId,
           clientPhone: booking.clientPhone,
           serviceType: booking.serviceType,
           status: booking.status,
+          urgency: booking.urgency,
           formattedLocation: booking.formattedLocation,
           preferredDate: booking.preferredDate,
           preferredTimeSlot: booking.preferredTimeSlot,
-          submittedAt: booking.submittedAt
+          submittedAt: booking.submittedAt,
+          isEmergency: isEmergencyBooking
         }
       });
       
     } catch (error) {
-      console.error('❌ Error creating booking:', error);
+      console.error('ERROR: Error creating booking:', error);
       res.status(500).json({
         success: false,
         message: 'Failed to create booking',
@@ -250,7 +270,7 @@ const BookingControllerRedesigned = {
       });
       
     } catch (error) {
-      console.error('❌ Error fetching bookings:', error);
+      console.error(' Error fetching bookings:', error);
       res.status(500).json({
         success: false,
         message: 'Failed to fetch bookings',
@@ -284,7 +304,7 @@ const BookingControllerRedesigned = {
       });
       
     } catch (error) {
-      console.error('❌ Error fetching booking:', error);
+      console.error(' Error fetching booking:', error);
       res.status(500).json({
         success: false,
         message: 'Failed to fetch booking',
@@ -354,7 +374,7 @@ const BookingControllerRedesigned = {
       });
       
     } catch (error) {
-      console.error('❌ Error updating booking:', error);
+      console.error(' Error updating booking:', error);
       res.status(500).json({
         success: false,
         message: 'Failed to update booking',
@@ -399,10 +419,50 @@ const BookingControllerRedesigned = {
       });
       
     } catch (error) {
-      console.error('❌ Error assigning technician:', error);
+      console.error(' Error assigning technician:', error);
       res.status(500).json({
         success: false,
         message: 'Failed to assign technician',
+        error: error.message
+      });
+    }
+  },
+
+  /**
+   * GET BOOKINGS BY EMAIL
+   */
+  async getBookingsByEmail(req, res) {
+    try {
+      const { email } = req.params;
+      
+      if (!email) {
+        return res.status(400).json({
+          success: false,
+          message: 'Email is required'
+        });
+      }
+
+      // Normalize email (lowercase, trim)
+      const normalizedEmail = email.toLowerCase().trim();
+      
+      // Find bookings by client email
+      const bookings = await Booking.find({ 
+        clientEmail: normalizedEmail 
+      })
+        .sort({ submittedAt: -1 })
+        .lean();
+      
+      res.json({
+        success: true,
+        data: bookings,
+        count: bookings.length
+      });
+      
+    } catch (error) {
+      console.error(' Error fetching bookings by email:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to fetch bookings',
         error: error.message
       });
     }

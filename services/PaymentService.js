@@ -10,7 +10,7 @@
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_BASE_URL = __DEV__ ? 'http://localhost:3000/api' : 'https://your-server.com/api';
+const API_BASE_URL = __DEV__ ? 'http://localhost:5000/api' : 'https://your-server.com/api';
 
 class PaymentService {
   // Get authorization header
@@ -110,7 +110,7 @@ class PaymentService {
   }
 
   // Create payment intent
-  async createPaymentIntent(amount, bookingId, method = 'stripe') {
+  async createPaymentIntent(amount, bookingId, method = 'mpesa', phoneNumber) {
     try {
       const headers = await this.getAuthHeader();
       const response = await fetch(`${API_BASE_URL}/payments/enhanced/intent`, {
@@ -120,7 +120,8 @@ class PaymentService {
           amount,
           bookingId,
           method,
-          currency: 'USD'
+          phoneNumber,
+          currency: 'KES'
         })
       });
 
@@ -218,23 +219,11 @@ class PaymentService {
       });
 
       if (!response.ok) {
-        // Return default payment methods if endpoint doesn't exist
+        // Return M-Pesa as the only payment method
         return {
           success: true,
           data: {
             methods: [
-              {
-                id: 'stripe',
-                name: 'Credit/Debit Card',
-                type: 'card',
-                enabled: true
-              },
-              {
-                id: 'paypal',
-                name: 'PayPal',
-                type: 'paypal',
-                enabled: true
-              },
               {
                 id: 'mpesa',
                 name: 'M-Pesa',
@@ -255,10 +244,11 @@ class PaymentService {
         data: {
           methods: [
             {
-              id: 'stripe',
-              name: 'Credit/Debit Card',
-              type: 'card',
-              enabled: true
+              id: 'mpesa',
+              name: 'M-Pesa',
+              type: 'mobile_money',
+              enabled: true,
+              region: 'Kenya'
             }
           ]
         }

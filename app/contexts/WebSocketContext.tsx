@@ -65,21 +65,21 @@ export const WebSocketProvider = ({ children }: PropsWithChildren<{}>) => {
       });
 
       newSocket.on('connect', () => {
-        console.log('✅ WebSocket connected');
+        console.log(' WebSocket connected');
         setConnected(true);
         setSocket(newSocket);
         reconnectAttempts.current = 0;
       });
 
       newSocket.on('disconnect', (reason) => {
-        console.log('❌ WebSocket disconnected:', reason);
+        console.log(' WebSocket disconnected:', reason);
         setConnected(false);
         
         // Attempt to reconnect if not manually disconnected
         if (reason !== 'io client disconnect' && reconnectAttempts.current < maxReconnectAttempts) {
           setTimeout(() => {
             reconnectAttempts.current += 1;
-            console.log(`🔄 Reconnection attempt ${reconnectAttempts.current}/${maxReconnectAttempts}`);
+            console.log(` Reconnection attempt ${reconnectAttempts.current}/${maxReconnectAttempts}`);
             connectSocket();
           }, Math.pow(2, reconnectAttempts.current) * 1000); // Exponential backoff
         }
@@ -92,12 +92,12 @@ export const WebSocketProvider = ({ children }: PropsWithChildren<{}>) => {
 
       // Real-time notification handlers
       newSocket.on('notification', (data) => {
-        console.log('📱 New notification:', data);
+        console.log(' New notification:', data);
         addNotification(data);
       });
 
       newSocket.on('booking_status_updated', (data) => {
-        console.log('📋 Booking status updated:', data);
+        console.log(' Booking status updated:', data);
         addNotification({
           id: Date.now(),
           type: 'booking_update',
@@ -109,7 +109,7 @@ export const WebSocketProvider = ({ children }: PropsWithChildren<{}>) => {
       });
 
       newSocket.on('new_booking', (data) => {
-        console.log('🔔 New booking assigned:', data);
+        console.log(' New booking assigned:', data);
         addNotification({
           id: Date.now(),
           type: 'new_booking',
@@ -121,7 +121,7 @@ export const WebSocketProvider = ({ children }: PropsWithChildren<{}>) => {
       });
 
       newSocket.on('booking_assigned', (data) => {
-        console.log('👨‍🔧 Technician assigned:', data);
+        console.log(' Technician assigned:', data);
         addNotification({
           id: Date.now(),
           type: 'technician_assigned',
@@ -133,7 +133,7 @@ export const WebSocketProvider = ({ children }: PropsWithChildren<{}>) => {
       });
 
       newSocket.on('payment_received', (data) => {
-        console.log('💰 Payment received:', data);
+        console.log(' Payment received:', data);
         addNotification({
           id: Date.now(),
           type: 'payment',
@@ -145,7 +145,7 @@ export const WebSocketProvider = ({ children }: PropsWithChildren<{}>) => {
       });
 
       newSocket.on('emergency_alert', (data) => {
-        console.log('🚨 Emergency alert:', data);
+        console.log(' Emergency alert:', data);
         Alert.alert(
           'Emergency Alert',
           data.message,
@@ -164,7 +164,7 @@ export const WebSocketProvider = ({ children }: PropsWithChildren<{}>) => {
 
       // Chat message handlers
       newSocket.on('new_message', (data) => {
-        console.log('💬 New chat message:', data);
+        console.log(' New chat message:', data);
         addNotification({
           id: Date.now(),
           type: 'chat',
@@ -176,7 +176,7 @@ export const WebSocketProvider = ({ children }: PropsWithChildren<{}>) => {
       });
 
       newSocket.on('technician_location_update', (data) => {
-        console.log('📍 Technician location updated:', data);
+        console.log(' Technician location updated:', data);
         // Handle location updates in booking screens
       });
 

@@ -137,20 +137,20 @@ const sampleUsers = [
 
 async function seedDatabase() {
   try {
-    console.log('🌱 Starting database seeding...');
+    console.log(' Starting database seeding...');
     
     // Connect to database
     await database.connect();
     
     // Clear existing data
-    console.log('🗑️ Clearing existing data...');
+    console.log(' Clearing existing data...');
     await User.deleteMany({});
     await Wallet.deleteMany({});
     await Booking.deleteMany({});
     await Transaction.deleteMany({});
     
     // Create users and wallets
-    console.log('👥 Creating users and wallets...');
+    console.log(' Creating users and wallets...');
     const createdUsers = [];
     
     for (const userData of sampleUsers) {
@@ -171,11 +171,11 @@ async function seedDatabase() {
       await user.save();
       createdUsers.push(user);
       
-      console.log(`✅ Created ${user.role}: ${user.email}`);
+      console.log(` Created ${user.role}: ${user.email}`);
     }
     
     // Create sample bookings
-    console.log('📋 Creating sample bookings...');
+    console.log(' Creating sample bookings...');
     const clients = createdUsers.filter(u => u.role === 'client');
     const technicians = createdUsers.filter(u => u.role === 'technician');
     
@@ -271,11 +271,11 @@ async function seedDatabase() {
     for (const bookingData of sampleBookings) {
       const booking = new Booking(bookingData);
       await booking.save();
-      console.log(`✅ Created booking: ${booking.serviceType} - ${booking.status}`);
+      console.log(` Created booking: ${booking.serviceType} - ${booking.status}`);
     }
     
     // Create sample transactions
-    console.log('💰 Creating sample transactions...');
+    console.log(' Creating sample transactions...');
     const wallets = await Wallet.find().populate('userId');
     
     for (const wallet of wallets) {
@@ -311,19 +311,19 @@ async function seedDatabase() {
         wallet.transactions.push(transaction._id);
         await wallet.save();
         
-        console.log(`✅ Created transaction for ${wallet.userId.email}: KES ${wallet.balance.available}`);
+        console.log(` Created transaction for ${wallet.userId.email}: KES ${wallet.balance.available}`);
       }
     }
     
-    console.log('🎉 Database seeding completed successfully!');
-    console.log('\n📊 Summary:');
-    console.log(`👥 Users created: ${createdUsers.length}`);
-    console.log(`💼 Clients: ${clients.length}`);
-    console.log(`🔧 Technicians: ${technicians.length}`);
-    console.log(`📋 Bookings created: ${sampleBookings.length}`);
-    console.log(`💰 Transactions created: ${wallets.length - 1}`); // Exclude admin
+    console.log(' Database seeding completed successfully!');
+    console.log('\n Summary:');
+    console.log(` Users created: ${createdUsers.length}`);
+    console.log(` Clients: ${clients.length}`);
+    console.log(` Technicians: ${technicians.length}`);
+    console.log(` Bookings created: ${sampleBookings.length}`);
+    console.log(` Transactions created: ${wallets.length - 1}`); // Exclude admin
     
-    console.log('\n🔐 Test accounts:');
+    console.log('\n Test accounts:');
     console.log('Client 1: john.client@test.com / Password123');
     console.log('Client 2: jane.client@test.com / Password123');
     console.log('Technician 1: mike.technician@test.com / Password123');
@@ -331,7 +331,7 @@ async function seedDatabase() {
     console.log('Admin: admin@quickfix.com / AdminPassword123');
     
   } catch (error) {
-    console.error('❌ Database seeding failed:', error);
+    console.error(' Database seeding failed:', error);
   } finally {
     await database.disconnect();
     process.exit(0);

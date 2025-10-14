@@ -100,7 +100,7 @@ const BookingControllerRedesigned = {
    */
   async createBooking(req, res) {
     try {
-      console.log('📝 Creating redesigned booking with data:', req.body);
+      console.log(' Creating redesigned booking with data:', req.body);
       
       // EXTRACT AND VALIDATE REQUIRED FIELDS
       const {
@@ -161,7 +161,7 @@ const BookingControllerRedesigned = {
       const existingUser = await User.findOne({ phoneNumber: normalizedPhone });
       if (existingUser) {
         userId = existingUser._id;
-        console.log('📱 Found existing user for phone:', normalizedPhone);
+        console.log(' Found existing user for phone:', normalizedPhone);
       }
       
       // CREATE BOOKING
@@ -195,7 +195,7 @@ const BookingControllerRedesigned = {
       const booking = new BookingRedesigned(bookingData);
       await booking.save();
       
-      console.log('✅ Booking created successfully:', booking.bookingId);
+      console.log(' Booking created successfully:', booking.bookingId);
       
       // RESPONSE WITH ESSENTIAL DATA
       res.status(201).json({
@@ -214,7 +214,7 @@ const BookingControllerRedesigned = {
       });
       
     } catch (error) {
-      console.error('❌ Error creating booking:', error);
+      console.error(' Error creating booking:', error);
       res.status(500).json({
         success: false,
         message: 'Failed to create booking',
@@ -250,7 +250,7 @@ const BookingControllerRedesigned = {
       });
       
     } catch (error) {
-      console.error('❌ Error fetching bookings:', error);
+      console.error(' Error fetching bookings:', error);
       res.status(500).json({
         success: false,
         message: 'Failed to fetch bookings',
@@ -284,7 +284,7 @@ const BookingControllerRedesigned = {
       });
       
     } catch (error) {
-      console.error('❌ Error fetching booking:', error);
+      console.error(' Error fetching booking:', error);
       res.status(500).json({
         success: false,
         message: 'Failed to fetch booking',
@@ -354,7 +354,7 @@ const BookingControllerRedesigned = {
       });
       
     } catch (error) {
-      console.error('❌ Error updating booking:', error);
+      console.error(' Error updating booking:', error);
       res.status(500).json({
         success: false,
         message: 'Failed to update booking',
@@ -399,7 +399,7 @@ const BookingControllerRedesigned = {
       });
       
     } catch (error) {
-      console.error('❌ Error assigning technician:', error);
+      console.error(' Error assigning technician:', error);
       res.status(500).json({
         success: false,
         message: 'Failed to assign technician',

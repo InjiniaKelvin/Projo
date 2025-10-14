@@ -172,6 +172,8 @@ const bookingSchema = new mongoose.Schema({
       '12:00-14:00',
       '14:00-16:00',
       '16:00-18:00',
+      'emergency-asap',
+      'emergency-today',
       'flexible'
     ]
   },

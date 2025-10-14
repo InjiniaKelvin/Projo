@@ -25,8 +25,8 @@ export default function RequestStatusScreen({ requestId }: RequestStatusProps) {
       <Text style={styles.info}>User: {user?.firstName || 'Unknown'}</Text>
       
       <View style={styles.statusContainer}>
-        <Text style={styles.statusText}>📋 Status: Processing</Text>
-        <Text style={styles.locationText}>📍 Location tracking available</Text>
+        <Text style={styles.statusText}> Status: Processing</Text>
+        <Text style={styles.locationText}> Location tracking available</Text>
       </View>
     </View>
   );

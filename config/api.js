@@ -8,7 +8,7 @@ import { StorageService } from '../services/StorageService';
 
 // API Configuration
 export const API_CONFIG = {
-  BASE_URL: process.env.NODE_ENV === 'development' ? 'http://localhost:3000/api' : 'https://your-production-api.com/api',
+  BASE_URL: process.env.NODE_ENV === 'development' ? 'http://localhost:5000/api' : 'https://your-production-api.com/api',
   TIMEOUT: 30000, // 30 seconds
   RETRY_ATTEMPTS: 3,
   RETRY_DELAY: 1000, // 1 second

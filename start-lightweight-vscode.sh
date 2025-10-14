@@ -3,7 +3,7 @@
 # QuickFix Development - Lightweight VS Code Setup
 # This script starts VS Code with minimal resource usage
 
-echo "🚀 Starting QuickFix Development Environment..."
+echo " Starting QuickFix Development Environment..."
 
 # Kill any hanging VS Code processes
 pkill -f "code.*tsserver" 2>/dev/null
@@ -23,4 +23,4 @@ code \
     --no-sandbox \
     "$@"
 
-echo "✅ Lightweight VS Code started!"
+echo " Lightweight VS Code started!"

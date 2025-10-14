@@ -9,28 +9,28 @@ import { StyleSheet, Text, View } from 'react-native';
 const DemoInstructions = () => {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>🧪 Demo Mode</Text>
+      <Text style={styles.title}> Demo Mode</Text>
       <Text style={styles.subtitle}>Backend server is offline. Try these demo credentials:</Text>
       
       <View style={styles.credentialsContainer}>
         <View style={styles.credentialRow}>
-          <Text style={styles.roleLabel}>👑 Admin:</Text>
+          <Text style={styles.roleLabel}> Admin:</Text>
           <Text style={styles.credentialText}>admin@quickfix.com / admin123</Text>
         </View>
         
         <View style={styles.credentialRow}>
-          <Text style={styles.roleLabel}>👤 Client:</Text>
+          <Text style={styles.roleLabel}> Client:</Text>
           <Text style={styles.credentialText}>client@quickfix.com / client123</Text>
         </View>
         
         <View style={styles.credentialRow}>
-          <Text style={styles.roleLabel}>🔧 Technician:</Text>
+          <Text style={styles.roleLabel}> Technician:</Text>
           <Text style={styles.credentialText}>tech@quickfix.com / tech123</Text>
         </View>
       </View>
       
       <Text style={styles.note}>
-        💡 All features work offline with mock data!
+         All features work offline with mock data!
       </Text>
     </View>
   );

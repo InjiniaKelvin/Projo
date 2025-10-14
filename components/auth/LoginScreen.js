@@ -7,8 +7,10 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
     Alert,
+    Dimensions,
     KeyboardAvoidingView,
     Platform,
+    ScrollView,
     StyleSheet,
     Text,
     TextInput,
@@ -17,6 +19,9 @@ import {
 } from 'react-native';
 import { useAuth } from '../../contexts/SimpleAuthContext';
 import WebCompatibleButton from '../WebCompatibleButton';
+
+// Get screen dimensions for responsive design
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -108,57 +113,80 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView 
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === 'ios' ? 'padding' : Platform.OS === 'android' ? 'height' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
     >
-      <View style={styles.content}>
-        <Text style={styles.title}>Welcome to QuickFix</Text>
-        <Text style={styles.subtitle}>Sign in to your account</Text>
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.content}>
+          <Text style={styles.title}>Welcome to QuickFix</Text>
+          <Text style={styles.subtitle}>Sign in to your account</Text>
 
-        <View style={styles.form}>
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
+          <View style={styles.form}>
+            <TextInput
+              style={styles.input}
+              placeholder="Email"
+              placeholderTextColor="#999"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              textContentType="emailAddress"
+              autoComplete="email"
+            />
 
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            autoCapitalize="none"
-          />
+            <TextInput
+              style={styles.input}
+              placeholder="Password"
+              placeholderTextColor="#999"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              autoCapitalize="none"
+              textContentType="password"
+              autoComplete="password"
+            />
 
-          <WebCompatibleButton
-            title={isLoading ? "Signing In..." : "Sign In"}
-            onPress={() => {
-              console.log('Login button pressed!');
-              handleLogin();
-            }}
-            disabled={isLoading}
-            style={{
-              ...styles.loginButton,
-              ...(isLoading && styles.disabledButton)
-            }}
-          />
+            <WebCompatibleButton
+              title={isLoading ? "Signing In..." : "Sign In"}
+              onPress={() => {
+                console.log('Login button pressed!');
+                handleLogin();
+              }}
+              disabled={isLoading}
+              style={{
+                ...styles.loginButton,
+                ...(isLoading && styles.disabledButton)
+              }}
+            />
 
-          <TouchableOpacity onPress={handleForgotPassword}>
-            <Text style={styles.forgotPassword}>Forgot Password?</Text>
-          </TouchableOpacity>
+            <TouchableOpacity 
+              onPress={handleForgotPassword}
+              accessible={true}
+              accessibilityLabel="Forgot Password"
+              accessibilityRole="button"
+            >
+              <Text style={styles.forgotPassword}>Forgot Password?</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>Don't have an account? </Text>
+            <TouchableOpacity 
+              onPress={handleSignUp}
+              accessible={true}
+              accessibilityLabel="Sign Up"
+              accessibilityRole="button"
+            >
+              <Text style={styles.signUpText}>Sign Up</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Don't have an account? </Text>
-          <TouchableOpacity onPress={handleSignUp}>
-            <Text style={styles.signUpText}>Sign Up</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
@@ -168,46 +196,122 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5'
   },
-  content: {
-    flex: 1,
+  scrollContainer: {
+    flexGrow: 1,
     justifyContent: 'center',
-    paddingHorizontal: 24
+    minHeight: SCREEN_HEIGHT,
+    paddingVertical: 20
+  },
+  content: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: SCREEN_WIDTH < 768 ? 20 : 40,
+    maxWidth: Platform.OS === 'web' ? 500 : '100%',
+    width: '100%',
+    alignSelf: 'center'
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
+    fontSize: Platform.select({
+      ios: 32,
+      android: 30,
+      web: 36
+    }),
+    fontWeight: Platform.OS === 'ios' ? '700' : 'bold',
     textAlign: 'center',
     marginBottom: 8,
-    color: '#333'
+    color: '#333',
+    ...Platform.select({
+      web: {
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+      }
+    })
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: Platform.select({
+      ios: 16,
+      android: 15,
+      web: 17
+    }),
     textAlign: 'center',
     marginBottom: 32,
-    color: '#666'
+    color: '#666',
+    ...Platform.select({
+      web: {
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+      }
+    })
   },
   form: {
-    marginBottom: 32
+    marginBottom: 32,
+    width: '100%'
   },
   input: {
     borderWidth: 1,
     borderColor: '#ddd',
-    borderRadius: 8,
+    borderRadius: Platform.OS === 'ios' ? 10 : 8,
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
+    paddingVertical: Platform.OS === 'ios' ? 14 : 12,
+    fontSize: Platform.select({
+      ios: 16,
+      android: 15,
+      web: 16
+    }),
     marginBottom: 16,
-    backgroundColor: '#fff'
+    backgroundColor: '#fff',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 2
+      },
+      android: {
+        elevation: 1
+      },
+      web: {
+        boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+        transition: 'border-color 0.2s ease',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+      }
+    })
   },
   loginButton: {
     backgroundColor: '#007AFF',
-    borderRadius: 8,
-    paddingVertical: 16,
+    borderRadius: Platform.OS === 'ios' ? 10 : 8,
+    paddingVertical: Platform.OS === 'ios' ? 16 : 14,
     alignItems: 'center',
-    marginBottom: 16
+    marginBottom: 16,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#007AFF',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4
+      },
+      android: {
+        elevation: 3
+      },
+      web: {
+        boxShadow: '0 2px 8px rgba(0,122,255,0.2)',
+        cursor: 'pointer',
+        transition: 'all 0.2s ease'
+      }
+    })
   },
   disabledButton: {
-    backgroundColor: '#ccc'
+    backgroundColor: '#ccc',
+    ...Platform.select({
+      ios: {
+        shadowOpacity: 0
+      },
+      android: {
+        elevation: 0
+      },
+      web: {
+        boxShadow: 'none',
+        cursor: 'not-allowed'
+      }
+    })
   },
   loginButtonText: {
     color: '#fff',
@@ -217,20 +321,46 @@ const styles = StyleSheet.create({
   forgotPassword: {
     textAlign: 'center',
     color: '#007AFF',
-    fontSize: 16
+    fontSize: Platform.select({
+      ios: 16,
+      android: 15,
+      web: 16
+    }),
+    ...Platform.select({
+      web: {
+        cursor: 'pointer',
+        transition: 'opacity 0.2s ease'
+      }
+    })
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    flexWrap: 'wrap'
   },
   footerText: {
-    fontSize: 16,
+    fontSize: Platform.select({
+      ios: 16,
+      android: 15,
+      web: 16
+    }),
     color: '#666'
   },
   signUpText: {
-    fontSize: 16,
+    fontSize: Platform.select({
+      ios: 16,
+      android: 15,
+      web: 16
+    }),
     color: '#007AFF',
-    fontWeight: '600'
+    fontWeight: '600',
+    ...Platform.select({
+      web: {
+        cursor: 'pointer',
+        textDecoration: 'none',
+        transition: 'opacity 0.2s ease'
+      }
+    })
   }
 });

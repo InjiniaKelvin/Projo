@@ -17,13 +17,14 @@ const userSchema = new mongoose.Schema({
     unique: true,
     lowercase: true,
     trim: true,
-    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email']
+    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,10})+$/, 'Please enter a valid email']
   },
   
   password: {
     type: String,
     required: [true, 'Password is required'],
-    minlength: [6, 'Password must be at least 6 characters long']
+    minlength: [6, 'Password must be at least 6 characters long'],
+    select: false  // Don't include password in queries by default (security & performance)
   },
   
   firstName: {
@@ -235,8 +236,8 @@ userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
   
   try {
-    // Hash password with cost of 12
-    const saltRounds = parseInt(process.env.BCRYPT_ROUNDS) || 12;
+    // Hash password with cost of 10 (faster, still secure)
+    const saltRounds = parseInt(process.env.BCRYPT_ROUNDS) || 10;
     this.password = await bcrypt.hash(this.password, saltRounds);
     next();
   } catch (error) {

@@ -3,7 +3,7 @@
 # Detox E2E Test Runner Script
 # This script sets up and runs the complete booking flow tests
 
-echo "🧪 Starting Detox E2E Test Setup..."
+echo " Starting Detox E2E Test Setup..."
 
 # Colors for output
 RED='\033[0;31m'
@@ -168,7 +168,7 @@ print_success "E2E test execution completed!"
 
 # Show test results summary
 echo ""
-echo "📊 Test Results Summary:"
+echo " Test Results Summary:"
 echo "========================"
 
 if [ -f "e2e/artifacts/test-results.xml" ]; then
@@ -183,7 +183,7 @@ else
 fi
 
 echo ""
-echo "🎯 Next Steps:"
+echo " Next Steps:"
 echo "==============="
 echo "1. Review test results in e2e/artifacts/"
 echo "2. Check screenshots and videos for failed tests"

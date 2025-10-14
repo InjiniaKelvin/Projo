@@ -116,7 +116,7 @@ export const QuickFixBookingFlow: React.FC = () => {
                 step.isCompleted && styles.stepNumberCompleted,
                 step.isActive && styles.stepNumberActive
               ]}>
-                {step.isCompleted ? '✓' : step.id}
+                {step.isCompleted ? '' : step.id}
               </Text>
               {index < steps.length - 1 && (
                 <View style={[

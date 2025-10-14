@@ -221,7 +221,7 @@ export default function TechniciansScreen() {
               <Text style={styles.documentsLabel}>Documents:</Text>
               {technician.documents.map((doc, index) => (
                 <TouchableOpacity key={index} style={styles.documentItem}>
-                  <Text style={styles.documentText}>📄 {doc}</Text>
+                  <Text style={styles.documentText}> {doc}</Text>
                 </TouchableOpacity>
               ))}
             </View>

@@ -15,7 +15,7 @@ async function createAdminUser() {
   try {
     // Connect to MongoDB
     await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/quickfix');
-    console.log('✅ Connected to MongoDB');
+    console.log(' Connected to MongoDB');
 
     // Check if admin user already exists
     const existingAdmin = await User.findOne({ 
@@ -26,9 +26,9 @@ async function createAdminUser() {
     });
 
     if (existingAdmin) {
-      console.log('⚠️  Admin user already exists:', existingAdmin.email);
-      console.log('📧 Email:', existingAdmin.email);
-      console.log('👤 Role:', existingAdmin.role);
+      console.log('  Admin user already exists:', existingAdmin.email);
+      console.log(' Email:', existingAdmin.email);
+      console.log(' Role:', existingAdmin.role);
       process.exit(0);
     }
 
@@ -65,21 +65,21 @@ async function createAdminUser() {
 
     await adminUser.save();
 
-    console.log('🎉 Admin user created successfully!');
-    console.log('📧 Email: admin@quickfix.com');
-    console.log('🔑 Password: admin123');
+    console.log(' Admin user created successfully!');
+    console.log(' Email: admin@quickfix.com');
+    console.log(' Password: admin123');
     console.log('� Phone: +254712345678');
-    console.log('�👤 Role: admin');
+    console.log('� Role: admin');
     console.log('');
-    console.log('⚠️  IMPORTANT: Please change the password after first login!');
+    console.log('  IMPORTANT: Please change the password after first login!');
     console.log('');
     console.log('You can now log in to the admin dashboard with these credentials.');
 
   } catch (error) {
-    console.error('❌ Error creating admin user:', error);
+    console.error(' Error creating admin user:', error);
   } finally {
     await mongoose.connection.close();
-    console.log('🔌 Database connection closed');
+    console.log(' Database connection closed');
     process.exit(0);
   }
 }

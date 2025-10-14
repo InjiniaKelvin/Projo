@@ -45,7 +45,7 @@ class BookingSystemValidator {
    * RUN ALL TESTS
    */
   async runCompleteValidation() {
-    console.log('🚀 Starting Comprehensive Booking System Validation...\n');
+    console.log(' Starting Comprehensive Booking System Validation...\n');
     
     try {
       await this.testServerConnection();
@@ -59,7 +59,7 @@ class BookingSystemValidator {
       this.generateReport();
       
     } catch (error) {
-      console.error('❌ Validation failed:', error.message);
+      console.error(' Validation failed:', error.message);
       this.errors.push(`System validation failed: ${error.message}`);
     }
   }
@@ -68,22 +68,22 @@ class BookingSystemValidator {
    * TEST SERVER CONNECTION
    */
   async testServerConnection() {
-    console.log('📡 Testing server connection...');
+    console.log(' Testing server connection...');
     
     try {
       const response = await axios.get(`${API_BASE}/health`);
       if (response.status === 200) {
-        this.testResults.push('✅ Server connection: OK');
+        this.testResults.push(' Server connection: OK');
       } else {
-        this.errors.push('❌ Server connection: Failed');
+        this.errors.push(' Server connection: Failed');
       }
     } catch (_error) {
       // Try alternative health check
       try {
         await axios.get(`${API_BASE}/bookings`);
-        this.testResults.push('✅ Server connection: OK (via bookings endpoint)');
+        this.testResults.push(' Server connection: OK (via bookings endpoint)');
       } catch (_altError) {
-        this.errors.push('❌ Server connection: Failed - Server not running');
+        this.errors.push(' Server connection: Failed - Server not running');
       }
     }
   }
@@ -92,13 +92,13 @@ class BookingSystemValidator {
    * TEST BOOKING CREATION
    */
   async testBookingCreation() {
-    console.log('📝 Testing booking creation...');
+    console.log(' Testing booking creation...');
     
     try {
       const response = await axios.post(`${API_BASE}/bookings/redesigned`, this.validBookingData);
       
       if (response.data.success) {
-        this.testResults.push('✅ Booking creation: Success');
+        this.testResults.push(' Booking creation: Success');
         this.testResults.push(`   - Booking ID: ${response.data.data.bookingId}`);
         this.testResults.push(`   - Client Phone: ${response.data.data.clientPhone}`);
         
@@ -107,11 +107,11 @@ class BookingSystemValidator {
         this.clientPhone = response.data.data.clientPhone;
         
       } else {
-        this.errors.push('❌ Booking creation: Failed - ' + response.data.message);
+        this.errors.push(' Booking creation: Failed - ' + response.data.message);
       }
       
     } catch (error) {
-      this.errors.push('❌ Booking creation: Failed - ' + error.message);
+      this.errors.push(' Booking creation: Failed - ' + error.message);
     }
   }
 
@@ -119,10 +119,10 @@ class BookingSystemValidator {
    * TEST BOOKING RETRIEVAL
    */
   async testBookingRetrieval() {
-    console.log('🔍 Testing booking retrieval...');
+    console.log(' Testing booking retrieval...');
     
     if (!this.createdBookingId) {
-      this.warnings.push('⚠️  Booking retrieval: Skipped - No booking ID available');
+      this.warnings.push('  Booking retrieval: Skipped - No booking ID available');
       return;
     }
     
@@ -130,21 +130,21 @@ class BookingSystemValidator {
       // Test by booking ID
       const byIdResponse = await axios.get(`${API_BASE}/bookings/${this.createdBookingId}`);
       if (byIdResponse.data.success) {
-        this.testResults.push('✅ Booking retrieval by ID: Success');
+        this.testResults.push(' Booking retrieval by ID: Success');
       } else {
-        this.errors.push('❌ Booking retrieval by ID: Failed');
+        this.errors.push(' Booking retrieval by ID: Failed');
       }
       
       // Test by phone number
       const byPhoneResponse = await axios.get(`${API_BASE}/bookings/phone/${this.clientPhone}`);
       if (byPhoneResponse.data.success && byPhoneResponse.data.data.length > 0) {
-        this.testResults.push('✅ Booking retrieval by phone: Success');
+        this.testResults.push(' Booking retrieval by phone: Success');
       } else {
-        this.errors.push('❌ Booking retrieval by phone: Failed');
+        this.errors.push(' Booking retrieval by phone: Failed');
       }
       
     } catch (error) {
-      this.errors.push('❌ Booking retrieval: Failed - ' + error.message);
+      this.errors.push(' Booking retrieval: Failed - ' + error.message);
     }
   }
 
@@ -152,7 +152,7 @@ class BookingSystemValidator {
    * TEST FIELD VALIDATION
    */
   async testFieldValidation() {
-    console.log('🔒 Testing field validation...');
+    console.log(' Testing field validation...');
     
     const invalidData = {
       clientName: '', // Invalid: empty
@@ -173,17 +173,17 @@ class BookingSystemValidator {
       const response = await axios.post(`${API_BASE}/bookings/redesigned`, invalidData);
       
       if (!response.data.success && response.data.errors) {
-        this.testResults.push('✅ Field validation: Working correctly');
+        this.testResults.push(' Field validation: Working correctly');
         this.testResults.push(`   - Caught ${response.data.errors.length} validation errors`);
       } else {
-        this.errors.push('❌ Field validation: Not working - Invalid data was accepted');
+        this.errors.push(' Field validation: Not working - Invalid data was accepted');
       }
       
     } catch (error) {
       if (error.response && error.response.status === 400) {
-        this.testResults.push('✅ Field validation: Working correctly (400 error)');
+        this.testResults.push(' Field validation: Working correctly (400 error)');
       } else {
-        this.errors.push('❌ Field validation: Unexpected error - ' + error.message);
+        this.errors.push(' Field validation: Unexpected error - ' + error.message);
       }
     }
   }
@@ -192,7 +192,7 @@ class BookingSystemValidator {
    * TEST PHONE NUMBER NORMALIZATION
    */
   async testPhoneNumberNormalization() {
-    console.log('📱 Testing phone number normalization...');
+    console.log(' Testing phone number normalization...');
     
     const phoneVariations = [
       '0712345678',
@@ -218,9 +218,9 @@ class BookingSystemValidator {
     }
     
     if (successCount === phoneVariations.length) {
-      this.testResults.push('✅ Phone normalization: All formats accepted and normalized');
+      this.testResults.push(' Phone normalization: All formats accepted and normalized');
     } else {
-      this.warnings.push(`⚠️  Phone normalization: ${successCount}/${phoneVariations.length} formats working`);
+      this.warnings.push(`  Phone normalization: ${successCount}/${phoneVariations.length} formats working`);
     }
   }
 
@@ -228,7 +228,7 @@ class BookingSystemValidator {
    * VALIDATE FRONTEND-BACKEND CONSISTENCY
    */
   async validateFrontendBackendConsistency() {
-    console.log('🔄 Validating frontend-backend field consistency...');
+    console.log(' Validating frontend-backend field consistency...');
     
     try {
       // Read frontend form structure
@@ -257,17 +257,17 @@ class BookingSystemValidator {
         });
         
         if (consistentFields === keyFields.length) {
-          this.testResults.push('✅ Frontend-Backend consistency: All key fields present');
+          this.testResults.push(' Frontend-Backend consistency: All key fields present');
         } else {
-          this.warnings.push(`⚠️  Frontend-Backend consistency: ${consistentFields}/${keyFields.length} fields consistent`);
+          this.warnings.push(`  Frontend-Backend consistency: ${consistentFields}/${keyFields.length} fields consistent`);
         }
         
       } else {
-        this.warnings.push('⚠️  Frontend-Backend consistency: Could not read files');
+        this.warnings.push('  Frontend-Backend consistency: Could not read files');
       }
       
     } catch (_error) {
-      this.warnings.push('⚠️  Frontend-Backend consistency: Check failed - Unable to read files');
+      this.warnings.push('  Frontend-Backend consistency: Check failed - Unable to read files');
     }
   }
 
@@ -275,7 +275,7 @@ class BookingSystemValidator {
    * TEST ERROR HANDLING
    */
   async testErrorHandling() {
-    console.log('⚠️  Testing error handling...');
+    console.log('  Testing error handling...');
     
     const errorTests = [
       {
@@ -313,9 +313,9 @@ class BookingSystemValidator {
     }
     
     if (errorHandlingScore === errorTests.length) {
-      this.testResults.push('✅ Error handling: Working correctly');
+      this.testResults.push(' Error handling: Working correctly');
     } else {
-      this.warnings.push(`⚠️  Error handling: ${errorHandlingScore}/${errorTests.length} tests passed`);
+      this.warnings.push(`  Error handling: ${errorHandlingScore}/${errorTests.length} tests passed`);
     }
   }
 
@@ -324,23 +324,23 @@ class BookingSystemValidator {
    */
   generateReport() {
     console.log('\n' + '='.repeat(60));
-    console.log('📊 BOOKING SYSTEM VALIDATION REPORT');
+    console.log(' BOOKING SYSTEM VALIDATION REPORT');
     console.log('='.repeat(60));
     
-    console.log('\n✅ PASSED TESTS:');
+    console.log('\n PASSED TESTS:');
     this.testResults.forEach(result => console.log(result));
     
     if (this.warnings.length > 0) {
-      console.log('\n⚠️  WARNINGS:');
+      console.log('\n  WARNINGS:');
       this.warnings.forEach(warning => console.log(warning));
     }
     
     if (this.errors.length > 0) {
-      console.log('\n❌ ERRORS:');
+      console.log('\n ERRORS:');
       this.errors.forEach(error => console.log(error));
     }
     
-    console.log('\n📈 SUMMARY:');
+    console.log('\n SUMMARY:');
     console.log(`   - Tests Passed: ${this.testResults.length}`);
     console.log(`   - Warnings: ${this.warnings.length}`);
     console.log(`   - Errors: ${this.errors.length}`);
@@ -349,9 +349,9 @@ class BookingSystemValidator {
     console.log(`   - Overall Score: ${score.toFixed(1)}%`);
     
     if (this.errors.length === 0) {
-      console.log('\n🎉 ALL CRITICAL TESTS PASSED! System is ready for production.');
+      console.log('\n ALL CRITICAL TESTS PASSED! System is ready for production.');
     } else {
-      console.log('\n🚨 CRITICAL ISSUES FOUND! Please fix errors before deployment.');
+      console.log('\n CRITICAL ISSUES FOUND! Please fix errors before deployment.');
     }
     
     console.log('='.repeat(60));
@@ -364,7 +364,7 @@ class BookingSystemValidator {
 class BugPreventionAutomation {
   
   static async runChecklist() {
-    console.log('\n🛡️  RUNNING BUG PREVENTION CHECKLIST...\n');
+    console.log('\n  RUNNING BUG PREVENTION CHECKLIST...\n');
     
     const checklist = [
       { name: 'Database connection', check: this.checkDatabaseConnection },
@@ -382,22 +382,22 @@ class BugPreventionAutomation {
       try {
         const result = await item.check();
         if (result) {
-          console.log(`✅ ${item.name}: PASSED`);
+          console.log(` ${item.name}: PASSED`);
           passedChecks++;
         } else {
-          console.log(`❌ ${item.name}: FAILED`);
+          console.log(` ${item.name}: FAILED`);
         }
       } catch (error) {
-        console.log(`⚠️  ${item.name}: ERROR - ${error.message}`);
+        console.log(`  ${item.name}: ERROR - ${error.message}`);
       }
     }
     
-    console.log(`\n📊 Checklist Score: ${passedChecks}/${checklist.length} (${(passedChecks/checklist.length*100).toFixed(1)}%)`);
+    console.log(`\n Checklist Score: ${passedChecks}/${checklist.length} (${(passedChecks/checklist.length*100).toFixed(1)}%)`);
     
     if (passedChecks === checklist.length) {
-      console.log('🎉 ALL PREVENTIVE MEASURES IN PLACE!');
+      console.log(' ALL PREVENTIVE MEASURES IN PLACE!');
     } else {
-      console.log('⚠️  SOME PREVENTIVE MEASURES NEED ATTENTION');
+      console.log('  SOME PREVENTIVE MEASURES NEED ATTENTION');
     }
   }
   

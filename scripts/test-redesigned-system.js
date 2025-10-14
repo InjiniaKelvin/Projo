@@ -25,28 +25,28 @@ const testData = {
 
 async function testRedesignedSystem() {
   try {
-    console.log('🧪 Testing redesigned booking system...');
+    console.log(' Testing redesigned booking system...');
     
     const response = await axios.post('http://localhost:3000/api/bookings-redesigned/redesigned', testData);
     
     if (response.data.success) {
-      console.log('✅ Test booking created successfully!');
-      console.log('📋 Booking ID:', response.data.data.bookingId);
-      console.log('📱 Client Phone:', response.data.data.clientPhone);
+      console.log(' Test booking created successfully!');
+      console.log(' Booking ID:', response.data.data.bookingId);
+      console.log(' Client Phone:', response.data.data.clientPhone);
       return true;
     } else {
-      console.log('❌ Test failed:', response.data.message);
+      console.log(' Test failed:', response.data.message);
       return false;
     }
     
   } catch (error) {
     if (error.response) {
-      console.log('❌ Test failed with status:', error.response.status);
-      console.log('📝 Error message:', error.response.data.message);
+      console.log(' Test failed with status:', error.response.status);
+      console.log(' Error message:', error.response.data.message);
     } else if (error.code === 'ECONNREFUSED') {
-      console.log('❌ Cannot connect to server. Make sure backend is running on port 3000');
+      console.log(' Cannot connect to server. Make sure backend is running on port 3000');
     } else {
-      console.log('❌ Test failed:', error.message);
+      console.log(' Test failed:', error.message);
     }
     return false;
   }

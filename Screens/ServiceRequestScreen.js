@@ -132,7 +132,7 @@ export default function ServiceRequestScreen() {
       {/* Location Display */}
       {techLoc && (
         <View style={styles.locationInfo}>
-          <Text style={styles.locationText}>📍 Technician Located</Text>
+          <Text style={styles.locationText}> Technician Located</Text>
           <Text style={styles.locationDetails}>
             Your location: {clientLoc.latitude.toFixed(4)}, {clientLoc.longitude.toFixed(4)}
           </Text>
