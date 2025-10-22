@@ -157,6 +157,8 @@ const bookingSchema = new mongoose.Schema({
     required: [true, 'Preferred date is required'],
     validate: {
       validator: function(v) {
+        // Only validate on new document creation, not on updates
+        if (!this.isNew) return true;
         return v && v >= new Date(Date.now() - 24 * 60 * 60 * 1000); // Allow today
       },
       message: 'Preferred date cannot be in the past'

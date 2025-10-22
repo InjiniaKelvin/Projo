@@ -12,8 +12,8 @@ import * as SecureStore from 'expo-secure-store';
 class StorageService {
   // Storage keys
   static KEYS = {
-    SESSION_TOKEN: 'quickfix_session_token',
-    USER_DATA: 'quickfix_user_data',
+    SESSION_TOKEN: 'authToken', // Match SimpleAuthContext
+    USER_DATA: 'userData', // Match SimpleAuthContext
     BIOMETRIC_ENABLED: 'quickfix_biometric_enabled',
     REMEMBER_ME: 'quickfix_remember_me',
     LAST_LOGIN_EMAIL: 'quickfix_last_login_email',
@@ -112,6 +112,33 @@ class StorageService {
   }
 
   /**
+   * Get just the access token
+   * @returns {Promise<string|null>} Access token or null
+   */
+  static async getAccessToken() {
+    try {
+      // For web, check localStorage directly (used by SimpleAuthContext)
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const token = window.localStorage.getItem('authToken');
+        if (token) return token;
+      }
+
+      // Try to get token from SecureStore first (native)
+      let token = null;
+      
+      try {
+        token = await SecureStore.getItemAsync(this.KEYS.SESSION_TOKEN);
+      } catch (secureStoreError) {
+        // Fallback to AsyncStorage
+        token = await AsyncStorage.getItem(this.KEYS.SESSION_TOKEN);
+      }
+
+      return token;
+    } catch (error) {
+      console.error('StorageService: Error retrieving access token:', error);
+      return null;
+    }
+  }  /**
    * Update existing session data
    * @param {Object} updates - Updates to apply to session
    */

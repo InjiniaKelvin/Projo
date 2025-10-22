@@ -59,14 +59,32 @@ class AuthController {
       
       // Create new user
       const startUserCreation = Date.now();
-      const user = new User({
+      const userData = {
         email,
         password,
         firstName,
         lastName,
         phoneNumber,
         role
-      });
+      };
+      
+      // Add technician-specific fields
+      if (role === 'technician' && req.body.skills) {
+        // Transform skill names array into skill objects
+        userData.skills = req.body.skills.map(skillName => ({
+          name: skillName,
+          experience: 0,
+          certified: false
+        }));
+      }
+      if (role === 'technician' && req.body.location) {
+        userData.location = {
+          type: 'Point',
+          coordinates: [req.body.location.longitude || 0, req.body.location.latitude || 0]
+        };
+      }
+      
+      const user = new User(userData);
       
       // First save - this triggers password hashing
       await user.save();
@@ -85,7 +103,13 @@ class AuthController {
         { _id: user._id },
         { 
           walletId: wallet._id,
-          $push: { refreshTokens: tokens.refreshToken }
+          $push: { 
+            refreshTokens: {
+              token: tokens.refreshToken,
+              createdAt: new Date(),
+              expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+            }
+          }
         }
       );
       console.log(`OK: User updated with wallet and token`);

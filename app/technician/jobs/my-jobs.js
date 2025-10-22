@@ -1,70 +1,78 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import { useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
+import { ActivityIndicator, Alert, FlatList, Linking, Platform, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useAuth } from '../../../contexts/SimpleAuthContext';
+import { API_ENDPOINTS, API_CONFIG } from '../../../config/api';
 
 export default function MyJobs() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const [activeTab, setActiveTab] = useState('active'); // 'active', 'completed'
   const [jobs, setJobs] = useState({
-    active: [
-      {
-        _id: '1',
-        serviceType: 'Plumbing',
-        description: 'Fix kitchen sink drainage issue',
-        location: { address: 'Westlands, Nairobi' },
-        estimatedCost: 3500,
-        status: 'in_progress',
-        clientName: 'Sarah M.',
-        clientPhone: '+254712345678',
-        scheduledDate: new Date(Date.now() + 86400000).toISOString(),
-        acceptedAt: new Date(Date.now() - 3600000).toISOString()
-      },
-      {
-        _id: '2',
-        serviceType: 'Electrical',
-        description: 'Install new ceiling fan in bedroom',
-        location: { address: 'Karen, Nairobi' },
-        estimatedCost: 4200,
-        status: 'accepted',
-        clientName: 'John K.',
-        clientPhone: '+254723456789',
-        scheduledDate: new Date(Date.now() + 172800000).toISOString(),
-        acceptedAt: new Date(Date.now() - 1800000).toISOString()
-      }
-    ],
-    completed: [
-      {
-        _id: '3',
-        serviceType: 'Appliance Repair',
-        description: 'Fixed washing machine motor issue',
-        location: { address: 'Kilimani, Nairobi' },
-        estimatedCost: 2800,
-        actualCost: 2800,
-        status: 'completed',
-        clientName: 'Mary W.',
-        completedAt: new Date(Date.now() - 86400000).toISOString(),
-        rating: 5,
-        clientFeedback: 'Excellent work! Very professional and quick.'
-      },
-      {
-        _id: '4',
-        serviceType: 'Plumbing',
-        description: 'Repaired bathroom shower head',
-        location: { address: 'Parklands, Nairobi' },
-        estimatedCost: 1500,
-        actualCost: 1200,
-        status: 'completed',
-        clientName: 'David L.',
-        completedAt: new Date(Date.now() - 172800000).toISOString(),
-        rating: 4,
-        clientFeedback: 'Good service, arrived on time.'
-      }
-    ]
+    active: [],
+    completed: []
   });
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Fetch technician's jobs from backend
+  const fetchMyJobs = async (isRefresh = false) => {
+    try {
+      if (isRefresh) {
+        setIsRefreshing(true);
+      } else {
+        setIsLoading(true);
+      }
+      setError(null);
+
+      const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.TECHNICIAN.MY_JOBS}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Separate jobs into active and completed
+        const activeJobs = data.jobs?.filter(job => 
+          ['accepted', 'in_progress'].includes(job.status)
+        ) || [];
+        const completedJobs = data.jobs?.filter(job => 
+          job.status === 'completed'
+        ) || [];
+
+        setJobs({
+          active: activeJobs,
+          completed: completedJobs
+        });
+      } else {
+        throw new Error(data.message || 'Failed to fetch jobs');
+      }
+    } catch (err) {
+      console.error('Error fetching my jobs:', err);
+      setError(err.message);
+      Alert.alert('Error', err.message || 'Failed to load your jobs');
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  };
+
+  // Fetch jobs when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      fetchMyJobs();
+    }, [])
+  );
+
+  const onRefresh = () => {
+    fetchMyJobs(true);
+  };
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -75,7 +83,7 @@ export default function MyJobs() {
     }
   };
 
-  const handleJobAction = (job, action) => {
+  const handleJobAction = async (job, action) => {
     switch (action) {
       case 'start':
         Alert.alert(
@@ -85,13 +93,27 @@ export default function MyJobs() {
             { text: 'Cancel', style: 'cancel' },
             { 
               text: 'Start Job', 
-              onPress: () => {
-                const updatedJobs = { ...jobs };
-                const jobIndex = updatedJobs.active.findIndex(j => j._id === job._id);
-                if (jobIndex !== -1) {
-                  updatedJobs.active[jobIndex].status = 'in_progress';
-                  setJobs(updatedJobs);
-                  Alert.alert('Success', 'Job marked as in progress!');
+              onPress: async () => {
+                try {
+                  const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.TECHNICIAN.START_JOB(job._id)}`, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${token}`
+                    }
+                  });
+
+                  const data = await response.json();
+
+                  if (response.ok) {
+                    Alert.alert('Success', 'Job marked as in progress!');
+                    fetchMyJobs(); // Refresh jobs list
+                  } else {
+                    throw new Error(data.message || 'Failed to start job');
+                  }
+                } catch (err) {
+                  console.error('Error starting job:', err);
+                  Alert.alert('Error', err.message || 'Failed to start job');
                 }
               }
             }
@@ -99,32 +121,24 @@ export default function MyJobs() {
         );
         break;
       case 'complete':
-        Alert.alert(
-          'Complete Job',
-          'Mark this job as completed?',
-          [
-            { text: 'Cancel', style: 'cancel' },
-            { 
-              text: 'Complete', 
-              onPress: () => {
-                Alert.alert('Success', 'Job completed! Payment will be processed.');
-              }
-            }
-          ]
-        );
+        // Navigate to job details for completion
+        router.push(`/technician/jobs/${job._id}`);
         break;
       case 'contact':
         Alert.alert(
           'Contact Client',
-          `Call ${job.clientName}?`,
+          `Call ${job.clientName || job.userId?.name || 'client'}?`,
           [
             { text: 'Cancel', style: 'cancel' },
-            { text: 'Call Now', onPress: () => Alert.alert('Calling', `Calling ${job.clientPhone}...`) }
+            { text: 'Call Now', onPress: () => Alert.alert('Calling', `Calling ${job.clientPhone || job.userId?.phone || 'client'}...`) }
           ]
         );
         break;
       case 'navigate':
-        Alert.alert('Navigation', `Opening directions to ${job.location.address}...`);
+        Alert.alert('Navigation', `Opening directions to ${job.location?.address || job.location?.estate || 'location'}...`);
+        break;
+      case 'viewDetails':
+        router.push(`/technician/jobs/${job._id}`);
         break;
       default:
         break;

@@ -18,6 +18,7 @@ import {
     View
 } from 'react-native';
 import { useAuth } from '../../contexts/SimpleAuthContext';
+import { SHADOWS } from '../../utils/shadows';
 import WebCompatibleButton from '../WebCompatibleButton';
 
 // Get screen dimensions for responsive design
@@ -258,18 +259,9 @@ const styles = StyleSheet.create({
     }),
     marginBottom: 16,
     backgroundColor: '#fff',
+    ...SHADOWS.small,
     ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 2
-      },
-      android: {
-        elevation: 1
-      },
       web: {
-        boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
         transition: 'border-color 0.2s ease',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
       }
@@ -281,16 +273,8 @@ const styles = StyleSheet.create({
     paddingVertical: Platform.OS === 'ios' ? 16 : 14,
     alignItems: 'center',
     marginBottom: 16,
+    ...SHADOWS.button,
     ...Platform.select({
-      ios: {
-        shadowColor: '#007AFF',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4
-      },
-      android: {
-        elevation: 3
-      },
       web: {
         boxShadow: '0 2px 8px rgba(0,122,255,0.2)',
         cursor: 'pointer',
@@ -308,8 +292,12 @@ const styles = StyleSheet.create({
         elevation: 0
       },
       web: {
-        boxShadow: 'none',
         cursor: 'not-allowed'
+      }
+    }),
+    ...Platform.select({
+      web: {
+        ...(Platform.OS === 'web' && { boxShadow: 'none' })
       }
     })
   },
@@ -358,7 +346,9 @@ const styles = StyleSheet.create({
     ...Platform.select({
       web: {
         cursor: 'pointer',
-        textDecoration: 'none',
+        textDecorationLine: 'none',
+        textDecorationStyle: 'solid',
+        textDecorationColor: 'transparent',
         transition: 'opacity 0.2s ease'
       }
     })

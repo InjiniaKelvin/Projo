@@ -1,111 +1,154 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import { useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
+import { ActivityIndicator, Alert, FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useAuth } from '../../../contexts/SimpleAuthContext';
+import { API_ENDPOINTS, API_CONFIG } from '../../../config/api';
 
 export default function BrowseJobs() {
   const router = useRouter();
-  const { user } = useAuth();
-  const [jobs, setJobs] = useState([
-    {
-      _id: '1',
-      serviceType: 'Plumbing',
-      description: 'Leaky kitchen faucet needs repair. Water dripping constantly.',
-      location: { address: 'Westlands, Nairobi' },
-      estimatedCost: 2500,
-      urgency: 'medium',
-      distance: '2.3 km',
-      createdAt: new Date().toISOString(),
-      clientName: 'Sarah M.',
-      clientRating: 4.8
-    },
-    {
-      _id: '2',
-      serviceType: 'Electrical',
-      description: 'Power outlet not working in bedroom. Need immediate fix.',
-      location: { address: 'Karen, Nairobi' },
-      estimatedCost: 1800,
-      urgency: 'high',
-      distance: '5.1 km',
-      createdAt: new Date(Date.now() - 3600000).toISOString(),
-      clientName: 'John K.',
-      clientRating: 4.9
-    },
-    {
-      _id: '3',
-      serviceType: 'Appliance Repair',
-      description: 'Washing machine making loud noise during spin cycle.',
-      location: { address: 'Kilimani, Nairobi' },
-      estimatedCost: 3200,
-      urgency: 'low',
-      distance: '3.7 km',
-      createdAt: new Date(Date.now() - 7200000).toISOString(),
-      clientName: 'Mary W.',
-      clientRating: 4.6
+  const { user, token } = useAuth();
+  const [jobs, setJobs] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Fetch available jobs from backend
+  const fetchAvailableJobs = async (isRefresh = false) => {
+    try {
+      if (isRefresh) {
+        setIsRefreshing(true);
+      } else {
+        setIsLoading(true);
+      }
+      setError(null);
+
+      const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.TECHNICIAN.AVAILABLE_JOBS}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setJobs(data.jobs || []);
+      } else {
+        throw new Error(data.message || 'Failed to fetch jobs');
+      }
+    } catch (err) {
+      console.error('Error fetching jobs:', err);
+      setError(err.message);
+      Alert.alert('Error', err.message || 'Failed to load available jobs');
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
     }
-  ]);
-  const [isLoading, setIsLoading] = useState(false);
+  };
+
+  // Fetch jobs when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      fetchAvailableJobs();
+    }, [])
+  );
+
+  const onRefresh = () => {
+    fetchAvailableJobs(true);
+  };
 
   const getUrgencyColor = (urgency) => {
-    switch (urgency) {
+    switch (urgency?.toLowerCase()) {
+      case 'emergency':
       case 'high': return '#dc3545';
       case 'medium': return '#ffc107';
+      case 'normal':
       case 'low': return '#28a745';
       default: return '#6c757d';
     }
   };
 
-  const handleAcceptJob = (job) => {
+  const handleAcceptJob = async (job) => {
     Alert.alert(
       'Accept Job',
-      `Accept this ${job.serviceType} job for KES ${job.estimatedCost}?`,
+      `Accept this ${job.serviceType || 'service'} job for KES ${job.estimatedCost}?`,
       [
         { text: 'Cancel', style: 'cancel' },
         { 
           text: 'Accept Job', 
-          onPress: () => {
-            Alert.alert('Success!', `You've accepted the ${job.serviceType} job. The client will be notified.`);
-            setJobs(prevJobs => prevJobs.filter(j => j._id !== job._id));
+          onPress: async () => {
+            try {
+              const response = await fetch(`${API_CONFIG.BASE_URL}${API_ENDPOINTS.TECHNICIAN.ACCEPT_JOB(job._id)}`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`
+                }
+              });
+
+              const data = await response.json();
+
+              if (response.ok) {
+                Alert.alert('Success!', `You've accepted the ${job.serviceType || 'service'} job. The client will be notified.`);
+                // Remove job from available list
+                setJobs(prevJobs => prevJobs.filter(j => j._id !== job._id));
+                // Navigate to my jobs
+                router.push('/technician/jobs/my-jobs');
+              } else {
+                throw new Error(data.message || 'Failed to accept job');
+              }
+            } catch (err) {
+              console.error('Error accepting job:', err);
+              Alert.alert('Error', err.message || 'Failed to accept job. Please try again.');
+            }
           }
         }
       ]
     );
   };
 
+  const handleViewDetails = (job) => {
+    // Navigate to job details page
+    router.push(`/technician/jobs/${job._id}`);
+  };
+
   const renderJob = ({ item }) => (
     <View style={styles.jobCard}>
       <View style={styles.jobHeader}>
         <View style={styles.jobTitleContainer}>
-          <Text style={styles.jobTitle}>{item.serviceType}</Text>
+          <Text style={styles.jobTitle}>{item.serviceType || 'Service'}</Text>
           <View style={[styles.urgencyBadge, { backgroundColor: getUrgencyColor(item.urgency) }]}>
-            <Text style={styles.urgencyText}>{item.urgency}</Text>
+            <Text style={styles.urgencyText}>{item.urgency || 'normal'}</Text>
           </View>
         </View>
-        <Text style={styles.jobPrice}>KES {item.estimatedCost}</Text>
+        <Text style={styles.jobPrice}>KES {item.estimatedCost || 0}</Text>
       </View>
       
-      <Text style={styles.jobDescription} numberOfLines={2}>{item.description}</Text>
+      <Text style={styles.jobDescription} numberOfLines={2}>{item.description || 'No description'}</Text>
       
       <View style={styles.jobMeta}>
         <View style={styles.locationContainer}>
           <Ionicons name="location-outline" size={14} color="#666" />
-          <Text style={styles.locationText}>{item.location.address}</Text>
-          <Text style={styles.distanceText}>• {item.distance}</Text>
+          <Text style={styles.locationText}>{item.location?.address || item.location?.estate || 'Location not specified'}</Text>
+          {item.distance && <Text style={styles.distanceText}>• {item.distance}</Text>}
         </View>
         <View style={styles.clientInfo}>
-          <Text style={styles.clientName}>{item.clientName}</Text>
-          <View style={styles.ratingContainer}>
-            <Ionicons name="star" size={12} color="#ffc107" />
-            <Text style={styles.ratingText}>{item.clientRating}</Text>
-          </View>
+          <Text style={styles.clientName}>{item.clientName || item.userId?.name || 'Client'}</Text>
+          {item.clientRating && (
+            <View style={styles.ratingContainer}>
+              <Ionicons name="star" size={12} color="#ffc107" />
+              <Text style={styles.ratingText}>{item.clientRating}</Text>
+            </View>
+          )}
         </View>
       </View>
 
       <View style={styles.jobActions}>
         <TouchableOpacity 
           style={styles.viewDetailsButton}
-          onPress={() => Alert.alert('Job Details', 'Viewing detailed job information...')}
+          onPress={() => handleViewDetails(item)}
         >
           <Text style={styles.viewDetailsText}>View Details</Text>
         </TouchableOpacity>
@@ -138,6 +181,18 @@ export default function BrowseJobs() {
           <ActivityIndicator size="large" color="#0d6efd" />
           <Text style={styles.loadingText}>Finding jobs near you...</Text>
         </View>
+      ) : error ? (
+        <View style={styles.errorContainer}>
+          <Ionicons name="alert-circle-outline" size={64} color="#dc3545" />
+          <Text style={styles.errorText}>Failed to load jobs</Text>
+          <Text style={styles.errorSubtext}>{error}</Text>
+          <TouchableOpacity 
+            style={styles.retryButton}
+            onPress={() => fetchAvailableJobs()}
+          >
+            <Text style={styles.retryButtonText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
       ) : (
         <FlatList
           data={jobs}
@@ -145,6 +200,13 @@ export default function BrowseJobs() {
           renderItem={renderJob}
           contentContainerStyle={styles.jobsList}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={onRefresh}
+              colors={['#0d6efd']}
+            />
+          }
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Ionicons name="briefcase-outline" size={64} color="#ccc" />
@@ -331,5 +393,35 @@ const styles = StyleSheet.create({
     color: '#999',
     marginTop: 8,
     textAlign: 'center'
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20
+  },
+  errorText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#dc3545',
+    marginTop: 16
+  },
+  errorSubtext: {
+    fontSize: 14,
+    color: '#999',
+    marginTop: 8,
+    textAlign: 'center'
+  },
+  retryButton: {
+    marginTop: 20,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    backgroundColor: '#0d6efd',
+    borderRadius: 8
+  },
+  retryButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#fff'
   }
 });

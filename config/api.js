@@ -4,7 +4,7 @@
  */
 
 import axios from 'axios';
-import { StorageService } from '../services/StorageService';
+import StorageService from '../services/StorageService';
 
 // API Configuration
 export const API_CONFIG = {
@@ -126,6 +126,28 @@ export const API_ENDPOINTS = {
     APPROVE_TECHNICIAN: (id) => `/admin/technicians/${id}/approve`,
     REJECT_TECHNICIAN: (id) => `/admin/technicians/${id}/reject`,
     SYSTEM_STATS: '/admin/stats',
+  },
+
+  // Technician
+  TECHNICIAN: {
+    // Job Management
+    AVAILABLE_JOBS: '/technician/available-jobs',
+    MY_JOBS: '/technician/my-jobs',
+    ACCEPT_JOB: (id) => `/technician/accept-job/${id}`,
+    REJECT_JOB: (id) => `/technician/reject-job/${id}`,
+    START_JOB: (id) => `/technician/start-job/${id}`,
+    COMPLETE_JOB: (id) => `/technician/complete-job/${id}`,
+    
+    // Photo Upload
+    UPLOAD_PHOTOS: (id) => `/technician/upload-photos/${id}`,
+    
+    // Availability & Location
+    UPDATE_AVAILABILITY: '/technician/availability',
+    UPDATE_LOCATION: '/technician/location',
+    
+    // Earnings & Payments
+    EARNINGS: '/technician/earnings',
+    WITHDRAW: '/technician/withdraw',
   }
 };
 

@@ -148,6 +148,10 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/chat', chatRoutes);
 
+// Technician Routes
+const technicianRoutes = require('./backend/routes/technician');
+app.use('/api/technician', technicianRoutes);
+
 // M-Pesa callback route (needs to be before error middleware)
 app.post('/api/payments/mpesa/callback', require('./backend/controllers/enhancedPaymentController').handleMpesaCallback);
 

@@ -25,8 +25,10 @@ class Database {
       const options = {
         // Connection pool settings
         maxPoolSize: 10, // Maintain up to 10 socket connections
-        serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
-        socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+        serverSelectionTimeoutMS: 30000, // Increased to 30 seconds for high latency networks
+        socketTimeoutMS: 75000, // Increased to 75 seconds for slow connections
+        connectTimeoutMS: 30000, // Initial connection timeout
+        family: 4, // Force IPv4 (prevents IPv6 fallback delays)
       };
 
       this.connection = await mongoose.connect(connectionUri, options);

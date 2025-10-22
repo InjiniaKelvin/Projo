@@ -1,63 +1,70 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ActivityIndicator, Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useAuth } from '../../contexts/SimpleAuthContext';
+import apiClient, { API_ENDPOINTS } from '../../config/api';
 
 export default function TechnicianEarnings() {
   const router = useRouter();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'transactions', 'analytics'
   const [walletData, setWalletData] = useState({
-    availableBalance: 15420.50,
-    pendingPayments: 3200.00,
-    totalEarned: 67890.25,
-    thisMonth: 12340.75,
-    lastWithdrawal: 10000.00,
-    withdrawalDate: new Date(Date.now() - 604800000).toISOString() // 1 week ago
+    availableBalance: 0,
+    pendingPayments: 0,
+    totalEarned: 0,
+    thisMonth: 0,
+    lastWithdrawal: 0,
+    withdrawalDate: null
   });
-  const [transactions, setTransactions] = useState([
-    {
-      _id: '1',
-      type: 'payment',
-      description: 'Electrical repair - Karen',
-      amount: 3200.00,
-      status: 'completed',
-      date: new Date(Date.now() - 86400000).toISOString(),
-      clientName: 'John K.',
-      jobId: 'JOB-001'
-    },
-    {
-      _id: '2',
-      type: 'withdrawal',
-      description: 'Bank transfer to KCB Account',
-      amount: -10000.00,
-      status: 'completed',
-      date: new Date(Date.now() - 604800000).toISOString(),
-      reference: 'WTH-789'
-    },
-    {
-      _id: '3',
-      type: 'payment',
-      description: 'Plumbing service - Westlands',
-      amount: 2800.00,
-      status: 'pending',
-      date: new Date(Date.now() - 172800000).toISOString(),
-      clientName: 'Sarah M.',
-      jobId: 'JOB-002'
-    },
-    {
-      _id: '4',
-      type: 'payment',
-      description: 'Appliance repair - Kilimani',
-      amount: 1800.00,
-      status: 'completed',
-      date: new Date(Date.now() - 259200000).toISOString(),
-      clientName: 'Mary W.',
-      jobId: 'JOB-003'
+  const [transactions, setTransactions] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchEarningsData();
+  }, []);
+
+  const fetchEarningsData = async () => {
+    try {
+      setIsLoading(true);
+      const response = await apiClient.get(API_ENDPOINTS.TECHNICIAN.EARNINGS);
+      
+      if (response.data.success) {
+        const data = response.data.data;
+        setWalletData({
+          availableBalance: data.totalEarnings || 0,
+          pendingPayments: 0,
+          totalEarned: data.totalEarnings || 0,
+          thisMonth: data.thisMonth || 0,
+          lastWithdrawal: 0,
+          withdrawalDate: null
+        });
+        
+        // Get transactions from jobs
+        const jobsResponse = await apiClient.get(API_ENDPOINTS.TECHNICIAN.MY_JOBS);
+        if (jobsResponse.data.success) {
+          const completedJobs = jobsResponse.data.data.jobs
+            .filter(job => job.status === 'completed')
+            .map(job => ({
+              _id: job._id,
+              type: 'payment',
+              description: `${job.serviceType} - ${job.location?.address || 'N/A'}`,
+              amount: job.estimatedCost || 0,
+              status: 'completed',
+              date: job.updatedAt,
+              clientName: job.client?.firstName || 'Client',
+              jobId: job._id
+            }));
+          setTransactions(completedJobs);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching earnings:', error);
+      Alert.alert('Error', 'Failed to load earnings data');
+    } finally {
+      setIsLoading(false);
     }
-  ]);
-  const [isLoading, setIsLoading] = useState(false);
+  };
 
   const handleWithdraw = () => {
     if (walletData.availableBalance < 1000) {
@@ -99,13 +106,23 @@ export default function TechnicianEarnings() {
         { text: 'Cancel', style: 'cancel' },
         { 
           text: 'Confirm', 
-          onPress: () => {
-            Alert.alert('Success', 'Withdrawal request submitted! Funds will be transferred within 24 hours.');
-            // Update wallet balance
-            setWalletData(prev => ({
-              ...prev,
-              availableBalance: prev.availableBalance - amount
-            }));
+          onPress: async () => {
+            try {
+              setIsLoading(true);
+              const response = await apiClient.post(API_ENDPOINTS.TECHNICIAN.WITHDRAW, {
+                amount: amount
+              });
+              
+              if (response.data.success) {
+                Alert.alert('Success', 'Withdrawal request submitted! Funds will be transferred within 24 hours.');
+                fetchEarningsData(); // Refresh data
+              }
+            } catch (error) {
+              console.error('Withdrawal error:', error);
+              Alert.alert('Error', error.response?.data?.message || 'Failed to process withdrawal');
+            } finally {
+              setIsLoading(false);
+            }
           }
         }
       ]
@@ -210,7 +227,7 @@ export default function TechnicianEarnings() {
         <View style={styles.actionsRow}>
           <TouchableOpacity 
             style={styles.actionButton}
-            onPress={() => Alert.alert('Payment History', 'Viewing detailed payment history...')}
+            onPress={() => setActiveTab('transactions')}
           >
             <Ionicons name="document-text-outline" size={24} color="#0d6efd" />
             <Text style={styles.actionText}>Payment History</Text>
@@ -218,7 +235,19 @@ export default function TechnicianEarnings() {
           
           <TouchableOpacity 
             style={styles.actionButton}
-            onPress={() => Alert.alert('Tax Documents', 'Downloading tax documents...')}
+            onPress={() => {
+              Alert.alert(
+                'Tax Documents',
+                'Download your tax documents for the current year?',
+                [
+                  { text: 'Cancel', style: 'cancel' },
+                  { 
+                    text: 'Download', 
+                    onPress: () => Alert.alert('Success', 'Tax documents will be sent to your registered email within 24 hours.')
+                  }
+                ]
+              );
+            }}
           >
             <Ionicons name="download-outline" size={24} color="#0d6efd" />
             <Text style={styles.actionText}>Tax Documents</Text>
@@ -226,7 +255,7 @@ export default function TechnicianEarnings() {
           
           <TouchableOpacity 
             style={styles.actionButton}
-            onPress={() => Alert.alert('Bank Details', 'Manage your bank account information...')}
+            onPress={() => router.push('/technician/profile?tab=payment')}
           >
             <Ionicons name="card-outline" size={24} color="#0d6efd" />
             <Text style={styles.actionText}>Bank Details</Text>
@@ -259,7 +288,21 @@ export default function TechnicianEarnings() {
           <Ionicons name="arrow-back" size={24} color="#333" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Earnings</Text>
-        <TouchableOpacity style={styles.settingsButton}>
+        <TouchableOpacity 
+          style={styles.settingsButton}
+          onPress={() => {
+            Alert.alert(
+              'Earnings Settings',
+              'Configure your payment preferences',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Bank Details', onPress: () => router.push('/technician/profile?tab=payment') },
+                { text: 'Tax Information', onPress: () => Alert.alert('Tax Info', 'Tax settings coming soon!') },
+                { text: 'Notification Preferences', onPress: () => Alert.alert('Notifications', 'Notification settings coming soon!') }
+              ]
+            );
+          }}
+        >
           <Ionicons name="settings-outline" size={24} color="#666" />
         </TouchableOpacity>
       </View>

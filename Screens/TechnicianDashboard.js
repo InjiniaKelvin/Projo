@@ -3,8 +3,8 @@ import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useAuth } from '../contexts/SimpleAuthContext';
-import BookingService from '../services/BookingService';
-import PaymentService from '../services/PaymentService';
+import apiClient from '../config/api';
+import { API_ENDPOINTS } from '../config/api';
 
 export default function TechnicianDashboard() {
   const [jobs, setJobs] = useState([]);
@@ -12,6 +12,7 @@ export default function TechnicianDashboard() {
     walletBalance: 0,
     pendingJobs: 0,
     completedJobs: 0,
+    activeJobs: 0,
     rating: 0
   });
   const [isLoading, setIsLoading] = useState(true);
@@ -69,33 +70,90 @@ export default function TechnicianDashboard() {
     }
   };
 
-  const handleQuickAcceptJob = () => {
+  const handleQuickAcceptJob = async () => {
     console.log(' TECH: Quick accept next available job...');
-    Alert.alert(
-      'Quick Accept',
-      'Accept the next available job in your area?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Accept Next Job', 
-          onPress: () => {
-            Alert.alert('Success', 'Looking for the next available job that matches your skills...');
-          }
-        }
-      ]
-    );
+    try {
+      // Fetch available jobs
+      const response = await apiClient.get(API_ENDPOINTS.TECHNICIAN.AVAILABLE_JOBS);
+      
+      if (response.data.success && response.data.data.jobs.length > 0) {
+        const nextJob = response.data.data.jobs[0]; // Get first available job
+        
+        Alert.alert(
+          'Quick Accept',
+          `Accept job: ${nextJob.serviceType}\nLocation: ${nextJob.location?.address || 'N/A'}\nCost: KES ${nextJob.estimatedCost}`,
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { 
+              text: 'Accept Job', 
+              onPress: async () => {
+                try {
+                  const acceptResponse = await apiClient.post(
+                    API_ENDPOINTS.TECHNICIAN.ACCEPT_JOB.replace(':id', nextJob._id)
+                  );
+                  
+                  if (acceptResponse.data.success) {
+                    Alert.alert('Success', 'Job accepted! Check "My Jobs" to start working.');
+                    loadDashboardData();
+                  }
+                } catch (error) {
+                  console.error('Accept job error:', error);
+                  Alert.alert('Error', error.response?.data?.message || 'Failed to accept job');
+                }
+              }
+            }
+          ]
+        );
+      } else {
+        Alert.alert('No Jobs Available', 'There are no jobs available in your area at the moment.');
+      }
+    } catch (error) {
+      console.error('Quick accept error:', error);
+      Alert.alert('Error', 'Failed to fetch available jobs');
+    }
   };
 
-  const handleUpdateAvailability = () => {
+  const handleUpdateAvailability = async () => {
     console.log(' TECH: Update availability status...');
     Alert.alert(
       'Availability Status',
       'Update your work availability:',
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Available Now', onPress: () => Alert.alert('Status Updated', 'You are now available for new jobs!') },
-        { text: 'Busy', onPress: () => Alert.alert('Status Updated', 'Your status is set to busy. No new jobs will be assigned.') },
-        { text: 'Off Duty', onPress: () => Alert.alert('Status Updated', 'You are now off duty. Have a great rest!') }
+        { 
+          text: 'Available Now', 
+          onPress: async () => {
+            try {
+              const response = await apiClient.put(API_ENDPOINTS.TECHNICIAN.AVAILABILITY, {
+                isAvailable: true
+              });
+              if (response.data.success) {
+                Alert.alert('Status Updated', 'You are now available for new jobs!');
+                loadDashboardData();
+              }
+            } catch (error) {
+              console.error('Availability error:', error);
+              Alert.alert('Error', 'Failed to update availability');
+            }
+          }
+        },
+        { 
+          text: 'Off Duty', 
+          onPress: async () => {
+            try {
+              const response = await apiClient.put(API_ENDPOINTS.TECHNICIAN.AVAILABILITY, {
+                isAvailable: false
+              });
+              if (response.data.success) {
+                Alert.alert('Status Updated', 'You are now off duty. Have a great rest!');
+                loadDashboardData();
+              }
+            } catch (error) {
+              console.error('Availability error:', error);
+              Alert.alert('Error', 'Failed to update availability');
+            }
+          }
+        }
       ]
     );
   };
@@ -121,21 +179,34 @@ export default function TechnicianDashboard() {
     try {
       setIsLoading(true);
       
-      // Load wallet info and bookings in parallel
-      const [walletResponse, jobsResponse, statsResponse] = await Promise.all([
-        PaymentService.getWallet().catch(() => ({ data: { balance: 0 } })),
-        BookingService.getBookings(1, 10, { technician: user?.id, status: 'pending' }).catch(() => ({ data: { docs: [] } })),
-        BookingService.getBookingStats().catch(() => ({ data: { completed: 0, pending: 0 } }))
+      // Load technician-specific data
+      const [jobsResponse, earningsResponse] = await Promise.all([
+        apiClient.get(API_ENDPOINTS.TECHNICIAN.MY_JOBS).catch(() => ({ data: { success: true, data: { jobs: [] } } })),
+        apiClient.get(API_ENDPOINTS.TECHNICIAN.EARNINGS).catch(() => ({ data: { success: true, data: { totalEarnings: 0, completedJobs: 0, activeJobs: 0 } } }))
       ]);
 
+      const jobsData = jobsResponse.data?.data?.jobs || [];
+      const earningsData = earningsResponse.data?.data || {};
+
+      // Calculate stats from jobs
+      const pendingJobsCount = jobsData.filter(j => j.status === 'pending' || j.status === 'technician_assigned').length;
+      const activeJobsCount = jobsData.filter(j => j.status === 'in_progress').length;
+      const completedJobsCount = earningsData.completedJobs || 0;
+
       setStats({
-        walletBalance: walletResponse.data?.balance || 0,
-        pendingJobs: statsResponse.data?.pending || 0,
-        completedJobs: statsResponse.data?.completed || 0,
+        walletBalance: earningsData.totalEarnings || 0,
+        pendingJobs: pendingJobsCount,
+        activeJobs: activeJobsCount,
+        completedJobs: completedJobsCount,
         rating: user?.rating?.average || 0
       });
 
-      setJobs(jobsResponse.data?.docs || []);
+      // Show only pending and active jobs on dashboard
+      setJobs(jobsData.filter(j => 
+        j.status === 'pending' || 
+        j.status === 'technician_assigned' || 
+        j.status === 'in_progress'
+      ).slice(0, 10));
     } catch (error) {
       console.error('Error loading dashboard data:', error);
       Alert.alert('Error', 'Failed to load dashboard data');
@@ -282,7 +353,11 @@ export default function TechnicianDashboard() {
       <View style={styles.statsContainer}>
         <View style={styles.statCard}>
           <Text style={styles.statNumber}>{stats.pendingJobs}</Text>
-          <Text style={styles.statLabel}>Pending Jobs</Text>
+          <Text style={styles.statLabel}>Pending</Text>
+        </View>
+        <View style={styles.statCard}>
+          <Text style={styles.statNumber}>{stats.activeJobs}</Text>
+          <Text style={styles.statLabel}>Active</Text>
         </View>
         <View style={styles.statCard}>
           <Text style={styles.statNumber}>{stats.completedJobs}</Text>

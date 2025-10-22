@@ -412,19 +412,34 @@ export function AuthProvider({ children }) {
       console.log(' Auth: Register response:', response.data);
       
       if (response.data.success) {
-        const { user, token } = response.data.data;
+        // Extract user and tokens from response
+        const userData = response.data.data.user || response.data.data;
+        const tokens = response.data.data.tokens;
+        const token = tokens?.accessToken || response.data.data.token;
+        
+        console.log(' Auth: Extracted userData:', userData);
+        console.log(' Auth: Extracted tokens object:', tokens);
+        console.log(' Auth: Extracted token (accessToken):', token);
+        console.log(' Auth: Token exists?', !!token);
+        
+        // Validate token exists
+        if (!token) {
+          throw new Error('No access token received from server');
+        }
         
         // Store token and user data using storage helper
         await storage.setItem('authToken', token);
-        await storage.setItem('userData', JSON.stringify(user));
+        await storage.setItem('userData', JSON.stringify(userData));
+        
+        console.log(' Auth: Token and user stored successfully');
         
         dispatch({
           type: 'REGISTER_SUCCESS',
-          payload: { user, token }
+          payload: { user: userData, token }
         });
         
-        console.log(' Auth: Registration successful for user:', user.email);
-        return { success: true, user, token };
+        console.log(' Auth: Registration successful for user:', userData.email);
+        return { success: true, user: userData, token };
       } else {
         throw new Error(response.data.message || 'Registration failed');
       }

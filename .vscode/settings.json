@@ -5,7 +5,7 @@
     "source.sortMembers": "explicit"
   },
   
-  // Performance Optimizations
+  // Performance Optimizations - ENHANCED
   "files.watcherExclude": {
     "**/node_modules/**": true,
     "**/.git/objects/**": true,
@@ -13,16 +13,43 @@
     "**/build/**": true,
     "**/dist/**": true,
     "**/.expo/**": true,
+    "**/.expo-shared/**": true,
+    "**/android/**": true,
+    "**/ios/**": true,
     "**/coverage/**": true,
-    "**/.nyc_output/**": true
+    "**/.nyc_output/**": true,
+    "**/.next/**": true,
+    "**/.cache/**": true,
+    "**/*.log": true
   },
   
-  // Reduce file watching and TypeScript overhead
+  // Search Exclusions - ENHANCED
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/.expo": true,
+    "**/.expo-shared": true,
+    "**/android": true,
+    "**/ios": true,
+    "**/.git": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/*.log": true,
+    "**/.next": true,
+    "**/.cache": true,
+    "**/coverage": true
+  },
+  
+  // Reduce file watching and TypeScript overhead - ENHANCED
   "typescript.disableAutomaticTypeAcquisition": true,
   "typescript.suggest.autoImports": false,
   "javascript.suggest.autoImports": false,
   "typescript.preferences.includePackageJsonAutoImports": "off",
   "typescript.suggest.includeCompletionsWithSnippetText": false,
+  "typescript.tsserver.maxTsServerMemory": 4096,
+  "javascript.validate.enable": false,
+  "typescript.validate.enable": false,
+  "typescript.tsserver.experimental.enableProjectDiagnostics": false,
   
   // Disable heavy visual features
   "editor.codeLens": false,
@@ -44,24 +71,40 @@
   "git.decorations.enabled": false,
   "git.autorefresh": false,
   
-  // Memory management
+  // Memory management - ENHANCED
   "files.hotExit": "off",
   "workbench.editor.enablePreview": false,
   "workbench.editor.enablePreviewFromQuickOpen": false,
+  "files.maxMemoryForLargeFilesMB": 4096,
+  "editor.largeFileOptimizations": true,
+  "editor.maxTokenizationLineLength": 20000,
+  "workbench.editor.limit.enabled": true,
+  "workbench.editor.limit.value": 8,
+  "workbench.editor.limit.perEditorGroup": true,
   
   // Reduce background processing
   "emmet.showExpandedAbbreviation": "never",
   "outline.collapseItems": "alwaysCollapse",
   "editor.guides.indentation": false,
   
-  // Additional performance optimizations to prevent hanging
-  "workbench.editor.limit": 3,
+  // Additional performance optimizations to prevent hanging - ENHANCED
   "workbench.editor.closeEmptyGroups": true,
   "workbench.startupEditor": "none",
   "telemetry.telemetryLevel": "off",
   "update.mode": "none",
   "explorer.confirmDelete": false,
   "explorer.confirmDragAndDrop": false,
+  "files.autoSave": "onFocusChange",
+  "editor.formatOnSave": false,
+  "editor.formatOnPaste": false,
+  "editor.formatOnType": false,
+  "git.enabled": true,
+  "git.autofetch": false,
+  "git.ignoreLimitWarning": true,
+  "terminal.integrated.gpuAcceleration": "on",
+  "workbench.enableExperiments": false,
+  "workbench.settings.enableNaturalLanguageSearch": false,
+  "window.restoreWindows": "none",
   
   // Network and language server optimizations
   "typescript.updateImportsOnFileMove.enabled": "never",
