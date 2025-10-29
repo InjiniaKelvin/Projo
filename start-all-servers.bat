@@ -1,6 +1,6 @@
 @echo off
 echo ===================================
-echo      STARTING BOTH SERVERS
+echo STARTING BOTH SERVERS
 echo ===================================
 echo.
 echo Starting Backend Server (Express/MongoDB)...
@@ -13,7 +13,7 @@ echo Starting Frontend Server (Expo)...
 start "Frontend Server" cmd /k "npx expo start --clear --web"
 echo.
 echo ===================================
-echo    BOTH SERVERS ARE NOW STARTING
+echo BOTH SERVERS ARE NOW STARTING
 echo ===================================
 echo.
 echo Backend: http://localhost:3000

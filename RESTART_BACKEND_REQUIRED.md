@@ -9,18 +9,18 @@ Added emergency time slots to the Booking model enum:
 ```javascript
 // backend/models/Booking.js
 preferredTimeSlot: {
-  type: String,
-  required: [true, 'Preferred time slot is required'],
-  enum: [
-    '08:00-10:00',
-    '10:00-12:00', 
-    '12:00-14:00',
-    '14:00-16:00',
-    '16:00-18:00',
-    'emergency-asap',      // NEW - Added for critical bookings
-    'emergency-today',     // NEW - Added for same-day emergencies
-    'flexible'
-  ]
+ type: String,
+ required: [true, 'Preferred time slot is required'],
+ enum: [
+ '08:00-10:00',
+ '10:00-12:00', 
+ '12:00-14:00',
+ '14:00-16:00',
+ '16:00-18:00',
+ 'emergency-asap', // NEW - Added for critical bookings
+ 'emergency-today', // NEW - Added for same-day emergencies
+ 'flexible'
+ ]
 }
 ```
 
@@ -49,19 +49,19 @@ FAST AUTHENTICATION AND BOOKING TEST
 ================================================================================
 
 [TEST 1] Creating test user directly in database...
-✓ User created in ~1.4s
+OK User created in ~1.4s
 
 [TEST 2] Logging in via API...
-✓ Login successful in ~850ms
+OK Login successful in ~850ms
 
 [TEST 3] Creating NORMAL booking...
-✓ Normal booking created in ~550ms
+OK Normal booking created in ~550ms
 
 [TEST 4] Creating CRITICAL booking...
-✓ Critical booking created in ~500ms  <-- This will now PASS
+OK Critical booking created in ~500ms <-- This will now PASS
 
 [TEST 5] Verifying bookings in database...
-✓ Retrieved 2 bookings
+OK Retrieved 2 bookings
 
 ================================================================================
 ALL TESTS PASSED!
@@ -75,5 +75,5 @@ Node.js caches required modules. When you modify a model file, the changes don't
 
 ---
 
-**STATUS**: Waiting for backend restart  
+**STATUS**: Waiting for backend restart 
 **NEXT STEP**: Restart backend server, then run test

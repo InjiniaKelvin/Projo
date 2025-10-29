@@ -1,10 +1,10 @@
-# 🚀 QUICK MONGODB ATLAS SETUP
+# [LAUNCH] QUICK MONGODB ATLAS SETUP
 
 **5-Minute Production Database Setup**
 
 ---
 
-## 📋 STEP 1: Sign Up (2 minutes)
+## [CHECKLIST] STEP 1: Sign Up (2 minutes)
 
 1. Go to: **https://cloud.mongodb.com/register**
 2. Sign up (Email/Google/GitHub)
@@ -12,28 +12,28 @@
 
 ---
 
-## 🗄️ STEP 2: Create FREE Cluster (1 minute)
+## STEP 2: Create FREE Cluster (1 minute)
 
 1. Click **"Build a Database"**
 2. Select **"Shared"** (FREE)
 3. Choose:
-   - **Provider:** AWS
-   - **Region:** Cape Town / Mumbai / Frankfurt
-   - **Name:** QuickFix-Cluster
+ - **Provider:** AWS
+ - **Region:** Cape Town / Mumbai / Frankfurt
+ - **Name:** QuickFix-Cluster
 4. Click **"Create Cluster"** (wait 3-5 min)
 
 ---
 
-## 👤 STEP 3: Create User (1 minute)
+## STEP 3: Create User (1 minute)
 
 1. **Username:** `quickfix_admin`
 2. **Password:** Click "Autogenerate" 
-3. **⚠️ SAVE THE PASSWORD!**
+3. **[WARNING] SAVE THE PASSWORD!**
 4. Click **"Create User"**
 
 ---
 
-## 🌐 STEP 4: Allow Network Access (30 seconds)
+## STEP 4: Allow Network Access (30 seconds)
 
 1. Click **"Add IP Address"**
 2. Select **"Allow from Anywhere"**
@@ -43,7 +43,7 @@
 
 ---
 
-## 🔗 STEP 5: Get Connection String (30 seconds)
+## STEP 5: Get Connection String (30 seconds)
 
 1. Click **"Connect"** button
 2. Choose **"Drivers"**
@@ -58,7 +58,7 @@ mongodb+srv://quickfix_admin:MyPass123@cluster.ab1cd.mongodb.net/quickfix?retryW
 
 ---
 
-## ⚙️ STEP 6: Update .env File
+## STEP 6: Update .env File
 
 **Open:** `/home/injinia47/Desktop/PROJO/Projo/.env`
 
@@ -76,20 +76,20 @@ MONGO_URI=mongodb+srv://quickfix_admin:YOUR_PASSWORD@cluster.mongodb.net/quickfi
 
 ---
 
-## ✅ STEP 7: Test Connection
+## [COMPLETED] STEP 7: Test Connection
 
 ```bash
 # Restart backend server
 node server.js
 
 # Look for:
-✅ MongoDB connected successfully
-✅ Server running on port 5000
+[COMPLETED] MongoDB connected successfully
+[COMPLETED] Server running on port 5000
 ```
 
 ---
 
-## 🎉 DONE!
+## [SUCCESS] DONE!
 
 Your production database is ready!
 
@@ -107,9 +107,9 @@ Your production database is ready!
 **1. Password Issues:**
 - Check for typos
 - Special characters? URL encode them:
-  - `@` → `%40`
-  - `#` → `%23`
-  - `:` → `%3A`
+ - `@` → `%40`
+ - `#` → `%23`
+ - `:` → `%3A`
 
 **2. Network Issues:**
 - Verify IP: `0.0.0.0/0` in Network Access
@@ -123,7 +123,7 @@ Your production database is ready!
 
 ---
 
-## 📞 NEED HELP?
+## [CONTACT] NEED HELP?
 
 **MongoDB Support:**
 - Docs: https://www.mongodb.com/docs/atlas/
@@ -136,5 +136,5 @@ Your production database is ready!
 
 ---
 
-*Quick setup: 5 minutes total*  
+*Quick setup: 5 minutes total* 
 *Free tier: 512MB storage, perfect for production*

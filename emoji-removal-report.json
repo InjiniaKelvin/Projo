@@ -1,10 +1,491 @@
 {
-  "timestamp": "2025-10-13T06:37:52.715Z",
-  "stats": {
-    "filesScanned": 159,
-    "filesModified": 0,
-    "emojisRemoved": 0,
-    "errors": []
-  },
-  "note": "Emojis preserved in markdown documentation files"
+ "timestamp": "2025-10-29T12:47:47.018Z",
+ "summary": {
+ "filesScanned": 350,
+ "filesModified": 120,
+ "totalEmojisRemoved": 4255,
+ "errors": 0
+ },
+ "modifiedFiles": [
+ {
+ "path": "/STATUS_TABLES.md",
+ "emojisRemoved": 309
+ },
+ {
+ "path": "/PROJECT_AUDIT_REPORT.md",
+ "emojisRemoved": 306
+ },
+ {
+ "path": "/TECHNICIAN_DASHBOARD_ANALYSIS.md",
+ "emojisRemoved": 200
+ },
+ {
+ "path": "/FINAL_IMPLEMENTATION_COMPLETE.md",
+ "emojisRemoved": 142
+ },
+ {
+ "path": "/TECHNICIAN_PROGRESS_REPORT.md",
+ "emojisRemoved": 110
+ },
+ {
+ "path": "/FINAL_COMPLETION_REPORT.md",
+ "emojisRemoved": 105
+ },
+ {
+ "path": "/FRONTEND_PAYMENT_MODULE_COMPLETE.md",
+ "emojisRemoved": 104
+ },
+ {
+ "path": "/MOCK_FILES_CLEANUP_REPORT.md",
+ "emojisRemoved": 96
+ },
+ {
+ "path": "/TECHNICIAN_DASHBOARD_COMPLETE_AUDIT.md",
+ "emojisRemoved": 94
+ },
+ {
+ "path": "/BOOKING_REDESIGN_FULL_IMPLEMENTATION.md",
+ "emojisRemoved": 84
+ },
+ {
+ "path": "/remove-emojis-comprehensive.js",
+ "emojisRemoved": 80
+ },
+ {
+ "path": "/COMPLETE_STATUS_REPORT.md",
+ "emojisRemoved": 79
+ },
+ {
+ "path": "/BOOKING_SYSTEM_REDESIGN_COMPLETE.md",
+ "emojisRemoved": 76
+ },
+ {
+ "path": "/TECHNICIAN_COMMIT_SUMMARY.md",
+ "emojisRemoved": 75
+ },
+ {
+ "path": "/TECHNICIAN_DASHBOARD_FINAL_COMPLETION.md",
+ "emojisRemoved": 74
+ },
+ {
+ "path": "/COMPLETE_BOOKING_IMPLEMENTATION_SUMMARY.md",
+ "emojisRemoved": 71
+ },
+ {
+ "path": "/MOCK_FILES_INVENTORY.md",
+ "emojisRemoved": 69
+ },
+ {
+ "path": "/MILESTONE_ROADMAP.md",
+ "emojisRemoved": 67
+ },
+ {
+ "path": "/REGISTRATION_LOGIN_SUCCESS.md",
+ "emojisRemoved": 65
+ },
+ {
+ "path": "/BOOKING_FIXES_COMPLETE.md",
+ "emojisRemoved": 64
+ },
+ {
+ "path": "/TECHNICIAN_DASHBOARD_COMPLETE.md",
+ "emojisRemoved": 64
+ },
+ {
+ "path": "/MONGODB_ATLAS_PRODUCTION_STATUS.md",
+ "emojisRemoved": 63
+ },
+ {
+ "path": "/DOCUMENTATION_DELIVERY_SUMMARY.md",
+ "emojisRemoved": 61
+ },
+ {
+ "path": "/PAYMENT_CLEANUP_COMPLETE.md",
+ "emojisRemoved": 60
+ },
+ {
+ "path": "/IMPLEMENTATION_VERIFICATION_COMPLETE.md",
+ "emojisRemoved": 57
+ },
+ {
+ "path": "/FINAL_STATUS_AUTHENTICATION.md",
+ "emojisRemoved": 55
+ },
+ {
+ "path": "/e2e/complete-user-journey.test.js",
+ "emojisRemoved": 54
+ },
+ {
+ "path": "/DELIVERABLES_INDEX.md",
+ "emojisRemoved": 52
+ },
+ {
+ "path": "/AUTH_PAGES_CENTERED.md",
+ "emojisRemoved": 48
+ },
+ {
+ "path": "/EXECUTIVE_SUMMARY.md",
+ "emojisRemoved": 46
+ },
+ {
+ "path": "/QUICK_START_TESTING_GUIDE.md",
+ "emojisRemoved": 46
+ },
+ {
+ "path": "/TECHNICIAN_REMAINING_FEATURES.md",
+ "emojisRemoved": 46
+ },
+ {
+ "path": "/BOOKING_ISSUE_FINAL_SOLUTION.md",
+ "emojisRemoved": 43
+ },
+ {
+ "path": "/remove-all-emojis.js",
+ "emojisRemoved": 42
+ },
+ {
+ "path": "/TECHNICIAN_MANUAL_TEST_GUIDE.md",
+ "emojisRemoved": 41
+ },
+ {
+ "path": "/AUTH_PERFORMANCE_FIX.md",
+ "emojisRemoved": 40
+ },
+ {
+ "path": "/QUICKFIX_PROJECT_DOCUMENTATION.md",
+ "emojisRemoved": 37
+ },
+ {
+ "path": "/INTASEND_INTEGRATION_COMPLETE.md",
+ "emojisRemoved": 36
+ },
+ {
+ "path": "/QUICKFIX_COMPLETE_SECTIONS_6-16.md",
+ "emojisRemoved": 36
+ },
+ {
+ "path": "/CLEANUP_ANALYSIS.md",
+ "emojisRemoved": 35
+ },
+ {
+ "path": "/E2E_TESTING_GUIDE.md",
+ "emojisRemoved": 34
+ },
+ {
+ "path": "/TECHNICIAN_E2E_TEST_STATUS.md",
+ "emojisRemoved": 34
+ },
+ {
+ "path": "/REGISTRATION_FIX_COMPLETE.md",
+ "emojisRemoved": 33
+ },
+ {
+ "path": "/test-comprehensive-workflow.js",
+ "emojisRemoved": 32
+ },
+ {
+ "path": "/QUICKFIX_DOCUMENTATION_MASTER_INDEX.md",
+ "emojisRemoved": 31
+ },
+ {
+ "path": "/test-live-stk-push.js",
+ "emojisRemoved": 30
+ },
+ {
+ "path": "/QUICK_REFERENCE.md",
+ "emojisRemoved": 29
+ },
+ {
+ "path": "/PHASE_1_IMPLEMENTATION_COMPLETE.md",
+ "emojisRemoved": 27
+ },
+ {
+ "path": "/AUTH_TROUBLESHOOTING_GUIDE.md",
+ "emojisRemoved": 25
+ },
+ {
+ "path": "/FRONTEND_FINALIZATION_STATUS.md",
+ "emojisRemoved": 24
+ },
+ {
+ "path": "/test-all-payments.js",
+ "emojisRemoved": 24
+ },
+ {
+ "path": "/DEMO_GUIDE.md",
+ "emojisRemoved": 23
+ },
+ {
+ "path": "/E2E_TESTING_COMPARISON.md",
+ "emojisRemoved": 23
+ },
+ {
+ "path": "/test-booking-flow-validation.js",
+ "emojisRemoved": 22
+ },
+ {
+ "path": "/BROWSER_CONSOLE_FIXES.md",
+ "emojisRemoved": 21
+ },
+ {
+ "path": "/test-mpesa-live.js",
+ "emojisRemoved": 21
+ },
+ {
+ "path": "/QUICKFIX_DOCUMENTATION_ANNOTATED_DRAFT_PART4.md",
+ "emojisRemoved": 20
+ },
+ {
+ "path": "/cleanup-payment-systems.js",
+ "emojisRemoved": 20
+ },
+ {
+ "path": "/test-error-capture.js",
+ "emojisRemoved": 20
+ },
+ {
+ "path": "/test-stk-push-now.js",
+ "emojisRemoved": 20
+ },
+ {
+ "path": "/BOOKING_TOKEN_FIX.md",
+ "emojisRemoved": 19
+ },
+ {
+ "path": "/MANUAL_E2E_TESTING_GUIDE.md",
+ "emojisRemoved": 19
+ },
+ {
+ "path": "/test-stk-working.js",
+ "emojisRemoved": 19
+ },
+ {
+ "path": "/test-data-flow-compatibility.js",
+ "emojisRemoved": 18
+ },
+ {
+ "path": "/BOOKING_IMPLEMENTATION_PLAN.md",
+ "emojisRemoved": 17
+ },
+ {
+ "path": "/QUICK_START_GUIDE.md",
+ "emojisRemoved": 17
+ },
+ {
+ "path": "/test-booking-complete.js",
+ "emojisRemoved": 16
+ },
+ {
+ "path": "/test-e2e-technician-system.js",
+ "emojisRemoved": 16
+ },
+ {
+ "path": "/BROWSER_FIX_FINAL.md",
+ "emojisRemoved": 15
+ },
+ {
+ "path": "/QUICKFIX_DOCUMENTATION_ANNOTATED_DRAFT_PART2.md",
+ "emojisRemoved": 15
+ },
+ {
+ "path": "/debug-intasend.js",
+ "emojisRemoved": 15
+ },
+ {
+ "path": "/BOOKING_FIX_SUMMARY.md",
+ "emojisRemoved": 13
+ },
+ {
+ "path": "/MONGODB_CONNECTION_FIX.md",
+ "emojisRemoved": 13
+ },
+ {
+ "path": "/MONGODB_QUICK_START.md",
+ "emojisRemoved": 13
+ },
+ {
+ "path": "/check-payment-status.js",
+ "emojisRemoved": 13
+ },
+ {
+ "path": "/test-booking-retrieval.js",
+ "emojisRemoved": 13
+ },
+ {
+ "path": "/test-technician-final.js",
+ "emojisRemoved": 13
+ },
+ {
+ "path": "/NAIROBI_LOCATION_PICKER_COMPLETE.md",
+ "emojisRemoved": 12
+ },
+ {
+ "path": "/check-intasend-account.js",
+ "emojisRemoved": 12
+ },
+ {
+ "path": "/test-mongo-connection.js",
+ "emojisRemoved": 12
+ },
+ {
+ "path": "/verify-intasend-config.js",
+ "emojisRemoved": 12
+ },
+ {
+ "path": "/BOOKING_SYSTEM_REDESIGN_GUIDE.md",
+ "emojisRemoved": 11
+ },
+ {
+ "path": "/STARTUP_GUIDE.md",
+ "emojisRemoved": 11
+ },
+ {
+ "path": "/test-direct-api.js",
+ "emojisRemoved": 11
+ },
+ {
+ "path": "/test-atlas-connection.js",
+ "emojisRemoved": 10
+ },
+ {
+ "path": "/cleanup-test-users.js",
+ "emojisRemoved": 9
+ },
+ {
+ "path": "/test-booking-redesign.js",
+ "emojisRemoved": 9
+ },
+ {
+ "path": "/test-e2e-flow.js",
+ "emojisRemoved": 9
+ },
+ {
+ "path": "/test-technician-implementation.js",
+ "emojisRemoved": 9
+ },
+ {
+ "path": "/CLEANUP_PLAN.md",
+ "emojisRemoved": 8
+ },
+ {
+ "path": "/QUICKFIX_DOCUMENTATION_ANNOTATED_DRAFT_PART1.md",
+ "emojisRemoved": 8
+ },
+ {
+ "path": "/QUICKFIX_DOCUMENTATION_ANNOTATED_DRAFT_PART3.md",
+ "emojisRemoved": 8
+ },
+ {
+ "path": "/QUICKFIX_DOCUMENTATION_ANNOTATED_DRAFT_PART5.md",
+ "emojisRemoved": 8
+ },
+ {
+ "path": "/PROJECT_TODO_LIST.md",
+ "emojisRemoved": 7
+ },
+ {
+ "path": "/TESTING_GUIDE.md",
+ "emojisRemoved": 7
+ },
+ {
+ "path": "/CLEANUP_EXECUTION_GUIDE.md",
+ "emojisRemoved": 6
+ },
+ {
+ "path": "/test-debug-auth.js",
+ "emojisRemoved": 6
+ },
+ {
+ "path": "/test-intasend-raw.js",
+ "emojisRemoved": 6
+ },
+ {
+ "path": "/test-live-keys.js",
+ "emojisRemoved": 6
+ },
+ {
+ "path": "/BOOKING_RETRIEVAL_COMPLETE.md",
+ "emojisRemoved": 5
+ },
+ {
+ "path": "/RESTART_BACKEND_REQUIRED.md",
+ "emojisRemoved": 5
+ },
+ {
+ "path": "/backend/test-intasend-integration.js",
+ "emojisRemoved": 4
+ },
+ {
+ "path": "/remove-emojis.js",
+ "emojisRemoved": 4
+ },
+ {
+ "path": "/test-complete-booking-flow.js",
+ "emojisRemoved": 4
+ },
+ {
+ "path": "/test-token-retrieval.js",
+ "emojisRemoved": 4
+ },
+ {
+ "path": "/BOOKING_FIXES_REPORT.md",
+ "emojisRemoved": 3
+ },
+ {
+ "path": "/REDESIGNED_SYSTEM_QUICK_START.md",
+ "emojisRemoved": 3
+ },
+ {
+ "path": "/backend/controllers/technicianController.js",
+ "emojisRemoved": 2
+ },
+ {
+ "path": "/backend/services/IntaSendService.js",
+ "emojisRemoved": 2
+ },
+ {
+ "path": "/e2e/globalSetup.js",
+ "emojisRemoved": 2
+ },
+ {
+ "path": "/e2e/globalTeardown.js",
+ "emojisRemoved": 2
+ },
+ {
+ "path": "/QUICKFIX_BOOKING_WORKFLOW.md",
+ "emojisRemoved": 1
+ },
+ {
+ "path": "/QUICKFIX_COMPLETE_DOCUMENTATION_MERGED.md",
+ "emojisRemoved": 1
+ },
+ {
+ "path": "/Screens/ClientDashboard.js",
+ "emojisRemoved": 1
+ },
+ {
+ "path": "/app/booking/details.tsx",
+ "emojisRemoved": 1
+ },
+ {
+ "path": "/backend/controllers/bookingController.js",
+ "emojisRemoved": 1
+ },
+ {
+ "path": "/check-bookings.js",
+ "emojisRemoved": 1
+ },
+ {
+ "path": "/check-technicians.js",
+ "emojisRemoved": 1
+ },
+ {
+ "path": "/components/auth/RegisterScreen.js",
+ "emojisRemoved": 1
+ },
+ {
+ "path": "/debug-skills-matching.js",
+ "emojisRemoved": 1
+ }
+ ]
 }

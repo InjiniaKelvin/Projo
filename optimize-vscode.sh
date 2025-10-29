@@ -28,17 +28,17 @@ echo " Optimizing memory management..."
 # sudo swapoff -a && sudo swapon -a
 
 # Show VS Code processes
-echo "  Current VS Code processes:"
+echo " Current VS Code processes:"
 ps aux | grep -i code | grep -v grep | head -5
 
 echo ""
 echo " Optimization complete!"
 echo ""
 echo " Additional tips:"
-echo "   - Close unused browser tabs"
-echo "   - Restart VS Code every 2-3 hours"
-echo "   - Use 'Ctrl+Shift+P' > 'Developer: Reload Window' if hanging"
-echo "   - Consider using a lightweight editor for simple edits"
+echo " - Close unused browser tabs"
+echo " - Restart VS Code every 2-3 hours"
+echo " - Use 'Ctrl+Shift+P' > 'Developer: Reload Window' if hanging"
+echo " - Consider using a lightweight editor for simple edits"
 echo ""
 echo " If VS Code continues hanging:"
-echo "   Run: pkill -f code && code . --disable-extensions"
+echo " Run: pkill -f code && code . --disable-extensions"

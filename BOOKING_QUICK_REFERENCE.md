@@ -16,78 +16,78 @@ This will:
 ### Option 2: Manual Test via Web App
 
 1. **Start Backend**
-   ```bash
-   npm run server
-   ```
-   Backend should be running on: http://localhost:5000
+ ```bash
+ npm run server
+ ```
+ Backend should be running on: http://localhost:5000
 
 2. **Start Frontend**
-   ```bash
-   npm run web
-   ```
-   Frontend should be running on: http://localhost:8081
+ ```bash
+ npm run web
+ ```
+ Frontend should be running on: http://localhost:8081
 
 3. **Register/Login**
-   - Navigate to login/register page
-   - Create account or login with existing credentials
-   - Ensure you see the dashboard
+ - Navigate to login/register page
+ - Create account or login with existing credentials
+ - Ensure you see the dashboard
 
 4. **Create Booking**
-   - Navigate to Services → Select a service
-   - Click "Book Now"
-   - Fill out all required fields:
-     * Your Details (auto-populated from profile)
-     * Service Type & Description
-     * Location (Constituency, Ward, Road)
-     * Preferred Date & Time
-   - Click "Submit Booking"
-   - You should see success message with Booking ID
+ - Navigate to Services → Select a service
+ - Click "Book Now"
+ - Fill out all required fields:
+ * Your Details (auto-populated from profile)
+ * Service Type & Description
+ * Location (Constituency, Ward, Road)
+ * Preferred Date & Time
+ - Click "Submit Booking"
+ - You should see success message with Booking ID
 
 ### Option 3: API Testing with curl
 
 ```bash
 # 1. Register
 curl -X POST http://localhost:5000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "firstName": "Test",
-    "lastName": "User",
-    "email": "test@example.com",
-    "phoneNumber": "0712345678",
-    "password": "Test123!",
-    "userType": "client"
-  }'
+ -H "Content-Type: application/json" \
+ -d '{
+ "firstName": "Test",
+ "lastName": "User",
+ "email": "test@example.com",
+ "phoneNumber": "0712345678",
+ "password": "Test123!",
+ "userType": "client"
+ }'
 
 # 2. Login (save the token from response)
 curl -X POST http://localhost:5000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "test@example.com",
-    "password": "Test123!"
-  }'
+ -H "Content-Type: application/json" \
+ -d '{
+ "email": "test@example.com",
+ "password": "Test123!"
+ }'
 
 # 3. Create Booking (replace YOUR_TOKEN with actual token)
 curl -X POST http://localhost:5000/api/bookings-redesigned/redesigned \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -d '{
-    "clientName": "Test User",
-    "clientPhone": "0712345678",
-    "clientEmail": "test@example.com",
-    "serviceType": "plumbing",
-    "serviceDescription": "Fix leaking pipe",
-    "urgency": "normal",
-    "location": {
-      "constituency": "Westlands",
-      "ward": "Kitisuru",
-      "road": "Spring Valley Road",
-      "description": "Green building, Unit 5B",
-      "landmarks": "Near Village Market"
-    },
-    "preferredDate": "2025-10-15",
-    "preferredTimeSlot": "10:00-12:00",
-    "specialRequirements": ""
-  }'
+ -H "Content-Type: application/json" \
+ -H "Authorization: Bearer YOUR_TOKEN" \
+ -d '{
+ "clientName": "Test User",
+ "clientPhone": "0712345678",
+ "clientEmail": "test@example.com",
+ "serviceType": "plumbing",
+ "serviceDescription": "Fix leaking pipe",
+ "urgency": "normal",
+ "location": {
+ "constituency": "Westlands",
+ "ward": "Kitisuru",
+ "road": "Spring Valley Road",
+ "description": "Green building, Unit 5B",
+ "landmarks": "Near Village Market"
+ },
+ "preferredDate": "2025-10-15",
+ "preferredTimeSlot": "10:00-12:00",
+ "specialRequirements": ""
+ }'
 ```
 
 ---
@@ -96,10 +96,10 @@ curl -X POST http://localhost:5000/api/bookings-redesigned/redesigned \
 
 ### Frontend
 - `app/booking/details.tsx` - Main booking form component
-  * Fixed API endpoint URL (port 5000)
-  * Added authentication token
-  * Fixed useEffect dependencies
-  * Removed text nodes outside Text components
+ * Fixed API endpoint URL (port 5000)
+ * Added authentication token
+ * Fixed useEffect dependencies
+ * Removed text nodes outside Text components
 
 ### Backend (No changes needed)
 - `backend/routes/bookingRedesigned.js` - Booking routes
@@ -114,7 +114,7 @@ curl -X POST http://localhost:5000/api/bookings-redesigned/redesigned \
 **Solution:** Ensure token is being sent in Authorization header
 ```typescript
 headers: {
-  'Authorization': `Bearer ${token}`
+ 'Authorization': `Bearer ${token}`
 }
 ```
 
@@ -133,12 +133,12 @@ useEffect(() => { ... }, [user?.firstName, user?.phoneNumber]);
 ```tsx
 <!-- WRONG -->
 <View>
-  Some text
+ Some text
 </View>
 
 <!-- CORRECT -->
 <View>
-  <Text>Some text</Text>
+ <Text>Some text</Text>
 </View>
 ```
 
@@ -193,24 +193,24 @@ NODE_ENV=development
 When booking works correctly, you should see:
 
 1. **Frontend Console:**
-   - "Starting booking submission..."
-   - "Form validation passed"
-   - "Booking submitted successfully!"
-   - "Booking ID: QF..."
+ - "Starting booking submission..."
+ - "Form validation passed"
+ - "Booking submitted successfully!"
+ - "Booking ID: QF..."
 
 2. **Backend Console:**
-   - "POST /api/bookings-redesigned/redesigned 200"
-   - No 401 or 500 errors
+ - "POST /api/bookings-redesigned/redesigned 200"
+ - No 401 or 500 errors
 
 3. **User Experience:**
-   - Success overlay with booking receipt
-   - Booking ID displayed
-   - Redirect to "My Bookings" page after 3 seconds
+ - Success overlay with booking receipt
+ - Booking ID displayed
+ - Redirect to "My Bookings" page after 3 seconds
 
 4. **Database:**
-   - New booking document created
-   - Status: "submitted"
-   - All fields populated correctly
+ - New booking document created
+ - Status: "submitted"
+ - All fields populated correctly
 
 ---
 
@@ -232,5 +232,5 @@ If issues persist:
 3. Check backend logs for specific error messages
 4. Verify MongoDB Atlas connection is active
 
-**Last Updated:** October 13, 2025  
+**Last Updated:** October 13, 2025 
 **Status:** Fully Operational

@@ -128,9 +128,9 @@ cat .gitignore | grep .env
 
 ### Performance Optimization
 - **BCRYPT_ROUNDS=6**: Fast password hashing for development
-  - Registration: ~1-2 seconds
-  - Login: <1 second
-  - Note: Increase to 10-12 for production security
+ - Registration: ~1-2 seconds
+ - Login: <1 second
+ - Note: Increase to 10-12 for production security
 
 ---
 
@@ -169,24 +169,24 @@ JWT_EXPIRES_IN=1h
 ## Security Best Practices
 
 1. **Never commit .env to git**
-   - Always keep .env in .gitignore
-   - Use this template file instead
+ - Always keep .env in .gitignore
+ - Use this template file instead
 
 2. **Use strong secrets in production**
-   - Generate random JWT_SECRET: `openssl rand -base64 64`
-   - Use high BCRYPT_ROUNDS (10-12)
+ - Generate random JWT_SECRET: `openssl rand -base64 64`
+ - Use high BCRYPT_ROUNDS (10-12)
 
 3. **Rotate credentials regularly**
-   - Change JWT_SECRET periodically
-   - Update database passwords
+ - Change JWT_SECRET periodically
+ - Update database passwords
 
 4. **Limit access**
-   - Use environment-specific credentials
-   - Restrict database IP whitelist
+ - Use environment-specific credentials
+ - Restrict database IP whitelist
 
 5. **Use environment variables management**
-   - Consider using tools like dotenv-vault for team projects
-   - Use AWS Secrets Manager or similar for production
+ - Consider using tools like dotenv-vault for team projects
+ - Use AWS Secrets Manager or similar for production
 
 ---
 
@@ -220,6 +220,6 @@ JWT_EXPIRES_IN=1h
 
 ---
 
-**Last Updated**: October 14, 2025  
-**Branch**: critical-and-normal-booking  
+**Last Updated**: October 14, 2025 
+**Branch**: critical-and-normal-booking 
 **Status**: All environment variables documented

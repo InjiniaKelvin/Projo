@@ -16,7 +16,7 @@ echo.
 echo Please restart your terminal or computer for changes to take effect.
 echo.
 echo After restart, verify installation by running:
-echo   adb --version
-echo   avdmanager list avd
+echo adb --version
+echo avdmanager list avd
 echo.
 pause

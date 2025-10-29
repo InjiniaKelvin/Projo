@@ -1,34 +1,34 @@
-# 🎉 QuickFix Project - FINAL COMPLETION REPORT
+# [SUCCESS] QuickFix Project - FINAL COMPLETION REPORT
 
-**Date:** October 12, 2025  
-**Status:** ✅ ALL TASKS COMPLETED SUCCESSFULLY  
-**Backend:** ✅ RUNNING (MongoDB Connected)  
-**Payment System:** ✅ M-PESA ONLY (Stripe/PayPal Removed)  
-**Security:** ✅ 0 VULNERABILITIES
+**Date:** October 12, 2025 
+**Status:** [COMPLETED] ALL TASKS COMPLETED SUCCESSFULLY 
+**Backend:** [COMPLETED] RUNNING (MongoDB Connected) 
+**Payment System:** [COMPLETED] M-PESA ONLY (Stripe/PayPal Removed) 
+**Security:** [COMPLETED] 0 VULNERABILITIES
 
 ---
 
-## 🏆 PROJECT STATUS: 100% CLEANUP COMPLETE
+## PROJECT STATUS: 100% CLEANUP COMPLETE
 
 All requested tasks have been completed successfully. The QuickFix backend is now running with MongoDB connected, all emojis removed, and the payment system cleaned to M-Pesa only.
 
 ---
 
-## ✅ COMPLETED TASKS SUMMARY
+## [COMPLETED] COMPLETED TASKS SUMMARY
 
-### 1. **Emoji Removal** ✅
+### 1. **Emoji Removal** [COMPLETED]
 - **Scanned:** 182 files
 - **Modified:** 50 files
 - **Removed:** 667 emojis
 - **Errors:** 0
 - **Report:** `emoji-removal-report.json`
 
-### 2. **Payment System Cleanup** ✅
+### 2. **Payment System Cleanup** [COMPLETED]
 - **Packages Removed:** 6 (Stripe, PayPal, and related dependencies)
 - **Code Files Cleaned:** 5 files
 - **Lines Removed:** 346 lines of Stripe/PayPal code
 - **Remaining Imports:** 0 (verified with grep)
-- **Payment Method:** M-Pesa ONLY ✅
+- **Payment Method:** M-Pesa ONLY [COMPLETED]
 
 **Files Cleaned:**
 1. `backend/controllers/enhancedPaymentController.js` - 231 lines removed
@@ -37,37 +37,37 @@ All requested tasks have been completed successfully. The QuickFix backend is no
 4. `services/EscrowService.js` - Removed Stripe/PayPal cases
 5. `Screens/AddFundsScreen.js` - Removed Stripe/PayPal UI
 
-### 3. **Development Environment** ✅
-- **Node.js:** v20.19.4 ✅
-- **npm:** Upgraded 9.2.0 → 10.9.4 ✅
-- **Dependencies:** 1283 packages installed ✅
-- **Security Vulnerabilities:** 0 ✅
+### 3. **Development Environment** [COMPLETED]
+- **Node.js:** v20.19.4 [COMPLETED]
+- **npm:** Upgraded 9.2.0 → 10.9.4 [COMPLETED]
+- **Dependencies:** 1283 packages installed [COMPLETED]
+- **Security Vulnerabilities:** 0 [COMPLETED]
 
-### 4. **Database Setup** ✅
-- **MongoDB:** v4.4 running in Docker container ✅
-- **Connection:** mongodb://localhost:27017/quickfix ✅
-- **Status:** Connected and operational ✅
-- **Docker Container:** `mongodb-quickfix` running on port 27017 ✅
+### 4. **Database Setup** [COMPLETED]
+- **MongoDB:** v4.4 running in Docker container [COMPLETED]
+- **Connection:** mongodb://localhost:27017/quickfix [COMPLETED]
+- **Status:** Connected and operational [COMPLETED]
+- **Docker Container:** `mongodb-quickfix` running on port 27017 [COMPLETED]
 
-### 5. **Backend Server** ✅
-- **Status:** Running successfully ✅
-- **Port:** 5000 ✅
-- **Health Check:** http://localhost:5000/health ✅
-- **Database Connection:** Verified and working ✅
+### 5. **Backend Server** [COMPLETED]
+- **Status:** Running successfully [COMPLETED]
+- **Port:** 5000 [COMPLETED]
+- **Health Check:** http://localhost:5000/health [COMPLETED]
+- **Database Connection:** Verified and working [COMPLETED]
 
-### 6. **Environment Configuration** ✅
-- **File:** `.env` created with JWT secret ✅
-- **MongoDB URI:** Configured ✅
-- **M-Pesa Placeholders:** Ready for credentials ✅
-- **Security:** JWT secret is 128 characters ✅
+### 6. **Environment Configuration** [COMPLETED]
+- **File:** `.env` created with JWT secret [COMPLETED]
+- **MongoDB URI:** Configured [COMPLETED]
+- **M-Pesa Placeholders:** Ready for credentials [COMPLETED]
+- **Security:** JWT secret is 128 characters [COMPLETED]
 
-### 7. **M-Pesa Credential Search** ✅
-- **Searched:** Entire codebase ✅
-- **Hardcoded Credentials:** None found ✅
-- **Security:** All using environment variables properly ✅
-- **Ready For:** Production M-Pesa credentials ✅
+### 7. **M-Pesa Credential Search** [COMPLETED]
+- **Searched:** Entire codebase [COMPLETED]
+- **Hardcoded Credentials:** None found [COMPLETED]
+- **Security:** All using environment variables properly [COMPLETED]
+- **Ready For:** Production M-Pesa credentials [COMPLETED]
 
-### 8. **Documentation Generated** ✅
+### 8. **Documentation Generated** [COMPLETED]
 Created 9 comprehensive documentation files:
 1. `PROJECT_AUDIT_REPORT.md` (50 pages) - Technical audit
 2. `EXECUTIVE_SUMMARY.md` (15 pages) - High-level overview
@@ -81,40 +81,40 @@ Created 9 comprehensive documentation files:
 
 ---
 
-## 🌐 BACKEND API ENDPOINTS
+## BACKEND API ENDPOINTS
 
 Your backend server is running correctly! Here are all available endpoints:
 
-### ✅ Health Check
+### [COMPLETED] Health Check
 ```bash
 GET http://localhost:5000/health
 
 Response:
 {
-  "success": true,
-  "message": "QuickFix API is running",
-  "timestamp": "2025-10-12T16:32:14.145Z",
-  "version": "1.0.0",
-  "database": "connected"
+ "success": true,
+ "message": "QuickFix API is running",
+ "timestamp": "2025-10-12T16:32:14.145Z",
+ "version": "1.0.0",
+ "database": "connected"
 }
 ```
 
-### 🔐 Authentication Endpoints
+### [SECURE] Authentication Endpoints
 ```bash
 # Register new user
 POST http://localhost:5000/api/auth/register
 Body: {
-  "email": "user@example.com",
-  "password": "password123",
-  "fullName": "John Doe",
-  "role": "client"  // or "technician"
+ "email": "user@example.com",
+ "password": "password123",
+ "fullName": "John Doe",
+ "role": "client" // or "technician"
 }
 
 # Login
 POST http://localhost:5000/api/auth/login
 Body: {
-  "email": "user@example.com",
-  "password": "password123"
+ "email": "user@example.com",
+ "password": "password123"
 }
 
 # Get current user profile
@@ -126,7 +126,7 @@ POST http://localhost:5000/api/auth/logout
 Headers: { "Authorization": "Bearer YOUR_JWT_TOKEN" }
 ```
 
-### 👤 User Management Endpoints
+### User Management Endpoints
 ```bash
 # Get user profile
 GET http://localhost:5000/api/users/profile
@@ -143,19 +143,19 @@ Headers: { "Authorization": "Bearer YOUR_JWT_TOKEN" }
 Body: FormData with image file
 ```
 
-### 📅 Booking Endpoints
+### Booking Endpoints
 ```bash
 # Create new booking
 POST http://localhost:5000/api/bookings
 Headers: { "Authorization": "Bearer YOUR_JWT_TOKEN" }
 Body: {
-  "serviceType": "plumbing",
-  "description": "Fix leaking pipe",
-  "location": {
-    "address": "Nairobi, Kenya",
-    "coordinates": { "lat": -1.286389, "lng": 36.817223 }
-  },
-  "scheduledDate": "2025-10-15T10:00:00Z"
+ "serviceType": "plumbing",
+ "description": "Fix leaking pipe",
+ "location": {
+ "address": "Nairobi, Kenya",
+ "coordinates": { "lat": -1.286389, "lng": 36.817223 }
+ },
+ "scheduledDate": "2025-10-15T10:00:00Z"
 }
 
 # Get user's bookings
@@ -172,7 +172,7 @@ Headers: { "Authorization": "Bearer YOUR_JWT_TOKEN" }
 Body: { "status": "completed" }
 ```
 
-### 💰 Payment Endpoints (M-Pesa Only)
+### [PAYMENT] Payment Endpoints (M-Pesa Only)
 ```bash
 # Get payment methods (returns M-Pesa only)
 GET http://localhost:5000/api/payments/methods
@@ -180,27 +180,27 @@ Headers: { "Authorization": "Bearer YOUR_JWT_TOKEN" }
 
 Response:
 {
-  "success": true,
-  "data": {
-    "methods": [{
-      "id": "mpesa",
-      "name": "M-Pesa",
-      "type": "mobile_money",
-      "enabled": true,
-      "region": "Kenya"
-    }]
-  }
+ "success": true,
+ "data": {
+ "methods": [{
+ "id": "mpesa",
+ "name": "M-Pesa",
+ "type": "mobile_money",
+ "enabled": true,
+ "region": "Kenya"
+ }]
+ }
 }
 
 # Create M-Pesa payment intent
 POST http://localhost:5000/api/payments/enhanced/intent
 Headers: { "Authorization": "Bearer YOUR_JWT_TOKEN" }
 Body: {
-  "bookingId": "booking_id_here",
-  "amount": 5000,
-  "paymentMethod": "mpesa",
-  "phoneNumber": "254712345678",
-  "currency": "KES"
+ "bookingId": "booking_id_here",
+ "amount": 5000,
+ "paymentMethod": "mpesa",
+ "phoneNumber": "254712345678",
+ "currency": "KES"
 }
 
 # Get wallet balance
@@ -212,7 +212,7 @@ GET http://localhost:5000/api/payments/transactions
 Headers: { "Authorization": "Bearer YOUR_JWT_TOKEN" }
 ```
 
-### 👨‍🔧 Technician Endpoints
+### ‍ Technician Endpoints
 ```bash
 # Get available jobs
 GET http://localhost:5000/api/technician/available-jobs
@@ -232,7 +232,7 @@ GET http://localhost:5000/api/technician/earnings
 Headers: { "Authorization": "Bearer YOUR_JWT_TOKEN" }
 ```
 
-### 🔔 Notification Endpoints
+### Notification Endpoints
 ```bash
 # Get notifications
 GET http://localhost:5000/api/notifications
@@ -253,66 +253,66 @@ Headers: { "Authorization": "Bearer YOUR_JWT_TOKEN" }
 POST http://localhost:5000/api/ratings
 Headers: { "Authorization": "Bearer YOUR_JWT_TOKEN" }
 Body: {
-  "bookingId": "booking_id_here",
-  "rating": 5,
-  "review": "Excellent service!",
-  "technicianId": "technician_id_here"
+ "bookingId": "booking_id_here",
+ "rating": 5,
+ "review": "Excellent service!",
+ "technicianId": "technician_id_here"
 }
 
 # Get technician ratings
 GET http://localhost:5000/api/ratings/technician/:technicianId
 ```
 
-### ❌ Expected 404 Endpoints (Normal Behavior)
+### [FAILED] Expected 404 Endpoints (Normal Behavior)
 These endpoints correctly return "Endpoint not found":
 ```bash
-GET http://localhost:5000/          # No root endpoint
-GET http://localhost:5000/api       # Needs specific route
+GET http://localhost:5000/ # No root endpoint
+GET http://localhost:5000/api # Needs specific route
 ```
 
 ---
 
-## 🧪 TESTING YOUR BACKEND
+## TESTING YOUR BACKEND
 
 ### 1. Test Health Check
 ```bash
 curl http://localhost:5000/health
 ```
-**Expected:** `{"success":true, "database":"connected"}` ✅
+**Expected:** `{"success":true, "database":"connected"}` [COMPLETED]
 
 ### 2. Test User Registration
 ```bash
 curl -X POST http://localhost:5000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "test@example.com",
-    "password": "Test1234!",
-    "fullName": "Test User",
-    "role": "client"
-  }'
+ -H "Content-Type: application/json" \
+ -d '{
+ "email": "test@example.com",
+ "password": "Test1234!",
+ "fullName": "Test User",
+ "role": "client"
+ }'
 ```
 
 ### 3. Test Login
 ```bash
 curl -X POST http://localhost:5000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "test@example.com",
-    "password": "Test1234!"
-  }'
+ -H "Content-Type: application/json" \
+ -d '{
+ "email": "test@example.com",
+ "password": "Test1234!"
+ }'
 ```
 **Save the JWT token from response!**
 
 ### 4. Test Payment Methods (M-Pesa Only)
 ```bash
 curl http://localhost:5000/api/payments/methods \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+ -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
-**Expected:** Only M-Pesa payment method ✅
+**Expected:** Only M-Pesa payment method [COMPLETED]
 
 ---
 
-## 📱 STARTING THE MOBILE APP
+## [MOBILE] STARTING THE MOBILE APP
 
 ### Start Expo Development Server
 ```bash
@@ -341,7 +341,7 @@ npm run web
 
 ---
 
-## 🔑 M-PESA CREDENTIALS SETUP
+## [KEY] M-PESA CREDENTIALS SETUP
 
 To enable M-Pesa payments, you need to add credentials to `.env`:
 
@@ -351,16 +351,16 @@ To enable M-Pesa payments, you need to add credentials to `.env`:
 3. Go to "My Apps" → "Create New App"
 4. Select "Lipa Na M-Pesa Online (STK Push)"
 5. Copy your credentials:
-   - Consumer Key
-   - Consumer Secret
-   - Passkey (from Test Credentials section)
+ - Consumer Key
+ - Consumer Secret
+ - Passkey (from Test Credentials section)
 
 ### Step 2: Add to .env File
 Open `.env` and add:
 ```bash
 MPESA_CONSUMER_KEY=your_consumer_key_from_daraja
 MPESA_CONSUMER_SECRET=your_consumer_secret_from_daraja
-MPESA_SHORTCODE=174379  # Sandbox shortcode
+MPESA_SHORTCODE=174379 # Sandbox shortcode
 MPESA_PASSKEY=your_passkey_from_daraja
 MPESA_CALLBACK_URL=http://your-public-domain.com/api/payments/mpesa/callback
 ```
@@ -368,7 +368,7 @@ MPESA_CALLBACK_URL=http://your-public-domain.com/api/payments/mpesa/callback
 ### Step 3: Test M-Pesa Sandbox
 Use these test phone numbers:
 - **Success:** 254708374149
-- **Timeout:** 254700000000  
+- **Timeout:** 254700000000 
 - **Insufficient Funds:** 254799999999
 
 Test amounts: 1 - 70,000 KES
@@ -380,7 +380,7 @@ node server.js
 
 ---
 
-## 🐳 DOCKER MONGODB MANAGEMENT
+## DOCKER MONGODB MANAGEMENT
 
 ### Check MongoDB Status
 ```bash
@@ -416,15 +416,15 @@ docker rm mongodb-quickfix
 ### Restart MongoDB from Scratch
 ```bash
 docker run -d \
-  --name mongodb-quickfix \
-  -p 27017:27017 \
-  -v mongodb-data:/data/db \
-  mongo:4.4
+ --name mongodb-quickfix \
+ -p 27017:27017 \
+ -v mongodb-data:/data/db \
+ mongo:4.4
 ```
 
 ---
 
-## 📊 PROJECT STATISTICS
+## [METRICS] PROJECT STATISTICS
 
 ### Code Quality
 - **Total Files:** 210+
@@ -449,35 +449,35 @@ docker run -d \
 ### Database
 - **Type:** MongoDB 4.4
 - **Connection:** Docker container
-- **Status:** Connected ✅
+- **Status:** Connected [COMPLETED]
 - **Collections:** Users, Bookings, Transactions, etc.
 
 ### Backend
 - **Framework:** Express.js 4.21.2
 - **Port:** 5000
-- **Status:** Running ✅
-- **Database:** Connected ✅
+- **Status:** Running [COMPLETED]
+- **Database:** Connected [COMPLETED]
 - **API Version:** 1.0.0
 
 ---
 
-## 🎯 WHAT'S WORKING NOW
+## [TARGET] WHAT'S WORKING NOW
 
-✅ Backend server running on port 5000  
-✅ MongoDB database connected  
-✅ Health check endpoint operational  
-✅ All API routes configured  
-✅ JWT authentication ready  
-✅ M-Pesa payment structure ready (needs credentials)  
-✅ No Stripe/PayPal code remaining  
-✅ No emojis in codebase  
-✅ Zero security vulnerabilities  
-✅ Docker MongoDB running  
-✅ Environment configured  
+[COMPLETED] Backend server running on port 5000 
+[COMPLETED] MongoDB database connected 
+[COMPLETED] Health check endpoint operational 
+[COMPLETED] All API routes configured 
+[COMPLETED] JWT authentication ready 
+[COMPLETED] M-Pesa payment structure ready (needs credentials) 
+[COMPLETED] No Stripe/PayPal code remaining 
+[COMPLETED] No emojis in codebase 
+[COMPLETED] Zero security vulnerabilities 
+[COMPLETED] Docker MongoDB running 
+[COMPLETED] Environment configured 
 
 ---
 
-## ⚠️ WHAT NEEDS TO BE DONE
+## [WARNING] WHAT NEEDS TO BE DONE
 
 ### Immediate (To Start Using)
 1. **Add M-Pesa Credentials** to `.env` (get from Daraja portal)
@@ -506,7 +506,7 @@ docker run -d \
 
 ---
 
-## 📂 IMPORTANT FILES REFERENCE
+## IMPORTANT FILES REFERENCE
 
 ### Configuration
 - `.env` - Environment variables (MongoDB, JWT, M-Pesa)
@@ -530,16 +530,16 @@ docker run -d \
 ### Backend Structure
 ```
 backend/
-├── controllers/     # Request handlers
-├── models/         # MongoDB schemas
-├── routes/         # API endpoints
-├── services/       # Business logic
-└── middleware/     # Auth, validation
+├── controllers/ # Request handlers
+├── models/ # MongoDB schemas
+├── routes/ # API endpoints
+├── services/ # Business logic
+└── middleware/ # Auth, validation
 ```
 
 ---
 
-## 🚀 DEPLOYMENT CHECKLIST
+## [LAUNCH] DEPLOYMENT CHECKLIST
 
 When ready to deploy to production:
 
@@ -578,7 +578,7 @@ When ready to deploy to production:
 
 ---
 
-## 💡 TROUBLESHOOTING GUIDE
+## TROUBLESHOOTING GUIDE
 
 ### Backend Won't Start
 ```bash
@@ -613,7 +613,7 @@ cat .env | grep MPESA
 
 # Test payment methods endpoint
 curl http://localhost:5000/api/payments/methods \
-  -H "Authorization: Bearer YOUR_TOKEN"
+ -H "Authorization: Bearer YOUR_TOKEN"
 
 # Should return only M-Pesa
 ```
@@ -621,37 +621,37 @@ curl http://localhost:5000/api/payments/methods \
 ### 404 on API Endpoints
 ```bash
 # This is NORMAL for root and /api
-GET http://localhost:5000/         # 404 (expected)
-GET http://localhost:5000/api      # 404 (expected)
+GET http://localhost:5000/ # 404 (expected)
+GET http://localhost:5000/api # 404 (expected)
 
 # Use specific endpoints
-GET http://localhost:5000/health   # 200 ✅
-GET http://localhost:5000/api/auth/login  # Works ✅
+GET http://localhost:5000/health # 200 [COMPLETED]
+GET http://localhost:5000/api/auth/login # Works [COMPLETED]
 ```
 
 ---
 
-## 🎉 SUCCESS SUMMARY
+## [SUCCESS] SUCCESS SUMMARY
 
 ### What Was Accomplished
-1. ✅ Removed 667 emojis from entire codebase
-2. ✅ Eliminated Stripe and PayPal (6 packages, 346 lines)
-3. ✅ Implemented M-Pesa-only payment system
-4. ✅ Upgraded npm to version 10
-5. ✅ Installed 1283 dependencies with 0 vulnerabilities
-6. ✅ Set up MongoDB 4.4 in Docker
-7. ✅ Started backend server successfully
-8. ✅ Verified database connection
-9. ✅ Generated comprehensive documentation (9 files, 150+ pages)
-10. ✅ Cleaned and organized project structure
+1. [COMPLETED] Removed 667 emojis from entire codebase
+2. [COMPLETED] Eliminated Stripe and PayPal (6 packages, 346 lines)
+3. [COMPLETED] Implemented M-Pesa-only payment system
+4. [COMPLETED] Upgraded npm to version 10
+5. [COMPLETED] Installed 1283 dependencies with 0 vulnerabilities
+6. [COMPLETED] Set up MongoDB 4.4 in Docker
+7. [COMPLETED] Started backend server successfully
+8. [COMPLETED] Verified database connection
+9. [COMPLETED] Generated comprehensive documentation (9 files, 150+ pages)
+10. [COMPLETED] Cleaned and organized project structure
 
 ### Current State
-- **Backend:** ✅ Running and healthy
-- **Database:** ✅ Connected
-- **Code Quality:** ✅ Clean (no emojis, no dead code)
-- **Security:** ✅ 0 vulnerabilities
-- **Payment:** ✅ M-Pesa ready (needs credentials)
-- **Documentation:** ✅ Complete
+- **Backend:** [COMPLETED] Running and healthy
+- **Database:** [COMPLETED] Connected
+- **Code Quality:** [COMPLETED] Clean (no emojis, no dead code)
+- **Security:** [COMPLETED] 0 vulnerabilities
+- **Payment:** [COMPLETED] M-Pesa ready (needs credentials)
+- **Documentation:** [COMPLETED] Complete
 
 ### Next Steps
 1. Add M-Pesa credentials from Daraja portal
@@ -665,7 +665,7 @@ GET http://localhost:5000/api/auth/login  # Works ✅
 
 ---
 
-## 📞 RESOURCES & SUPPORT
+## [CONTACT] RESOURCES & SUPPORT
 
 ### M-Pesa / Daraja API
 - **Portal:** https://developer.safaricom.co.ke
@@ -692,28 +692,28 @@ All documentation files are in `/home/injinia47/Desktop/PROJO/Projo/`:
 
 ---
 
-## 🏁 CONCLUSION
+## CONCLUSION
 
-**ALL REQUESTED TASKS COMPLETED SUCCESSFULLY! 🎉**
+**ALL REQUESTED TASKS COMPLETED SUCCESSFULLY! [SUCCESS]**
 
 Your QuickFix project is now:
-- ✅ Clean (no emojis)
-- ✅ Secure (0 vulnerabilities)
-- ✅ Optimized (Stripe/PayPal removed)
-- ✅ Running (backend + database connected)
-- ✅ M-Pesa ready (just add credentials)
-- ✅ Documented (9 comprehensive files)
+- [COMPLETED] Clean (no emojis)
+- [COMPLETED] Secure (0 vulnerabilities)
+- [COMPLETED] Optimized (Stripe/PayPal removed)
+- [COMPLETED] Running (backend + database connected)
+- [COMPLETED] M-Pesa ready (just add credentials)
+- [COMPLETED] Documented (9 comprehensive files)
 
-**Backend Status:** ✅ OPERATIONAL  
-**Database Status:** ✅ CONNECTED  
-**API Health:** ✅ HEALTHY  
-**Code Quality:** ✅ EXCELLENT  
+**Backend Status:** [COMPLETED] OPERATIONAL 
+**Database Status:** [COMPLETED] CONNECTED 
+**API Health:** [COMPLETED] HEALTHY 
+**Code Quality:** [COMPLETED] EXCELLENT 
 
-**You're ready to continue development! Just add M-Pesa credentials and start testing! 🚀**
+**You're ready to continue development! Just add M-Pesa credentials and start testing! [LAUNCH]**
 
 ---
 
-*Report Generated: October 12, 2025*  
-*System: QuickFix Repair Service Platform*  
-*Status: All Cleanup Tasks Complete*  
+*Report Generated: October 12, 2025* 
+*System: QuickFix Repair Service Platform* 
+*Status: All Cleanup Tasks Complete* 
 *Next: Add M-Pesa Credentials & Test*

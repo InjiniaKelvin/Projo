@@ -1,6 +1,6 @@
 # Redesigned Booking System - Quick Start
 
-## 🚀 Getting Started
+## [LAUNCH] Getting Started
 
 ### 1. Start the Backend
 ```bash
@@ -27,7 +27,7 @@ Navigate to: `/booking/redesigned-form`
 - `GET /api/bookings/phone/:phone` - Get bookings by phone
 - `GET /api/bookings/:bookingId` - Get booking by ID
 
-## 📋 Key Differences
+## [CHECKLIST] Key Differences
 
 ### Phone as Primary ID
 - Use phone number instead of userId
@@ -42,7 +42,7 @@ Navigate to: `/booking/redesigned-form`
 - Exact matching between frontend and backend
 - Comprehensive validation at all levels
 
-## 🛠️ Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 1. **Server not running**: Start with `node server.js`

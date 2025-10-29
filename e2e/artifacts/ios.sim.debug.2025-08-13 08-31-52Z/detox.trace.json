@@ -7,7 +7,7 @@
 	{"ph":"M","args":{"name":"ipc"},"ts":1755073912370000,"tid":1,"pid":115768,"name":"thread_name"},
 	{"ph":"M","args":{"sort_index":1},"ts":1755073912370000,"tid":1,"pid":115768,"name":"thread_sort_index"},
 	{"ph":"i","name":"Server path not specified, so defaulting to ipc.config.socketRoot + ipc.config.appspace + ipc.config.id /tmp/detox.primary-115768","pid":115768,"tid":1,"cat":"ipc,ipc-server","ts":1755073912370000,"args":{"level":10,"v":0}},
-	{"ph":"i","name":"starting server on  /tmp/detox.primary-115768 ","pid":115768,"tid":1,"cat":"ipc,ipc-server","ts":1755073912376000,"args":{"level":10,"v":0}},
+	{"ph":"i","name":"starting server on /tmp/detox.primary-115768 ","pid":115768,"tid":1,"cat":"ipc,ipc-server","ts":1755073912376000,"args":{"level":10,"v":0}},
 	{"ph":"i","name":"starting TLS server false","pid":115768,"tid":1,"cat":"ipc,ipc-server","ts":1755073912376000,"args":{"level":10,"v":0}},
 	{"ph":"i","name":"starting server as Unix || Windows Socket","pid":115768,"tid":1,"cat":"ipc,ipc-server","ts":1755073912377000,"args":{"level":10,"v":0}},
 	{"ph":"M","args":{"name":"ws-server"},"ts":1755073912402000,"tid":2,"pid":115768,"name":"thread_name"},

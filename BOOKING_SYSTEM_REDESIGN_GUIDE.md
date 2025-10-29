@@ -1,10 +1,10 @@
 # BOOKING SYSTEM REDESIGN - COMPREHENSIVE GUIDE
 
-## 🎯 Overview
+## [TARGET] Overview
 
 This document outlines the complete redesign of the QuickFix booking system to use **phone number as the primary client identifier**, eliminating the complex `clientId` system and creating a more robust, bug-free booking flow.
 
-## 🚀 Key Improvements
+## [LAUNCH] Key Improvements
 
 ### 1. Simplified Client Identification
 - **Before**: Complex ObjectId-based clientId system with population issues
@@ -22,7 +22,7 @@ This document outlines the complete redesign of the QuickFix booking system to u
 - **Before**: Basic validation with potential gaps
 - **After**: Comprehensive validation at every level
 
-## 📋 Migration Steps
+## [CHECKLIST] Migration Steps
 
 ### Step 1: Backend Implementation
 
@@ -48,11 +48,11 @@ This document outlines the complete redesign of the QuickFix booking system to u
 #### C. New Routes (`bookingRedesigned.js`)
 ```javascript
 // Endpoints:
-POST /api/bookings/redesigned          - Create booking
-GET  /api/bookings/phone/:phoneNumber  - Get by phone
-GET  /api/bookings/:bookingId          - Get by ID
-PATCH /api/bookings/:bookingId/status  - Update status
-PATCH /api/bookings/:bookingId/assign  - Assign technician
+POST /api/bookings/redesigned - Create booking
+GET /api/bookings/phone/:phoneNumber - Get by phone
+GET /api/bookings/:bookingId - Get by ID
+PATCH /api/bookings/:bookingId/status - Update status
+PATCH /api/bookings/:bookingId/assign - Assign technician
 ```
 
 ### Step 2: Frontend Implementation
@@ -83,48 +83,48 @@ Update your app navigation to use the new form:
 router.push('/booking/redesigned-form');
 ```
 
-## 🔧 Field Mapping
+## Field Mapping
 
 ### Complete Field Structure
 
 ```javascript
 {
-  // IDENTIFICATION
-  bookingId: "QF202412191015678912AB",     // Unified ID
-  clientPhone: "+254712345678",            // Primary identifier
-  clientName: "John Doe",                  // Required
-  clientEmail: "john@example.com",         // Optional
-  userId: ObjectId("..."),                 // Optional link to User
-  
-  // SERVICE
-  serviceType: "plumbing",                 // Required, enum
-  serviceDescription: "Fix leaking pipe",  // Required
-  urgency: "normal",                       // normal|urgent|emergency
-  
-  // LOCATION
-  location: {
-    constituency: "Starehe",               // Required
-    ward: "Nairobi Central",              // Required
-    road: "Tom Mboya Street",             // Required
-    description: "Apartment 4B",          // Required
-    landmarks: "Near City Market"          // Optional
-  },
-  
-  // SCHEDULING
-  preferredDate: "2024-12-20",            // Required, YYYY-MM-DD
-  preferredTimeSlot: "10:00-12:00",       // Required, enum
-  
-  // OPTIONAL
-  specialRequirements: "Call before coming",
-  
-  // SYSTEM
-  status: "submitted",                     // Auto-managed
-  submittedAt: Date,                      // Auto-set
-  // ... other system fields
+ // IDENTIFICATION
+ bookingId: "QF202412191015678912AB", // Unified ID
+ clientPhone: "+254712345678", // Primary identifier
+ clientName: "John Doe", // Required
+ clientEmail: "john@example.com", // Optional
+ userId: ObjectId("..."), // Optional link to User
+ 
+ // SERVICE
+ serviceType: "plumbing", // Required, enum
+ serviceDescription: "Fix leaking pipe", // Required
+ urgency: "normal", // normal|urgent|emergency
+ 
+ // LOCATION
+ location: {
+ constituency: "Starehe", // Required
+ ward: "Nairobi Central", // Required
+ road: "Tom Mboya Street", // Required
+ description: "Apartment 4B", // Required
+ landmarks: "Near City Market" // Optional
+ },
+ 
+ // SCHEDULING
+ preferredDate: "2024-12-20", // Required, YYYY-MM-DD
+ preferredTimeSlot: "10:00-12:00", // Required, enum
+ 
+ // OPTIONAL
+ specialRequirements: "Call before coming",
+ 
+ // SYSTEM
+ status: "submitted", // Auto-managed
+ submittedAt: Date, // Auto-set
+ // ... other system fields
 }
 ```
 
-## 🧪 Testing & Quality Assurance
+## Testing & Quality Assurance
 
 ### 1. Automated Testing
 ```bash
@@ -160,7 +160,7 @@ node scripts/comprehensive-booking-validator.js
 - [ ] Verify database indexes are working
 - [ ] Check response times
 
-## 🛡️ Bug Prevention Best Practices
+## Bug Prevention Best Practices
 
 ### 1. Always Use the Validation Scripts
 ```bash
@@ -191,7 +191,7 @@ node scripts/comprehensive-booking-validator.js
 - **CI/CD Integration**: Include tests in deployment pipeline
 - **Regular Audits**: Run quality checks weekly
 
-## 🚀 Deployment Checklist
+## [LAUNCH] Deployment Checklist
 
 ### Pre-Deployment
 - [ ] Run quality assurance script
@@ -214,7 +214,7 @@ node scripts/comprehensive-booking-validator.js
 - [ ] Verify performance metrics
 - [ ] Test with real user scenarios
 
-## 📞 Phone Number as Client ID - Benefits
+## [CONTACT] Phone Number as Client ID - Benefits
 
 ### 1. Simplicity
 - No complex ObjectId relationships
@@ -236,7 +236,7 @@ node scripts/comprehensive-booking-validator.js
 - No ObjectId conversion issues
 - Clear data relationships
 
-## 🔄 Gradual Migration Strategy
+## Gradual Migration Strategy
 
 ### Phase 1: Parallel Implementation
 - Deploy redesigned system alongside existing
@@ -253,7 +253,7 @@ node scripts/comprehensive-booking-validator.js
 - Switch default routes to redesigned system
 - Deprecate old system
 
-## 🎉 Expected Outcomes
+## [SUCCESS] Expected Outcomes
 
 ### 1. Bug Reduction
 - Eliminate access control issues
@@ -275,7 +275,7 @@ node scripts/comprehensive-booking-validator.js
 - More reliable system
 - Clearer error messages
 
-## 📚 Additional Resources
+## [DOCUMENTATION] Additional Resources
 
 ### Scripts Location
 - `scripts/comprehensive-booking-validator.js` - Automated testing

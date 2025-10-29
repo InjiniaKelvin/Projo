@@ -1,6 +1,6 @@
 # QUICKFIX BOOKING WORKFLOW - COMPLETE PROCESS
 
-**Date:** October 13, 2025  
+**Date:** October 13, 2025 
 **System:** QuickFix Service Booking Platform
 
 ---
@@ -14,50 +14,50 @@ This document outlines the complete workflow from when a client submits a bookin
 ## BOOKING WORKFLOW STAGES
 
 ### STAGE 1: BOOKING SUBMISSION
-**Status:** `submitted`  
-**Actor:** Client  
+**Status:** `submitted` 
+**Actor:** Client 
 **Duration:** Immediate
 
 **What Happens:**
 1. Client fills out booking form with:
-   - Personal details (name, phone, email)
-   - Service type and description
-   - Location (constituency, ward, road, description)
-   - Preferred date and time slot
-   - Special requirements (optional)
+ - Personal details (name, phone, email)
+ - Service type and description
+ - Location (constituency, ward, road, description)
+ - Preferred date and time slot
+ - Special requirements (optional)
 
 2. Frontend validates all required fields
 
 3. Booking is submitted to backend with authentication token
 
 4. Backend creates booking with:
-   - Unique Booking ID (format: `QF[YYYYMMDD][HHMM][PHONE_LAST4][RANDOM]`)
-   - Status: `submitted`
-   - Normalized phone number (+254 format)
-   - Timestamp: `submittedAt`
+ - Unique Booking ID (format: `QF[YYYYMMDD][HHMM][PHONE_LAST4][RANDOM]`)
+ - Status: `submitted`
+ - Normalized phone number (+254 format)
+ - Timestamp: `submittedAt`
 
 5. Client sees success screen with:
-   - Booking ID
-   - Confirmation details
-   - Next steps information
+ - Booking ID
+ - Confirmation details
+ - Next steps information
 
 **Database State:**
 ```javascript
 {
-  bookingId: "QF20251013201485670JKA",
-  status: "submitted",
-  clientPhone: "+254712345678",
-  clientName: "John Doe",
-  submittedAt: "2025-10-13T19:14:38.567Z",
-  technicianId: null,
-  assignedAt: null,
-  quotedAmount: 0
+ bookingId: "QF20251013201485670JKA",
+ status: "submitted",
+ clientPhone: "+254712345678",
+ clientName: "John Doe",
+ submittedAt: "2025-10-13T19:14:38.567Z",
+ technicianId: null,
+ assignedAt: null,
+ quotedAmount: 0
 }
 ```
 
 **User Message:**
 ```
-✓ Booking Confirmed!
+OK Booking Confirmed!
 Booking Reference: QF20251013201485670JKA
 
 What's Next?
@@ -69,33 +69,33 @@ What's Next?
 ---
 
 ### STAGE 2: ADMIN CONFIRMATION
-**Status:** `confirmed`  
-**Actor:** Admin/System  
+**Status:** `confirmed` 
+**Actor:** Admin/System 
 **Duration:** 5-15 minutes
 
 **What Happens:**
 1. Admin reviews booking in admin dashboard
 2. Verifies:
-   - Service type is clear
-   - Location is valid
-   - Date/time is available
-   - Special requirements are feasible
+ - Service type is clear
+ - Location is valid
+ - Date/time is available
+ - Special requirements are feasible
 
 3. Admin confirms booking
 
 4. System updates booking:
-   ```javascript
-   {
-     status: "confirmed",
-     confirmedAt: "2025-10-13T19:20:00.000Z"
-   }
-   ```
+ ```javascript
+ {
+ status: "confirmed",
+ confirmedAt: "2025-10-13T19:20:00.000Z"
+ }
+ ```
 
 5. Client receives notification:
-   - SMS to phone number
-   - Email (if provided)
-   - Push notification (if app installed)
-   - WebSocket real-time update
+ - SMS to phone number
+ - Email (if provided)
+ - Push notification (if app installed)
+ - WebSocket real-time update
 
 **API Endpoint:**
 ```
@@ -113,39 +113,39 @@ We're finding you the best technician for your plumbing service.
 ---
 
 ### STAGE 3: TECHNICIAN ASSIGNMENT
-**Status:** `technician_assigned`  
-**Actor:** Admin  
+**Status:** `technician_assigned` 
+**Actor:** Admin 
 **Duration:** 10-30 minutes
 
 **What Happens:**
 1. Admin searches for available technicians with:
-   - Matching service expertise (plumbing, electrical, etc.)
-   - Available on preferred date/time
-   - Located near service area
-   - Good rating history
+ - Matching service expertise (plumbing, electrical, etc.)
+ - Available on preferred date/time
+ - Located near service area
+ - Good rating history
 
 2. Admin assigns technician to booking
 
 3. System updates booking:
-   ```javascript
-   {
-     status: "technician_assigned",
-     technicianId: ObjectId("..."),
-     technicianPhone: "+254798765432",
-     assignedAt: "2025-10-13T19:35:00.000Z"
-   }
-   ```
+ ```javascript
+ {
+ status: "technician_assigned",
+ technicianId: ObjectId("..."),
+ technicianPhone: "+254798765432",
+ assignedAt: "2025-10-13T19:35:00.000Z"
+ }
+ ```
 
 4. Notifications sent to:
-   - **Client:** "Technician assigned!"
-   - **Technician:** "New job assigned!"
+ - **Client:** "Technician assigned!"
+ - **Technician:** "New job assigned!"
 
 5. Client can now see technician details:
-   - Name
-   - Phone number
-   - Rating
-   - Photo
-   - Estimated arrival time
+ - Name
+ - Phone number
+ - Rating
+ - Photo
+ - Estimated arrival time
 
 **API Endpoint:**
 ```
@@ -179,8 +179,8 @@ View Job Details
 ---
 
 ### STAGE 4: WORK IN PROGRESS
-**Status:** `in_progress`  
-**Actor:** Technician  
+**Status:** `in_progress` 
+**Actor:** Technician 
 **Duration:** Varies (30 min - several hours)
 
 **What Happens:**
@@ -189,31 +189,31 @@ View Job Details
 2. Technician marks job as started in mobile app
 
 3. System updates:
-   ```javascript
-   {
-     status: "in_progress",
-     startedAt: "2025-10-16T10:05:00.000Z"
-   }
-   ```
+ ```javascript
+ {
+ status: "in_progress",
+ startedAt: "2025-10-16T10:05:00.000Z"
+ }
+ ```
 
 4. Client can track:
-   - Real-time status
-   - Elapsed time
-   - Live chat with technician
+ - Real-time status
+ - Elapsed time
+ - Live chat with technician
 
 5. Technician may:
-   - Take photos (before/after)
-   - Update job notes
-   - Request additional materials
-   - Provide time estimates
+ - Take photos (before/after)
+ - Update job notes
+ - Request additional materials
+ - Provide time estimates
 
 6. If pricing wasn't set, technician provides quote:
-   ```javascript
-   {
-     quotedAmount: 2500, // KES
-     quotedAt: "2025-10-16T10:15:00.000Z"
-   }
-   ```
+ ```javascript
+ {
+ quotedAmount: 2500, // KES
+ quotedAt: "2025-10-16T10:15:00.000Z"
+ }
+ ```
 
 **Client View:**
 ```
@@ -234,8 +234,8 @@ Status Updates:
 ---
 
 ### STAGE 5: WORK COMPLETED
-**Status:** `completed`  
-**Actor:** Technician → Client Confirmation  
+**Status:** `completed` 
+**Actor:** Technician → Client Confirmation 
 **Duration:** Immediate
 
 **What Happens:**
@@ -244,27 +244,27 @@ Status Updates:
 2. Technician marks job as complete
 
 3. System updates:
-   ```javascript
-   {
-     status: "completed",
-     completedAt: "2025-10-16T11:20:00.000Z",
-     finalAmount: 2500
-   }
-   ```
+ ```javascript
+ {
+ status: "completed",
+ completedAt: "2025-10-16T11:20:00.000Z",
+ finalAmount: 2500
+ }
+ ```
 
 4. Client receives notification to:
-   - Confirm work completion
-   - Verify quality
-   - Rate service
-   - Make payment
+ - Confirm work completion
+ - Verify quality
+ - Rate service
+ - Make payment
 
 5. Client reviews and approves
 
 6. Payment is processed (if not already paid):
-   - M-Pesa
-   - Bank transfer
-   - Card payment
-   - Escrow release
+ - M-Pesa
+ - Bank transfer
+ - Card payment
+ - Escrow release
 
 7. Client rates technician (1-5 stars)
 
@@ -304,7 +304,7 @@ Comments (optional):
 ### ALTERNATIVE PATHS
 
 #### CANCELLATION PATH
-**Status:** `cancelled`  
+**Status:** `cancelled` 
 **Can be triggered at:** Any stage before `in_progress`
 
 **Who Can Cancel:**
@@ -328,7 +328,7 @@ Refund (if applicable): KES 2,500 will be processed within 3-5 days.
 ```
 
 #### ON HOLD PATH
-**Status:** `on_hold`  
+**Status:** `on_hold` 
 **Triggered when:** Temporary pause needed
 
 **Reasons:**
@@ -384,27 +384,27 @@ Refund (if applicable): KES 2,500 will be processed within 3-5 days.
 
 ### Client Can Track:
 1. **Booking Status**
-   - Current stage in workflow
-   - Time at each stage
-   - Next expected action
+ - Current stage in workflow
+ - Time at each stage
+ - Next expected action
 
 2. **Technician Details** (after assignment)
-   - Name, photo, rating
-   - Contact information
-   - Location (real-time)
-   - Estimated arrival time
+ - Name, photo, rating
+ - Contact information
+ - Location (real-time)
+ - Estimated arrival time
 
 3. **Financial Information**
-   - Quoted amount
-   - Final amount
-   - Payment status
-   - Invoice/receipt
+ - Quoted amount
+ - Final amount
+ - Payment status
+ - Invoice/receipt
 
 4. **History**
-   - All status changes
-   - Communication history
-   - Photos (before/after)
-   - Notes and updates
+ - All status changes
+ - Communication history
+ - Photos (before/after)
+ - Notes and updates
 
 ### Available in "My Bookings":
 ```
@@ -443,22 +443,22 @@ Past (5)
 
 ### Payment Methods:
 1. **M-Pesa** (Primary)
-   - STK Push prompt
-   - Manual Paybill
-   - Instant confirmation
+ - STK Push prompt
+ - Manual Paybill
+ - Instant confirmation
 
 2. **Escrow** (For large jobs)
-   - Client pays upfront
-   - Held in escrow
-   - Released after completion
+ - Client pays upfront
+ - Held in escrow
+ - Released after completion
 
 3. **Bank Transfer**
-   - Offline payment
-   - Manual confirmation
+ - Offline payment
+ - Manual confirmation
 
 4. **Card Payment**
-   - Visa/Mastercard
-   - 3D Secure
+ - Visa/Mastercard
+ - 3D Secure
 
 ### Payment Timing:
 - **Small Jobs (<5000 KES):** Pay after completion
@@ -471,44 +471,44 @@ Past (5)
 
 Admins can:
 1. **View All Bookings**
-   - Filter by status
-   - Search by booking ID, phone, name
-   - Sort by date, urgency, location
+ - Filter by status
+ - Search by booking ID, phone, name
+ - Sort by date, urgency, location
 
 2. **Manage Status**
-   - Confirm bookings
-   - Assign technicians
-   - Update status manually
-   - Cancel bookings
+ - Confirm bookings
+ - Assign technicians
+ - Update status manually
+ - Cancel bookings
 
 3. **Technician Management**
-   - View available technicians
-   - Check technician workload
-   - Reassign if needed
-   - Block problematic technicians
+ - View available technicians
+ - Check technician workload
+ - Reassign if needed
+ - Block problematic technicians
 
 4. **Communication**
-   - Send notifications
-   - Chat with clients/technicians
-   - Broadcast announcements
+ - Send notifications
+ - Chat with clients/technicians
+ - Broadcast announcements
 
 5. **Financial**
-   - Approve quotes
-   - Process refunds
-   - Generate invoices
-   - View payment history
+ - Approve quotes
+ - Process refunds
+ - Generate invoices
+ - View payment history
 
 ---
 
 ## API ENDPOINTS SUMMARY
 
 ```
-POST   /api/bookings-redesigned/redesigned          Create booking
-GET    /api/bookings-redesigned/:bookingId          Get booking details
-GET    /api/bookings-redesigned/phone/:phone        Get user bookings
-GET    /api/bookings-redesigned/email/:email        Get bookings by email
-PATCH  /api/bookings-redesigned/:bookingId/status   Update status
-PATCH  /api/bookings-redesigned/:bookingId/assign   Assign technician
+POST /api/bookings-redesigned/redesigned Create booking
+GET /api/bookings-redesigned/:bookingId Get booking details
+GET /api/bookings-redesigned/phone/:phone Get user bookings
+GET /api/bookings-redesigned/email/:email Get bookings by email
+PATCH /api/bookings-redesigned/:bookingId/status Update status
+PATCH /api/bookings-redesigned/:bookingId/assign Assign technician
 ```
 
 ---

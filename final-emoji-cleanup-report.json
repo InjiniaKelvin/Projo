@@ -1,0 +1,119 @@
+{
+ "files_processed": 368,
+ "files_modified": 28,
+ "emojis_removed": 91,
+ "modified_files": [
+ {
+ "path": "/COMPLETE_BOOKING_IMPLEMENTATION_SUMMARY.md",
+ "emojis_removed": 2
+ },
+ {
+ "path": "/test-booking-fixes.sh",
+ "emojis_removed": 2
+ },
+ {
+ "path": "/test-mongo-connection.js",
+ "emojis_removed": 1
+ },
+ {
+ "path": "/test-live-stk-push.js",
+ "emojis_removed": 4
+ },
+ {
+ "path": "/test-atlas-connection.js",
+ "emojis_removed": 1
+ },
+ {
+ "path": "/start-backend-improved.bat",
+ "emojis_removed": 3
+ },
+ {
+ "path": "/setup-mongodb.bat",
+ "emojis_removed": 17
+ },
+ {
+ "path": "/setup-mongodb-atlas.sh",
+ "emojis_removed": 5
+ },
+ {
+ "path": "/TECHNICIAN_DASHBOARD_COMPLETE.md",
+ "emojis_removed": 13
+ },
+ {
+ "path": "/cleanup-project.sh",
+ "emojis_removed": 1
+ },
+ {
+ "path": "/test-technician-start.sh",
+ "emojis_removed": 2
+ },
+ {
+ "path": "/remove-emojis-comprehensive.js",
+ "emojis_removed": 1
+ },
+ {
+ "path": "/verify-intasend-config.js",
+ "emojis_removed": 3
+ },
+ {
+ "path": "/FINAL_IMPLEMENTATION_COMPLETE.md",
+ "emojis_removed": 1
+ },
+ {
+ "path": "/BOOKING_FIXES_COMPLETE.md",
+ "emojis_removed": 1
+ },
+ {
+ "path": "/TECHNICIAN_DASHBOARD_ANALYSIS.md",
+ "emojis_removed": 2
+ },
+ {
+ "path": "/scripts/setup-redesigned-system.sh",
+ "emojis_removed": 11
+ },
+ {
+ "path": "/scripts/quality-assurance.sh",
+ "emojis_removed": 5
+ },
+ {
+ "path": "/app/wallet.js",
+ "emojis_removed": 1
+ },
+ {
+ "path": "/app/technician/profile-enhanced.js",
+ "emojis_removed": 1
+ },
+ {
+ "path": "/app/technician/profile.js",
+ "emojis_removed": 1
+ },
+ {
+ "path": "/app/technician/profile-backup.js",
+ "emojis_removed": 1
+ },
+ {
+ "path": "/app/technician/jobs/browse.js",
+ "emojis_removed": 1
+ },
+ {
+ "path": "/app/booking/status.tsx",
+ "emojis_removed": 2
+ },
+ {
+ "path": "/app/admin/analytics.tsx",
+ "emojis_removed": 1
+ },
+ {
+ "path": "/e2e/complete-user-journey.test.js",
+ "emojis_removed": 6
+ },
+ {
+ "path": "/Screens/WalletScreen.js",
+ "emojis_removed": 1
+ },
+ {
+ "path": "/Screens/WithdrawFundsScreen.js",
+ "emojis_removed": 1
+ }
+ ]
+}

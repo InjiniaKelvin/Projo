@@ -14,11 +14,11 @@ const Message = require('./Message');
 const Notification = require('./Notification');
 
 module.exports = {
-  User,
-  Booking,
-  Service,
-  Transaction,
-  Wallet,
-  Message,
-  Notification
+ User,
+ Booking,
+ Service,
+ Transaction,
+ Wallet,
+ Message,
+ Notification
 };

@@ -5,10 +5,10 @@
 const detox = require('detox');
 
 module.exports = async () => {
-  console.log('🚀 Starting Detox global setup...');
-  
-  // Initialize Detox configuration
-  await detox.globalInit();
-  
-  console.log('✅ Detox global setup completed');
+ console.log('[LAUNCH] Starting Detox global setup...');
+ 
+ // Initialize Detox configuration
+ await detox.globalInit();
+ 
+ console.log('[COMPLETED] Detox global setup completed');
 };

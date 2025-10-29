@@ -82,33 +82,33 @@ npm run server:dev
 #### Users
 - **Purpose**: Store user accounts (clients, technicians, admins)
 - **Key Features**: 
-  - Role-based access control
-  - Authentication and security
-  - Location data for technicians
-  - Skills and availability for technicians
-  - Wallet integration
+ - Role-based access control
+ - Authentication and security
+ - Location data for technicians
+ - Skills and availability for technicians
+ - Wallet integration
 
 #### Wallets
 - **Purpose**: Manage user financial accounts
 - **Key Features**:
-  - Available, escrow, and pending balances
-  - Payment method storage
-  - Transaction limits and verification
+ - Available, escrow, and pending balances
+ - Payment method storage
+ - Transaction limits and verification
 
 #### Transactions
 - **Purpose**: Track all financial transactions
 - **Key Features**:
-  - Multiple payment gateways (M-Pesa, Stripe, PayPal, Bank)
-  - Escrow management
-  - Audit trail and reconciliation
+ - Multiple payment gateways (M-Pesa, Stripe, PayPal, Bank)
+ - Escrow management
+ - Audit trail and reconciliation
 
 #### Bookings
 - **Purpose**: Manage service requests and assignments
 - **Key Features**:
-  - Location-based matching
-  - Status tracking workflow
-  - Payment integration
-  - Communication and ratings
+ - Location-based matching
+ - Status tracking workflow
+ - Payment integration
+ - Communication and ratings
 
 ## API Endpoints
 
@@ -216,9 +216,9 @@ MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/quickfix?r
 // Enable authentication
 use admin
 db.createUser({
-  user: "quickfix_admin",
-  pwd: "secure_password_here",
-  roles: ["readWriteAnyDatabase", "dbAdminAnyDatabase"]
+ user: "quickfix_admin",
+ pwd: "secure_password_here",
+ roles: ["readWriteAnyDatabase", "dbAdminAnyDatabase"]
 })
 
 // Connection with authentication
@@ -265,24 +265,24 @@ db.transactions.createIndex({userId: 1, createdAt: -1})
 ### Common Issues
 
 1. **Connection Failed**
-   - Check if MongoDB service is running
-   - Verify connection string in `.env`
-   - Check firewall settings
+ - Check if MongoDB service is running
+ - Verify connection string in `.env`
+ - Check firewall settings
 
 2. **Authentication Errors**
-   - Verify username/password in connection string
-   - Check user permissions
-   - Ensure authSource is correct
+ - Verify username/password in connection string
+ - Check user permissions
+ - Ensure authSource is correct
 
 3. **Performance Issues**
-   - Add appropriate indexes
-   - Monitor query performance
-   - Use MongoDB Compass profiler
+ - Add appropriate indexes
+ - Monitor query performance
+ - Use MongoDB Compass profiler
 
 4. **Memory Issues**
-   - Configure MongoDB memory limits
-   - Optimize queries and indexes
-   - Monitor database size
+ - Configure MongoDB memory limits
+ - Optimize queries and indexes
+ - Monitor database size
 
 ### Logs and Debugging
 ```bash
@@ -293,7 +293,7 @@ type "C:\Program Files\MongoDB\Server\6.0\log\mongod.log"
 tail -f /var/log/mongodb/mongod.log
 
 # Application logs
-npm run server:dev  # Shows detailed logs in development
+npm run server:dev # Shows detailed logs in development
 ```
 
 ## Backup and Restore

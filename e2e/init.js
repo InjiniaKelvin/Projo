@@ -14,44 +14,44 @@ jest.setTimeout(300000);
 jest.mock('detox/runners/jest/adapter');
 
 beforeAll(async () => {
-  await detox.init(config, { initGlobals: false });
+ await detox.init(config, { initGlobals: false });
 });
 
 beforeEach(async () => {
-  await adapter.beforeEach();
+ await adapter.beforeEach();
 });
 
 afterAll(async () => {
-  await adapter.afterAll();
-  await detox.cleanup();
+ await adapter.afterAll();
+ await detox.cleanup();
 });
 
 // Global test utilities
 global.waitForElementAndTap = async (elementId, timeout = 10000) => {
-  await waitFor(element(by.id(elementId)))
-    .toBeVisible()
-    .withTimeout(timeout);
-  await element(by.id(elementId)).tap();
+ await waitFor(element(by.id(elementId)))
+ .toBeVisible()
+ .withTimeout(timeout);
+ await element(by.id(elementId)).tap();
 };
 
 global.waitForElementAndType = async (elementId, text, timeout = 10000) => {
-  await waitFor(element(by.id(elementId)))
-    .toBeVisible()
-    .withTimeout(timeout);
-  await element(by.id(elementId)).clearText();
-  await element(by.id(elementId)).typeText(text);
+ await waitFor(element(by.id(elementId)))
+ .toBeVisible()
+ .withTimeout(timeout);
+ await element(by.id(elementId)).clearText();
+ await element(by.id(elementId)).typeText(text);
 };
 
 global.waitForTextAndTap = async (text, timeout = 10000) => {
-  await waitFor(element(by.text(text)))
-    .toBeVisible()
-    .withTimeout(timeout);
-  await element(by.text(text)).tap();
+ await waitFor(element(by.text(text)))
+ .toBeVisible()
+ .withTimeout(timeout);
+ await element(by.text(text)).tap();
 };
 
 global.scrollToElement = async (scrollViewId, elementId, direction = 'down') => {
-  await waitFor(element(by.id(elementId)))
-    .toBeVisible()
-    .whileElement(by.id(scrollViewId))
-    .scroll(200, direction);
+ await waitFor(element(by.id(elementId)))
+ .toBeVisible()
+ .whileElement(by.id(scrollViewId))
+ .scroll(200, direction);
 };

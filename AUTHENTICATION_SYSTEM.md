@@ -8,61 +8,61 @@ This document outlines the comprehensive authentication system implemented for t
 ### 1. Authentication Context (`contexts/AuthContext.js`)
 - **Purpose**: Central state management for authentication
 - **Features**:
-  - User login/logout state management
-  - Registration handling
-  - Session restoration
-  - Role-based authentication
-  - Loading states for UI feedback
-  - Error handling and display
+ - User login/logout state management
+ - Registration handling
+ - Session restoration
+ - Role-based authentication
+ - Loading states for UI feedback
+ - Error handling and display
 
 ### 2. Authentication Service (`services/AuthService.js`)
 - **Purpose**: Handle API calls for authentication
 - **Features**:
-  - User login endpoint
-  - User registration endpoint
-  - Token validation
-  - Mock authentication for development
-  - Password validation utilities
-  - Email validation utilities
+ - User login endpoint
+ - User registration endpoint
+ - Token validation
+ - Mock authentication for development
+ - Password validation utilities
+ - Email validation utilities
 
 ### 3. Storage Service (`services/StorageService.js`)
 - **Purpose**: Secure storage of sensitive data
 - **Features**:
-  - Secure token storage using Expo SecureStore
-  - User data storage using AsyncStorage
-  - Remember me functionality
-  - Biometric authentication support
-  - Session management
-  - Storage cleanup utilities
+ - Secure token storage using Expo SecureStore
+ - User data storage using AsyncStorage
+ - Remember me functionality
+ - Biometric authentication support
+ - Session management
+ - Storage cleanup utilities
 
 ### 4. Login Screen (`Screens/LoginScreen.js`)
 - **Purpose**: User authentication interface
 - **Features**:
-  - Email/password input with validation
-  - Show/hide password toggle
-  - Remember me checkbox
-  - Form validation with error display
-  - Loading states during authentication
-  - Navigation to registration screen
+ - Email/password input with validation
+ - Show/hide password toggle
+ - Remember me checkbox
+ - Form validation with error display
+ - Loading states during authentication
+ - Navigation to registration screen
 
 ### 5. Registration Screen (`Screens/RegisterScreen.js`)
 - **Purpose**: New user account creation
 - **Features**:
-  - Comprehensive form with validation
-  - Multiple user types (Client, Technician, Admin)
-  - Password confirmation
-  - Terms of service acceptance
-  - Real-time form validation
-  - Secure password input with toggle
-  - Loading states and error handling
+ - Comprehensive form with validation
+ - Multiple user types (Client, Technician, Admin)
+ - Password confirmation
+ - Terms of service acceptance
+ - Real-time form validation
+ - Secure password input with toggle
+ - Loading states and error handling
 
 ### 6. Navigation System (`navigation/AppNavigator.js`)
 - **Purpose**: Route protection and role-based navigation
 - **Features**:
-  - Authentication-based route protection
-  - Role-specific tab navigation
-  - Splash screen during session restoration
-  - Automatic navigation based on auth state
+ - Authentication-based route protection
+ - Role-specific tab navigation
+ - Splash screen during session restoration
+ - Automatic navigation based on auth state
 
 ## User Roles
 
@@ -117,13 +117,13 @@ This document outlines the comprehensive authentication system implemented for t
 ### Dependencies
 ```json
 {
-  "@react-navigation/native": "latest",
-  "@react-navigation/bottom-tabs": "latest",
-  "@react-navigation/native-stack": "latest",
-  "@react-native-async-storage/async-storage": "latest",
-  "expo-secure-store": "latest",
-  "axios": "latest",
-  "@expo/vector-icons": "latest"
+ "@react-navigation/native": "latest",
+ "@react-navigation/bottom-tabs": "latest",
+ "@react-navigation/native-stack": "latest",
+ "@react-native-async-storage/async-storage": "latest",
+ "expo-secure-store": "latest",
+ "axios": "latest",
+ "@expo/vector-icons": "latest"
 }
 ```
 
@@ -137,9 +137,9 @@ This document outlines the comprehensive authentication system implemented for t
 ### Login Testing
 1. Use any email/password combination (currently using mock authentication)
 2. Test with different user types:
-   - admin@example.com → Admin role
-   - tech@example.com → Technician role
-   - Any other email → Client role
+ - admin@example.com → Admin role
+ - tech@example.com → Technician role
+ - Any other email → Client role
 
 ### Registration Testing
 1. Fill out the registration form
@@ -177,19 +177,19 @@ This document outlines the comprehensive authentication system implemented for t
 ```
 QuickFix/
 ├── contexts/
-│   └── AuthContext.js          # Authentication state management
+│ └── AuthContext.js # Authentication state management
 ├── services/
-│   ├── AuthService.js          # Authentication API calls
-│   └── StorageService.js       # Secure storage utilities
+│ ├── AuthService.js # Authentication API calls
+│ └── StorageService.js # Secure storage utilities
 ├── Screens/
-│   ├── LoginScreen.js          # User login interface
-│   ├── RegisterScreen.js       # User registration interface
-│   ├── ClientDashboard.js      # Client role dashboard
-│   ├── TechnicianDashboard.js  # Technician role dashboard
-│   └── AdminDashboard.js       # Admin role dashboard
+│ ├── LoginScreen.js # User login interface
+│ ├── RegisterScreen.js # User registration interface
+│ ├── ClientDashboard.js # Client role dashboard
+│ ├── TechnicianDashboard.js # Technician role dashboard
+│ └── AdminDashboard.js # Admin role dashboard
 ├── navigation/
-│   └── AppNavigator.js         # Protected routing system
-└── App.js                      # Main app with AuthProvider
+│ └── AppNavigator.js # Protected routing system
+└── App.js # Main app with AuthProvider
 ```
 
 ## Next Steps

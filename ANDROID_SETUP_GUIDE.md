@@ -6,9 +6,9 @@
 1. Visit: https://developer.android.com/studio
 2. Download Android Studio for Windows
 3. Run the installer with these options:
-   - Choose "Custom" installation
-   - Select all Android SDK components
-   - Accept all licenses
+ - Choose "Custom" installation
+ - Select all Android SDK components
+ - Accept all licenses
 
 ### Step 2: Run Environment Setup Script
 After Android Studio installation completes:

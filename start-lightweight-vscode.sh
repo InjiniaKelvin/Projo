@@ -15,12 +15,12 @@ export VSCODE_DISABLE_WORKSPACE_TRUST=true
 
 # Start VS Code with performance flags
 code \
-    --max-memory=2048 \
-    --disable-extensions \
-    --disable-telemetry \
-    --disable-crash-reporter \
-    --disable-updates \
-    --no-sandbox \
-    "$@"
+ --max-memory=2048 \
+ --disable-extensions \
+ --disable-telemetry \
+ --disable-crash-reporter \
+ --disable-updates \
+ --no-sandbox \
+ "$@"
 
 echo " Lightweight VS Code started!"

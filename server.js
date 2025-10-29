@@ -44,23 +44,23 @@ initializeSocketIO(server);
 
 // Security middleware
 app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" }
+ crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
 // Rate limiting (increased limits for development)
 const limiter = rateLimit({
-  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
-  max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 1000, // increased to 1000 requests per windowMs for development
-  message: {
-    success: false,
-    message: 'Too many requests from this IP, please try again later'
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-  skip: (req) => {
-    // Skip rate limiting for development health checks
-    return process.env.NODE_ENV === 'development' && req.path === '/health';
-  }
+ windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
+ max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 1000, // increased to 1000 requests per windowMs for development
+ message: {
+ success: false,
+ message: 'Too many requests from this IP, please try again later'
+ },
+ standardHeaders: true,
+ legacyHeaders: false,
+ skip: (req) => {
+ // Skip rate limiting for development health checks
+ return process.env.NODE_ENV === 'development' && req.path === '/health';
+ }
 });
 
 // Apply rate limiting to all routes except health checks in development
@@ -68,33 +68,33 @@ app.use(limiter);
 
 // CORS configuration with improved preflight handling
 const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    // In development, allow all origins
-    if (process.env.NODE_ENV === 'development') {
-      return callback(null, true);
-    }
-    
-    // In production, add your allowed origins here
-    const allowedOrigins = [
-      'http://localhost:3000',
-      'http://localhost:8081', // Expo web (current)
-      'http://localhost:19006', // Expo web (alternative)
-      'exp://localhost:19000', // Expo app
-    ];
-    
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
-  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+ origin: function (origin, callback) {
+ // Allow requests with no origin (like mobile apps or curl requests)
+ if (!origin) return callback(null, true);
+ 
+ // In development, allow all origins
+ if (process.env.NODE_ENV === 'development') {
+ return callback(null, true);
+ }
+ 
+ // In production, add your allowed origins here
+ const allowedOrigins = [
+ 'http://localhost:3000',
+ 'http://localhost:8081', // Expo web (current)
+ 'http://localhost:19006', // Expo web (alternative)
+ 'exp://localhost:19000', // Expo app
+ ];
+ 
+ if (allowedOrigins.indexOf(origin) !== -1) {
+ callback(null, true);
+ } else {
+ callback(new Error('Not allowed by CORS'));
+ }
+ },
+ credentials: true,
+ methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+ allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+ optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
 
 app.use(cors(corsOptions));
@@ -105,24 +105,24 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Health check endpoint (after CORS setup)
 app.get('/health', (req, res) => {
-  res.json({
-    success: true,
-    message: 'QuickFix API is running',
-    timestamp: new Date().toISOString(),
-    version: '1.0.0',
-    database: database.getConnectionStatus()
-  });
+ res.json({
+ success: true,
+ message: 'QuickFix API is running',
+ timestamp: new Date().toISOString(),
+ version: '1.0.0',
+ database: database.getConnectionStatus()
+ });
 });
 
 // Add /api/health endpoint for compatibility
 app.get('/api/health', (req, res) => {
-  res.json({
-    success: true,
-    message: 'QuickFix API is running',
-    timestamp: new Date().toISOString(),
-    version: '1.0.0',
-    database: database.getConnectionStatus()
-  });
+ res.json({
+ success: true,
+ message: 'QuickFix API is running',
+ timestamp: new Date().toISOString(),
+ version: '1.0.0',
+ database: database.getConnectionStatus()
+ });
 });
 
 // Routes
@@ -157,90 +157,90 @@ app.post('/api/payments/mpesa/callback', require('./backend/controllers/enhanced
 
 // Error handling middleware
 app.use((error, req, res, next) => {
-  console.error('Error:', error);
-  
-  res.status(error.status || 500).json({
-    success: false,
-    message: error.message || 'Internal server error',
-    ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
-  });
+ console.error('Error:', error);
+ 
+ res.status(error.status || 500).json({
+ success: false,
+ message: error.message || 'Internal server error',
+ ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
+ });
 });
 
 // 404 handler
 app.use('*', (req, res) => {
-  res.status(404).json({
-    success: false,
-    message: 'Endpoint not found',
-    path: req.originalUrl
-  });
+ res.status(404).json({
+ success: false,
+ message: 'Endpoint not found',
+ path: req.originalUrl
+ });
 });
 
 /**
  * Ensure database indexes are created
  */
 async function ensureIndexes() {
-  try {
-    console.log(' Ensuring database indexes...');
-    
-    // Ensure Booking model indexes are created
-    await Booking.createIndexes();
-    console.log(' Booking indexes created successfully');
-    
-  } catch (error) {
-    console.error(' Error creating indexes:', error.message);
-    // Don't fail the server startup for index creation errors
-  }
+ try {
+ console.log(' Ensuring database indexes...');
+ 
+ // Ensure Booking model indexes are created
+ await Booking.createIndexes();
+ console.log(' Booking indexes created successfully');
+ 
+ } catch (error) {
+ console.error(' Error creating indexes:', error.message);
+ // Don't fail the server startup for index creation errors
+ }
 }
 
 /**
  * Start the server
  */
 async function startServer() {
-  try {
-    // Connect to MongoDB
-    await database.connect();
-    console.log(' Database connected successfully');
-    
-    // Ensure indexes are created
-    await ensureIndexes();
-    
-    // Start HTTP server with Socket.IO
-    server.listen(PORT, () => {
-      console.log(` QuickFix server running on http://localhost:${PORT}`);
-      console.log(` Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log(` Health check: http://localhost:${PORT}/health`);
-      console.log(` API base URL: http://localhost:${PORT}/api`);
-      console.log(` WebSocket server initialized`);
-      console.log(` Real-time features enabled`);
-    });
-    
-    // Graceful shutdown
-    process.on('SIGTERM', async () => {
-      console.log(' SIGTERM received. Shutting down gracefully...');
-      server.close(async () => {
-        await database.disconnect();
-        console.log(' Server shut down successfully');
-        process.exit(0);
-      });
-    });
-    
-    process.on('SIGINT', async () => {
-      console.log(' SIGINT received. Shutting down gracefully...');
-      server.close(async () => {
-        await database.disconnect();
-        console.log(' Server shut down successfully');
-        process.exit(0);
-      });
-    });
-  } catch (error) {
-    console.error(' Failed to start server:', error.message);
-    process.exit(1);
-  }
+ try {
+ // Connect to MongoDB
+ await database.connect();
+ console.log(' Database connected successfully');
+ 
+ // Ensure indexes are created
+ await ensureIndexes();
+ 
+ // Start HTTP server with Socket.IO
+ server.listen(PORT, () => {
+ console.log(` QuickFix server running on http://localhost:${PORT}`);
+ console.log(` Environment: ${process.env.NODE_ENV || 'development'}`);
+ console.log(` Health check: http://localhost:${PORT}/health`);
+ console.log(` API base URL: http://localhost:${PORT}/api`);
+ console.log(` WebSocket server initialized`);
+ console.log(` Real-time features enabled`);
+ });
+ 
+ // Graceful shutdown
+ process.on('SIGTERM', async () => {
+ console.log(' SIGTERM received. Shutting down gracefully...');
+ server.close(async () => {
+ await database.disconnect();
+ console.log(' Server shut down successfully');
+ process.exit(0);
+ });
+ });
+ 
+ process.on('SIGINT', async () => {
+ console.log(' SIGINT received. Shutting down gracefully...');
+ server.close(async () => {
+ await database.disconnect();
+ console.log(' Server shut down successfully');
+ process.exit(0);
+ });
+ });
+ } catch (error) {
+ console.error(' Failed to start server:', error.message);
+ process.exit(1);
+ }
 }
 
 // Start the server if this file is run directly
 if (require.main === module) {
-  startServer();
+ startServer();
 }
 
 /**
