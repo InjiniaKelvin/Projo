@@ -64,7 +64,7 @@ const PaymentModal = ({ visible, onClose, booking, amount, onPaymentSuccess }: P
  const fetchPaymentMethods = async () => {
  try {
  const response = await fetch(
- `${__DEV__ ? 'http://localhost:3000' : 'https://your-server.com'}/api/payments/enhanced/methods`
+ `${__DEV__ ? 'http://10.0.2.2:5000' : 'https://your-server.com'}/api/payments/enhanced/methods`
  );
  
  if (response.ok) {
@@ -132,7 +132,7 @@ const PaymentModal = ({ visible, onClose, booking, amount, onPaymentSuccess }: P
  
  // Create payment intent
  const intentResponse = await fetch(
- `${__DEV__ ? 'http://localhost:3000' : 'https://your-server.com'}/api/payments/enhanced/intent`,
+ `${__DEV__ ? 'http://10.0.2.2:5000' : 'https://your-server.com'}/api/payments/enhanced/intent`,
  {
  method: 'POST',
  headers: {
@@ -181,7 +181,7 @@ const PaymentModal = ({ visible, onClose, booking, amount, onPaymentSuccess }: P
  
  // Create PayPal payment
  const response = await fetch(
- `${__DEV__ ? 'http://localhost:3000' : 'https://your-server.com'}/api/payments/enhanced/intent`,
+ `${__DEV__ ? 'http://10.0.2.2:5000' : 'https://your-server.com'}/api/payments/enhanced/intent`,
  {
  method: 'POST',
  headers: {
@@ -237,7 +237,7 @@ const PaymentModal = ({ visible, onClose, booking, amount, onPaymentSuccess }: P
  const token = await AsyncStorage.getItem('authToken');
  
  const response = await fetch(
- `${__DEV__ ? 'http://localhost:3000' : 'https://your-server.com'}/api/payments/enhanced/intent`,
+ `${__DEV__ ? 'http://10.0.2.2:5000' : 'https://your-server.com'}/api/payments/enhanced/intent`,
  {
  method: 'POST',
  headers: {
@@ -284,7 +284,7 @@ const PaymentModal = ({ visible, onClose, booking, amount, onPaymentSuccess }: P
  const token = await AsyncStorage.getItem('authToken');
  
  const response = await fetch(
- `${__DEV__ ? 'http://localhost:3000' : 'https://your-server.com'}/api/payments/enhanced/confirm`,
+ `${__DEV__ ? 'http://10.0.2.2:5000' : 'https://your-server.com'}/api/payments/enhanced/confirm`,
  {
  method: 'POST',
  headers: {
