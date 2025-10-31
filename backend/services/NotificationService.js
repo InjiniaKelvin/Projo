@@ -320,18 +320,23 @@ class NotificationService {
  
  /**
  * Send notification via multiple channels
+ * Note: SMS replaced with in-app notifications for cost efficiency
  */
  async sendMultiChannel(notification, channels) {
  const results = {};
  
- for (const channel of channels) {
+ // Replace 'sms' with 'inapp' in channels
+ const updatedChannels = channels.map(ch => ch === 'sms' ? 'inapp' : ch);
+ 
+ for (const channel of updatedChannels) {
  try {
  switch (channel) {
  case 'push':
  results.push = await this.sendPushNotification(notification);
  break;
- case 'sms':
- results.sms = await this.sendSMSNotification(notification);
+ case 'inapp':
+ // In-app notifications are already created in database
+ results.inapp = { success: true, stored: true };
  break;
  case 'email':
  results.email = await this.sendEmailNotification(notification);
@@ -398,10 +403,67 @@ class NotificationService {
  return actions[status] || 'Check booking details for updates';
  }
  
- // Legacy methods for compatibility
+ /**
+ * Send in-app notification (replaces SMS)
+ * This is more cost-effective and provides better UX
+ */
+ async sendInAppNotification(userId, title, message, data = {}) {
+ try {
+ const notification = await this.createNotification({
+ recipientId: userId,
+ type: data.type || 'info',
+ title,
+ message,
+ data,
+ priority: data.priority || 'normal'
+ });
+ 
+ // Also send real-time notification if user is online
+ await this.sendRealtimeNotification(notification);
+ 
+ return { success: true, notificationId: notification._id };
+ } catch (error) {
+ console.error('Send in-app notification error:', error);
+ return { success: false, error: error.message };
+ }
+ }
+ 
+ /**
+ * Send bulk in-app notifications to multiple users
+ */
+ async sendBulkInAppNotifications(userIds, title, message, data = {}) {
+ try {
+ const notifications = userIds.map(userId => ({
+ recipientId: userId,
+ type: data.type || 'info',
+ title,
+ message,
+ data,
+ priority: data.priority || 'normal',
+ status: 'created',
+ createdAt: new Date()
+ }));
+ 
+ const created = await Notification.insertMany(notifications);
+ 
+ // Send real-time notifications to online users
+ created.forEach(notification => {
+ this.sendRealtimeNotification(notification).catch(err => 
+ console.error('Real-time notification error:', err)
+ );
+ });
+ 
+ return { success: true, count: created.length };
+ } catch (error) {
+ console.error('Send bulk in-app notifications error:', error);
+ return { success: false, error: error.message };
+ }
+ }
+ 
+ // Legacy methods for compatibility - SMS removed, replaced with in-app
  async sendSMSNotification(notification) {
- // Mock implementation - replace with actual SMS service
- return { success: true, messageId: 'mock_sms_' + Date.now() };
+ console.log('SMS notifications deprecated - using in-app notifications instead');
+ return { success: true, deprecated: true, message: 'Use in-app notifications' };
  }
  
  async sendEmailNotification(notification) {

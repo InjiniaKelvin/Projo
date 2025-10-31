@@ -20,4 +20,24 @@ config.resolver.alias = {
  'react-native/Libraries/Utilities/codegenNativeComponent': path.resolve(__dirname, 'web-mocks/codegenNativeComponent.js'),
 };
 
+// MEMORY OPTIMIZATION: Reduce worker threads to save RAM
+config.transformer = {
+ ...config.transformer,
+ minifierConfig: {
+   compress: {
+     drop_console: false, // Keep console logs for debugging
+   },
+ },
+ // Reduce from default 4 workers to 2 (saves ~400MB RAM)
+ maxWorkers: 2,
+};
+
+// Optimize caching to reduce memory usage
+config.cacheStores = [
+ {
+   type: 'FileStore',
+   root: '/tmp/metro-cache-quickfix',
+ },
+];
+
 module.exports = config;

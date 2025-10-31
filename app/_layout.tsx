@@ -11,6 +11,11 @@ export default function RootLayout() {
  <Stack.Screen name="auth" options={{ headerShown: false }} />
  <Stack.Screen name="dashboard" options={{ headerShown: false }} />
  <Stack.Screen name="booking" options={{ headerShown: false }} />
+ <Stack.Screen name="admin" options={{ headerShown: false }} />
+ <Stack.Screen name="bookings" options={{ headerShown: false }} />
+ <Stack.Screen name="chat" options={{ headerShown: false }} />
+ <Stack.Screen name="support" options={{ headerShown: false }} />
+ <Stack.Screen name="tracking" options={{ headerShown: false }} />
  </Stack>
  </AuthProvider>
  );

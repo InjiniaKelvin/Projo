@@ -1,0 +1,213 @@
+PROJECT SCAN REPORT
+====================
+Date: Fri 31 Oct 10:55:21 GMT 2025
+
+BACKEND CORE FILES (USED):
+-------------------------
+backend/config/database.js
+backend/config/websocket.js
+backend/controllers/adminController.js
+backend/controllers/authController.js
+backend/controllers/bookingController.js
+backend/controllers/BookingControllerRedesigned_backup.js
+backend/controllers/BookingControllerRedesigned.js
+backend/controllers/enhancedPaymentController.js
+backend/controllers/paymentController.js
+backend/controllers/ratingController.js
+backend/controllers/servicesController.js
+backend/controllers/technicianController.js
+backend/middleware/adminAuth.js
+backend/middleware/auth.js
+backend/middleware/validation.js
+backend/models/Booking.js
+backend/models/BookingRedesigned_backup.js
+backend/models/BookingRedesigned.js
+backend/models/index.js
+backend/models/Message.js
+backend/models/Notification.js
+backend/models/Rating.js
+backend/models/Service.js
+backend/models/Transaction.js
+backend/models/User.js
+backend/models/Wallet.js
+backend/routes/admin.js
+backend/routes/analytics.js
+backend/routes/auth.js
+backend/routes/bookingRedesigned_backup.js
+backend/routes/bookingRedesigned.js
+backend/routes/bookings.js
+backend/routes/chat.js
+backend/routes/enhancedPayments.js
+backend/routes/notifications.js
+backend/routes/payments.js
+backend/routes/ratings.js
+backend/routes/services.js
+backend/routes/technician.js
+backend/services/IntaSendService.js
+backend/services/LocationService.js
+backend/services/MpesaService.js
+backend/services/NotificationService.js
+backend/services/PricingEngine.js
+backend/services/PricingService.js
+backend/services/SchedulingService.js
+backend/services/TechnicianMatchingService.js
+
+FRONTEND APP STRUCTURE:
+----------------------
+app/admin/analytics.tsx
+app/admin/inventory.tsx
+app/admin/payments.tsx
+app/admin/settings.tsx
+app/admin/technicians.tsx
+app/admin/users.tsx
+app/auth/index.tsx
+app/auth/_layout.tsx
+app/auth/login.tsx
+app/auth/register.tsx
+app/auth/test-login.tsx
+app/booking/details.tsx
+app/booking/enhanced-tracking.tsx
+app/booking/_layout.tsx
+app/booking/payment.tsx
+app/booking/redesigned-form_backup.tsx
+app/booking/redesigned-form.tsx
+app/booking/regular-services.tsx
+app/booking/service-selection.tsx
+app/booking/status.tsx
+app/booking/tracking.tsx
+app/components/ChatScreen.tsx
+app/components/NotificationCenter.tsx
+app/components/PaymentScreen.tsx
+app/components/PaymentScreen.web.tsx
+app/components/RequestStatusScreen.tsx
+app/contexts/WebSocketContext.tsx
+app/dashboard/admin.tsx
+app/dashboard/client.tsx
+app/dashboard/_layout.tsx
+app/dashboard/technician.tsx
+app/index.tsx
+app/_layout.tsx
+
+BACKEND ROUTES REGISTERED IN SERVER.JS:
+---------------------------------------
+  const authRoutes = require('./backend/routes/auth');
+  const paymentRoutes = require('./backend/routes/payments');
+  const bookingRoutes = require('./backend/routes/bookings');
+  const servicesRoutes = require('./backend/routes/services');
+  const enhancedPaymentRoutes = require('./backend/routes/enhancedPayments');
+  const adminRoutes = require('./backend/routes/admin');
+  const notificationRoutes = require('./backend/routes/notifications');
+  const analyticsRoutes = require('./backend/routes/analytics');
+  const chatRoutes = require('./backend/routes/chat');
+  const ratingRoutes = require('./backend/routes/ratings');
+  const bookingRedesignedRoutes = require('./backend/routes/bookingRedesigned');
+  const technicianRoutes = require('./backend/routes/technician');
+
+NAVIGATION PATHS (router.push/replace):
+---------------------------------------
+app/admin/analytics.tsx: onPress={() => router.push('/dashboard/admin')}
+app/admin/inventory.tsx: onPress={() => router.push('/dashboard/admin')}
+app/admin/payments.tsx: onPress={() => router.push('/dashboard/admin')}
+app/admin/settings.tsx: onPress={() => router.push('/dashboard/admin')}
+app/admin/technicians.tsx: onPress={() => router.push('/dashboard/admin')}
+app/admin/users.tsx: onPress={() => router.push('/dashboard/admin')}
+app/auth/index.tsx: onPress={() => router.push('/auth/login')}
+app/auth/index.tsx: onPress={() => router.push('/auth/register')}
+app/booking/details.tsx: router.replace('/bookings');
+app/booking/payment.tsx: router.replace({
+app/booking/redesigned-form_backup.tsx: router.replace('/');
+app/booking/redesigned-form.tsx: router.replace('/');
+app/booking/regular-services.tsx: router.push({
+app/booking/service-selection.tsx: onPress={() => router.push('/booking/details?isEmergency=true')}
+app/booking/service-selection.tsx: router.push({
+app/booking/status.tsx: onPress={() => router.push('/bookings')}
+app/booking/status.tsx: onPress={() => router.push('/support')}
+app/booking/status.tsx: onPress={() => router.push('/tracking')}
+app/booking/status.tsx: router.push({
+app/booking/status.tsx: router.replace('/dashboard');
+app/booking/tracking.tsx: router.push({
+app/booking/tracking.tsx: router.push('/support');
+app/index.tsx: router.push('/auth/login');
+app/index.tsx: router.replace(dashboardRoute);
+
+API ENDPOINTS (Backend Routes):
+-------------------------------
+backend/routes/technician.js:router.get('/available-jobs', technicianController.getAvailableJobs);
+backend/routes/technician.js:router.post('/accept-job/
+backend/routes/technician.js:router.post('/reject-job/
+backend/routes/technician.js:router.post('/start-job/
+backend/routes/technician.js:router.post('/complete-job/
+backend/routes/technician.js:router.get('/my-jobs', technicianController.getMyJobs);
+backend/routes/technician.js:router.post('/upload-photos/
+backend/routes/technician.js:router.put('/availability', technicianController.updateAvailability);
+backend/routes/technician.js:router.post('/location', technicianController.updateLocation);
+backend/routes/technician.js:router.get('/earnings', technicianController.getEarnings);
+backend/routes/technician.js:router.post('/withdraw', technicianController.requestWithdrawal);
+backend/routes/admin.js:router.get('/dashboard', getDashboardAnalytics);
+backend/routes/admin.js:router.get('/users', getUsers);
+backend/routes/admin.js:router.post('/users/
+backend/routes/admin.js:router.post('/users/
+backend/routes/admin.js:router.post('/disputes/
+backend/routes/admin.js:router.post('/pricing/update', updatePricing);
+backend/routes/admin.js:router.post('/notifications/broadcast', sendBroadcastNotification);
+backend/routes/admin.js:router.get('/system/health', async (req, res) => {
+backend/routes/enhancedPayments.js:router.post('/intent', auth, createPaymentIntent);
+backend/routes/enhancedPayments.js:router.post('/confirm', auth, confirmPayment);
+backend/routes/enhancedPayments.js:router.get('/history', auth, getTransactionHistory);
+backend/routes/enhancedPayments.js:router.post('/escrow/release/
+backend/routes/enhancedPayments.js:router.post('/refund', auth, processRefund);
+backend/routes/enhancedPayments.js:router.post('/mpesa/callback', handleMpesaCallback);
+backend/routes/enhancedPayments.js:router.get('/methods', (req, res) => {
+backend/routes/notifications.js:router.get('/', auth, async (req, res) => {
+backend/routes/notifications.js:router.get('/unread-count', auth, async (req, res) => {
+backend/routes/notifications.js:router.put('/
+backend/routes/notifications.js:router.put('/mark-all-read', auth, async (req, res) => {
+backend/routes/notifications.js:router.delete('/
+backend/routes/notifications.js:router.get('/preferences', auth, async (req, res) => {
+backend/routes/notifications.js:router.put('/preferences', auth, async (req, res) => {
+backend/routes/notifications.js:router.post('/test', auth, async (req, res) => {
+backend/routes/bookings.js:router.post('/', bookingController.createBooking);
+backend/routes/bookings.js:router.get('/phone/
+backend/routes/bookings.js:router.get('/
+backend/routes/bookings.js:router.patch('/
+backend/routes/bookings.js:router.patch('/
+backend/routes/bookingRedesigned.js:router.post('/redesigned', bookingController.createBooking);
+backend/routes/bookingRedesigned.js:router.get('/phone/
+backend/routes/bookingRedesigned.js:router.get('/email/
+backend/routes/bookingRedesigned.js:router.get('/
+backend/routes/bookingRedesigned.js:router.patch('/
+backend/routes/bookingRedesigned.js:router.patch('/
+backend/routes/ratings.js:router.post('/', ratingController.submitRating);
+backend/routes/ratings.js:router.get('/technician/
+backend/routes/ratings.js:router.get('/booking/
+backend/routes/ratings.js:router.get('/customer/history', ratingController.getCustomerRatings);
+backend/routes/ratings.js:router.post('/
+
+MODELS IN USE:
+-------------
+Booking.js
+BookingRedesigned_backup.js
+BookingRedesigned.js
+index.js
+Message.js
+Notification.js
+Rating.js
+Service.js
+Transaction.js
+User.js
+Wallet.js
+
+CONTROLLERS IN USE:
+------------------
+adminController.js
+authController.js
+bookingController.js
+BookingControllerRedesigned_backup.js
+BookingControllerRedesigned.js
+enhancedPaymentController.js
+paymentController.js
+ratingController.js
+servicesController.js
+technicianController.js
+
+COMPLETED: Scan report generated

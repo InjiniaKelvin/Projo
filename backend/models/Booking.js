@@ -9,6 +9,7 @@
  */
 
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 const mongoosePaginate = require('mongoose-paginate-v2');
 
 /**
@@ -256,6 +257,13 @@ const bookingSchema = new mongoose.Schema({
  technician: { type: Number, min: 1, max: 5 },
  overall: { type: Number, min: 1, max: 5 },
  feedback: String
+ },
+ 
+ // RATING REFERENCE (links to detailed Rating model)
+ ratingId: {
+ type: Schema.Types.ObjectId,
+ ref: 'Rating',
+ index: true
  }
 }, {
  timestamps: true,

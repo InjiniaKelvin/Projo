@@ -3,7 +3,10 @@
 # VS Code Stability Script
 # This script helps optimize system resources for better VS Code performance
 
-echo " VS Code Stability Optimizer"
+#!/bin/bash
+# Optimize VS Code for low-memory systems
+
+echo "Optimizing VS Code..."
 echo "================================"
 
 # Check system resources

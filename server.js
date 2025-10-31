@@ -30,6 +30,7 @@ const adminRoutes = require('./backend/routes/admin');
 const notificationRoutes = require('./backend/routes/notifications');
 const analyticsRoutes = require('./backend/routes/analytics');
 const chatRoutes = require('./backend/routes/chat');
+const ratingRoutes = require('./backend/routes/ratings');
 
 // Import WebSocket configuration
 const { initializeSocketIO } = require('./backend/config/websocket');
@@ -147,6 +148,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/ratings', ratingRoutes);
 
 // Technician Routes
 const technicianRoutes = require('./backend/routes/technician');

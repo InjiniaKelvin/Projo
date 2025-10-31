@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useState, useEffect } from 'react';
+import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from 'react-native';
 import { useAuth } from '../contexts/SimpleAuthContext';
+import apiClient from '../services/apiClient';
 
 export default function RatingScreen() {
  const { user } = useAuth();
@@ -11,38 +12,9 @@ export default function RatingScreen() {
  const [selectedService, setSelectedService] = useState('');
  const [comment, setComment] = useState('');
  const [isSubmitting, setIsSubmitting] = useState(false);
-
- // Mock recent services that can be rated
- const recentServices = [
- {
- id: '1',
- service: 'Plumbing Repair',
- technician: 'John Doe',
- date: '2024-01-15',
- status: 'completed',
- canRate: true
- },
- {
- id: '2',
- service: 'AC Installation',
- technician: 'Jane Smith',
- date: '2024-01-10',
- status: 'completed',
- canRate: true,
- rated: true,
- rating: 5
- },
- {
- id: '3',
- service: 'Electrical Wiring',
- technician: 'Mike Johnson',
- date: '2024-01-05',
- status: 'completed',
- canRate: true,
- rated: true,
- rating: 4
- }
- ];
+ const [isLoading, setIsLoading] = useState(true);
+ const [recentServices, setRecentServices] = useState([]);
+ const [error, setError] = useState(null);
 
  const ratingLabels = {
  1: 'Poor',
@@ -64,6 +36,77 @@ export default function RatingScreen() {
  ];
 
  const [selectedFeedback, setSelectedFeedback] = useState([]);
+
+ // Fetch completed bookings that can be rated
+ useEffect(() => {
+ fetchCompletedBookings();
+ }, []);
+
+ const fetchCompletedBookings = async () => {
+ try {
+ setIsLoading(true);
+ setError(null);
+ 
+ // Fetch user's booking history
+ const response = await apiClient.get('/api/bookings', {
+ params: {
+ status: 'completed',
+ limit: 20
+ }
+ });
+ 
+ if (response.data.success) {
+ const bookings = response.data.data.bookings || response.data.data || [];
+ 
+ // Check which bookings already have ratings
+ const bookingsWithRatingStatus = await Promise.all(
+ bookings.map(async (booking) => {
+ try {
+ const ratingResponse = await apiClient.get(`/api/ratings/booking/${booking._id}`);
+ return {
+ id: booking._id,
+ bookingId: booking.bookingId,
+ service: booking.serviceType || 'Service',
+ technician: booking.technicianId ? 
+ `${booking.technicianId.firstName || ''} ${booking.technicianId.lastName || ''}`.trim() || 'Technician' :
+ 'Technician',
+ date: new Date(booking.completedAt || booking.createdAt).toLocaleDateString(),
+ status: 'completed',
+ canRate: true,
+ rated: ratingResponse.data.success && ratingResponse.data.data.rating ? true : false,
+ rating: ratingResponse.data.success && ratingResponse.data.data.rating ? 
+ ratingResponse.data.data.rating.ratings.overall : null
+ };
+ } catch (err) {
+ // If rating not found, it means booking hasn't been rated
+ return {
+ id: booking._id,
+ bookingId: booking.bookingId,
+ service: booking.serviceType || 'Service',
+ technician: booking.technicianId ? 
+ `${booking.technicianId.firstName || ''} ${booking.technicianId.lastName || ''}`.trim() || 'Technician' :
+ 'Technician',
+ date: new Date(booking.completedAt || booking.createdAt).toLocaleDateString(),
+ status: 'completed',
+ canRate: true,
+ rated: false,
+ rating: null
+ };
+ }
+ })
+ );
+ 
+ setRecentServices(bookingsWithRatingStatus);
+ } else {
+ setError('Failed to load completed bookings');
+ }
+ } catch (err) {
+ console.error('Fetch bookings error:', err);
+ setError(err.response?.data?.message || 'Failed to load bookings');
+ } finally {
+ setIsLoading(false);
+ }
+ };
 
  const handleRatingSelect = (rating) => {
  setSelectedRating(rating);
@@ -99,24 +142,45 @@ export default function RatingScreen() {
  setIsSubmitting(true);
 
  try {
- // Simulate API call
- await new Promise(resolve => setTimeout(resolve, 1500));
-
+ const ratingData = {
+ bookingId: selectedService,
+ ratings: {
+ service: selectedRating,
+ technician: selectedRating,
+ overall: selectedRating
+ },
+ feedback: comment,
+ quickFeedback: selectedFeedback
+ };
+ 
+ const response = await apiClient.post('/api/ratings', ratingData);
+ 
+ if (response.data.success) {
  Alert.alert(
  'Rating Submitted',
  'Thank you for your feedback! Your rating helps us improve our services.',
  [
- { text: 'OK', onPress: () => {
+ { 
+ text: 'OK', 
+ onPress: () => {
  // Reset form
  setSelectedService('');
  setSelectedRating(0);
  setComment('');
  setSelectedFeedback([]);
- }}
+ // Refresh the bookings list
+ fetchCompletedBookings();
+ }
+ }
  ]
  );
+ } else {
+ Alert.alert('Error', response.data.message || 'Failed to submit rating');
+ }
  } catch (error) {
- Alert.alert('Error', 'Failed to submit rating. Please try again.');
+ console.error('Submit rating error:', error);
+ const errorMessage = error.response?.data?.message || 'Failed to submit rating. Please try again.';
+ Alert.alert('Error', errorMessage);
  } finally {
  setIsSubmitting(false);
  }
@@ -152,14 +216,40 @@ export default function RatingScreen() {
  </View>
 
  <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+ {/* Loading State */}
+ {isLoading && (
+ <View style={styles.loadingContainer}>
+ <ActivityIndicator size="large" color="#0d6efd" />
+ <Text style={styles.loadingText}>Loading your completed bookings...</Text>
+ </View>
+ )}
+ 
+ {/* Error State */}
+ {error && !isLoading && (
+ <View style={styles.errorContainer}>
+ <Ionicons name="alert-circle" size={48} color="#dc3545" />
+ <Text style={styles.errorText}>{error}</Text>
+ <TouchableOpacity style={styles.retryButton} onPress={fetchCompletedBookings}>
+ <Text style={styles.retryButtonText}>Retry</Text>
+ </TouchableOpacity>
+ </View>
+ )}
+ 
  {/* Recent Services */}
+ {!isLoading && !error && (
  <View style={styles.section}>
  <Text style={styles.sectionTitle}>Recent Services</Text>
  <Text style={styles.sectionSubtitle}>
  Select a service to rate
  </Text>
-
- {recentServices.map((service) => (
+ 
+ {recentServices.length === 0 ? (
+ <View style={styles.emptyContainer}>
+ <Ionicons name="document-text-outline" size={48} color="#999" />
+ <Text style={styles.emptyText}>No completed bookings to rate</Text>
+ </View>
+ ) : (
+ recentServices.map((service) => (
  <TouchableOpacity
  key={service.id}
  style={[
@@ -197,8 +287,10 @@ export default function RatingScreen() {
  )}
  </View>
  </TouchableOpacity>
- ))}
+ ))
+ )}
  </View>
+ )}
 
  {/* Rating Form */}
  {selectedService && (
@@ -531,6 +623,51 @@ const styles = StyleSheet.create({
  fontSize: 14,
  color: '#333',
  flex: 1
+ },
+ loadingContainer: {
+ flex: 1,
+ alignItems: 'center',
+ justifyContent: 'center',
+ padding: 40
+ },
+ loadingText: {
+ marginTop: 16,
+ fontSize: 16,
+ color: '#666'
+ },
+ errorContainer: {
+ flex: 1,
+ alignItems: 'center',
+ justifyContent: 'center',
+ padding: 40
+ },
+ errorText: {
+ marginTop: 16,
+ fontSize: 16,
+ color: '#dc3545',
+ textAlign: 'center'
+ },
+ retryButton: {
+ marginTop: 16,
+ backgroundColor: '#0d6efd',
+ paddingHorizontal: 24,
+ paddingVertical: 12,
+ borderRadius: 8
+ },
+ retryButtonText: {
+ color: '#fff',
+ fontSize: 16,
+ fontWeight: '600'
+ },
+ emptyContainer: {
+ alignItems: 'center',
+ padding: 40
+ },
+ emptyText: {
+ marginTop: 16,
+ fontSize: 16,
+ color: '#999',
+ textAlign: 'center'
  },
  bottomPadding: {
  height: 40
