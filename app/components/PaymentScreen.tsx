@@ -63,8 +63,9 @@ const PaymentModal = ({ visible, onClose, booking, amount, onPaymentSuccess }: P
 
  const fetchPaymentMethods = async () => {
  try {
+ const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:5000';
  const response = await fetch(
- `${__DEV__ ? 'http://10.0.2.2:5000' : 'https://your-server.com'}/api/payments/enhanced/methods`
+ `${API_URL}/api/payments/enhanced/methods`
  );
  
  if (response.ok) {
@@ -129,10 +130,11 @@ const PaymentModal = ({ visible, onClose, booking, amount, onPaymentSuccess }: P
  const processStripePayment = async () => {
  try {
  const token = await AsyncStorage.getItem('authToken');
+ const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:5000';
  
  // Create payment intent
  const intentResponse = await fetch(
- `${__DEV__ ? 'http://10.0.2.2:5000' : 'https://your-server.com'}/api/payments/enhanced/intent`,
+ `${API_URL}/api/payments/enhanced/intent`,
  {
  method: 'POST',
  headers: {
@@ -178,10 +180,11 @@ const PaymentModal = ({ visible, onClose, booking, amount, onPaymentSuccess }: P
  const processPayPalPayment = async () => {
  try {
  const token = await AsyncStorage.getItem('authToken');
+ const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:5000';
  
  // Create PayPal payment
  const response = await fetch(
- `${__DEV__ ? 'http://10.0.2.2:5000' : 'https://your-server.com'}/api/payments/enhanced/intent`,
+ `${API_URL}/api/payments/enhanced/intent`,
  {
  method: 'POST',
  headers: {
@@ -235,9 +238,10 @@ const PaymentModal = ({ visible, onClose, booking, amount, onPaymentSuccess }: P
 
  try {
  const token = await AsyncStorage.getItem('authToken');
+ const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:5000';
  
  const response = await fetch(
- `${__DEV__ ? 'http://10.0.2.2:5000' : 'https://your-server.com'}/api/payments/enhanced/intent`,
+ `${API_URL}/api/payments/enhanced/intent`,
  {
  method: 'POST',
  headers: {
@@ -282,9 +286,10 @@ const PaymentModal = ({ visible, onClose, booking, amount, onPaymentSuccess }: P
  const confirmPayment = async (transactionId: string, paymentIntentId: string) => {
  try {
  const token = await AsyncStorage.getItem('authToken');
+ const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:5000';
  
  const response = await fetch(
- `${__DEV__ ? 'http://10.0.2.2:5000' : 'https://your-server.com'}/api/payments/enhanced/confirm`,
+ `${API_URL}/api/payments/enhanced/confirm`,
  {
  method: 'POST',
  headers: {
