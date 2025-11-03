@@ -5,9 +5,11 @@ import { ActivityIndicator, Alert, FlatList, ScrollView, StyleSheet, Text, Touch
 import { useAuth } from '../contexts/SimpleAuthContext';
 import apiClient from '../config/api';
 import { API_ENDPOINTS } from '../config/api';
+import { getGreeting } from '../utils/greetings';
 
 export default function TechnicianDashboard() {
  const [jobs, setJobs] = useState([]);
+ const [greeting, setGreeting] = useState({ greeting: '', quote: '' });
  const [stats, setStats] = useState({
  walletBalance: 0,
  pendingJobs: 0,
@@ -18,6 +20,13 @@ export default function TechnicianDashboard() {
  const [isLoading, setIsLoading] = useState(true);
  const { user, logout } = useAuth();
  const router = useRouter();
+
+ useEffect(() => {
+   if (user) {
+     const greetingData = getGreeting(user);
+     setGreeting(greetingData);
+   }
+ }, [user]);
 
  // Navigation handlers for technician-specific features
  const handleBrowseJobs = () => {
@@ -337,8 +346,9 @@ export default function TechnicianDashboard() {
  {/* Header with user info */}
  <View style={styles.header}>
  <View style={styles.headerLeft}>
- <Text style={styles.welcomeText}>Hello,</Text>
+ <Text style={styles.welcomeText}>{greeting.greeting}</Text>
  <Text style={styles.userName}>{user?.firstName || 'Technician'}</Text>
+ <Text style={styles.quoteText}>{greeting.quote}</Text>
  <View style={styles.availabilityContainer}>
  <View style={[styles.availabilityDot, { backgroundColor: '#28a745' }]} />
  <Text style={styles.availabilityText}>Available</Text>
@@ -503,6 +513,12 @@ const styles = StyleSheet.create({
  fontSize: 24,
  fontWeight: 'bold',
  color: '#333'
+ },
+ quoteText: {
+ fontSize: 14,
+ color: '#0d6efd',
+ marginTop: 6,
+ fontStyle: 'italic',
  },
  availabilityContainer: {
  flexDirection: 'row',

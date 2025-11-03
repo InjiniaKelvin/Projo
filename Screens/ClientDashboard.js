@@ -1,12 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useAuth } from '../contexts/SimpleAuthContext';
+import { getGreeting } from '../utils/greetings';
 
 export default function ClientDashboard() {
  const { user, logout } = useAuth();
  const router = useRouter();
+ const [greeting, setGreeting] = useState({ greeting: '', quote: '' });
  const [stats] = useState({
  activeBookings: 0,
  completedBookings: 0,
@@ -15,6 +17,13 @@ export default function ClientDashboard() {
  });
  const [recentBookings] = useState([]);
  const [isLoading] = useState(false);
+
+ useEffect(() => {
+   if (user) {
+     const greetingData = getGreeting(user);
+     setGreeting(greetingData);
+   }
+ }, [user]);
 
  const handleNavigateToServiceRequest = () => {
  console.log('� Navigating to regular services...');
@@ -171,9 +180,9 @@ export default function ClientDashboard() {
  {/* Header */}
  <View style={styles.header}>
  <View style={styles.welcomeSection}>
- <Text style={styles.welcomeText}>Welcome back!</Text>
+ <Text style={styles.welcomeText}>{greeting.greeting}</Text>
  <Text style={styles.userName}>{user?.firstName} {user?.lastName}</Text>
- <Text style={styles.userRole}>Client Account</Text>
+ <Text style={styles.quoteText}>{greeting.quote}</Text>
  </View>
  <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
  <Ionicons name="log-out-outline" size={20} color="#dc3545" />
@@ -186,7 +195,7 @@ export default function ClientDashboard() {
  <View style={styles.statCard}>
  <Ionicons name="clipboard-outline" size={24} color="#0d6efd" />
  <Text style={styles.statNumber}>{stats.activeBookings}</Text>
- <Text style={styles.statLabel}>Active Jobs</Text>
+ <Text style={styles.statLabel}>Active Bookings</Text>
  </View>
  <View style={styles.statCard}>
  <Ionicons name="checkmark-circle-outline" size={24} color="#198754" />
@@ -296,11 +305,11 @@ export default function ClientDashboard() {
  <Text style={styles.quickActionText}>Rate</Text>
  </TouchableOpacity>
  <TouchableOpacity 
- style={[styles.quickActionButton, styles.logoutQuickAction]}
- onPress={handleLogout}
+ style={styles.quickActionButton}
+ onPress={() => router.push('/dashboard/client-settings')}
  >
- <Ionicons name="log-out-outline" size={20} color="#dc3545" />
- <Text style={[styles.quickActionText, styles.logoutQuickActionText]}>Logout</Text>
+ <Ionicons name="settings-outline" size={20} color="#0d6efd" />
+ <Text style={styles.quickActionText}>Settings</Text>
  </TouchableOpacity>
  </View>
  </View>
@@ -344,10 +353,11 @@ const styles = StyleSheet.create({
  color: '#212529',
  marginTop: 4,
  },
- userRole: {
+ quoteText: {
  fontSize: 14,
  color: '#0d6efd',
- marginTop: 2,
+ marginTop: 6,
+ fontStyle: 'italic',
  },
  logoutButton: {
  padding: 12,

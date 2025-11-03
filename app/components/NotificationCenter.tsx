@@ -53,8 +53,9 @@ const NotificationCenter = ({ visible, onClose }: NotificationCenterProps) => {
  try {
  setRefreshing(true);
  const token = await AsyncStorage.getItem('authToken');
+ const apiUrl = `${process.env.EXPO_PUBLIC_API_URL}/api/notifications`;
  
- const response = await fetch(`${__DEV__ ? 'http://localhost:3000' : 'https://your-server.com'}/api/notifications`, {
+ const response = await fetch(apiUrl, {
  headers: {
  'Authorization': `Bearer ${token}`,
  'Content-Type': 'application/json'
@@ -95,7 +96,8 @@ const NotificationCenter = ({ visible, onClose }: NotificationCenterProps) => {
  if (notification._id) {
  try {
  const token = await AsyncStorage.getItem('authToken');
- await fetch(`${__DEV__ ? 'http://localhost:3000' : 'https://your-server.com'}/api/notifications/${notification._id}/read`, {
+ const apiUrl = `${process.env.EXPO_PUBLIC_API_URL}/api/notifications/${notification._id}/read`;
+ await fetch(apiUrl, {
  method: 'PUT',
  headers: {
  'Authorization': `Bearer ${token}`,

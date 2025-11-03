@@ -380,10 +380,11 @@ export default function RedesignedBookingForm() {
  };
  
  console.log(` ${isCritical ? 'CRITICAL' : 'NORMAL'} Booking Submission`);
- console.log(' Sending request to:', 'http://localhost:5000/api/bookings-redesigned/redesigned');
+ const apiUrl = `${process.env.EXPO_PUBLIC_API_URL}/api/bookings-redesigned/redesigned`;
+ console.log(' Sending request to:', apiUrl);
  console.log(' Request payload:', JSON.stringify(submissionData, null, 2));
  
- const response = await fetch('http://localhost:5000/api/bookings-redesigned/redesigned', {
+ const response = await fetch(apiUrl, {
  method: 'POST',
  headers: {
  'Content-Type': 'application/json',

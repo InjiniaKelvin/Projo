@@ -10,15 +10,19 @@ export default function Support() {
   const router = useRouter();
 
   const handleCall = () => {
-    Linking.openURL('tel:+254712345678');
+    Linking.openURL('tel:+254794536984');
+  };
+  
+  const handleCallAlternate = () => {
+    Linking.openURL('tel:+254117224394');
   };
 
   const handleEmail = () => {
-    Linking.openURL('mailto:support@quickfix.co.ke');
+    Linking.openURL('mailto:engineerjuliusjr47@gmail.com');
   };
 
   const handleWhatsApp = () => {
-    Linking.openURL('https://wa.me/254712345678');
+    Linking.openURL('https://wa.me/254117224394');
   };
 
   return (
@@ -32,18 +36,23 @@ export default function Support() {
         <Text style={styles.sectionTitle}>Contact Us</Text>
         
         <TouchableOpacity style={styles.contactButton} onPress={handleCall}>
-          <Text style={styles.contactLabel}>Phone</Text>
-          <Text style={styles.contactValue}>+254 712 345 678</Text>
+          <Text style={styles.contactLabel}>Phone (Primary)</Text>
+          <Text style={styles.contactValue}>0794536984</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.contactButton} onPress={handleCallAlternate}>
+          <Text style={styles.contactLabel}>Phone (Alternate)</Text>
+          <Text style={styles.contactValue}>0117224394</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.contactButton} onPress={handleEmail}>
           <Text style={styles.contactLabel}>Email</Text>
-          <Text style={styles.contactValue}>support@quickfix.co.ke</Text>
+          <Text style={styles.contactValue}>engineerjuliusjr47@gmail.com</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.contactButton} onPress={handleWhatsApp}>
           <Text style={styles.contactLabel}>WhatsApp</Text>
-          <Text style={styles.contactValue}>Chat with us</Text>
+          <Text style={styles.contactValue}>0794536984</Text>
         </TouchableOpacity>
       </View>
 
@@ -91,9 +100,9 @@ export default function Support() {
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Operating Hours</Text>
-        <Text style={styles.infoText}>Monday - Friday: 8:00 AM - 6:00 PM</Text>
-        <Text style={styles.infoText}>Saturday: 9:00 AM - 4:00 PM</Text>
+        <Text style={styles.infoText}>Monday - Saturday: 8:00 AM - 8:00 PM</Text>
         <Text style={styles.infoText}>Sunday: Emergency services only</Text>
+        <Text style={styles.infoText}>24/7 Support: engineerjuliusjr47@gmail.com</Text>
       </View>
 
       <TouchableOpacity 

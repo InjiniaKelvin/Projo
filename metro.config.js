@@ -32,12 +32,4 @@ config.transformer = {
  maxWorkers: 2,
 };
 
-// Optimize caching to reduce memory usage
-config.cacheStores = [
- {
-   type: 'FileStore',
-   root: '/tmp/metro-cache-quickfix',
- },
-];
-
 module.exports = config;

@@ -15,6 +15,7 @@
  "web": "expo start --web --port 8081",
  "web:dev": "expo start --web --dev-client --port 8081",
  "lint": "expo lint",
+ "eas-build-pre-install": "rm -rf node_modules/.cache .metro* .expo/cache",
  "test:e2e": "detox test",
  "test:e2e:build": "detox build",
  "test:e2e:android": "detox test --configuration android.emu.debug",

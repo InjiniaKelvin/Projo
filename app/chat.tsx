@@ -1,7 +1,7 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import ChatScreen from '../components/ChatScreen';
+import ChatScreen from './components/ChatScreen';
 
 /**
  * Chat Screen

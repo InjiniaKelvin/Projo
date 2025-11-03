@@ -111,8 +111,9 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ route, navigation }) => {
  const fetchChatHistory = async () => {
  try {
  const token = await AsyncStorage.getItem('authToken');
+ const apiUrl = `${process.env.EXPO_PUBLIC_API_URL}/api/chat/${bookingId}/messages`;
  const response = await fetch(
- `${__DEV__ ? 'http://localhost:3000' : 'https://your-server.com'}/api/chat/${bookingId}/messages`,
+ apiUrl,
  {
  headers: {
  'Authorization': `Bearer ${token}`,
@@ -176,8 +177,9 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ route, navigation }) => {
 
  try {
  const token = await AsyncStorage.getItem('authToken');
+ const apiUrl = `${process.env.EXPO_PUBLIC_API_URL}/api/chat/send`;
  const response = await fetch(
- `${__DEV__ ? 'http://localhost:3000' : 'https://your-server.com'}/api/chat/send`,
+ apiUrl,
  {
  method: 'POST',
  headers: {
@@ -222,8 +224,9 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ route, navigation }) => {
  const markMessageAsRead = async (messageId: string) => {
  try {
  const token = await AsyncStorage.getItem('authToken');
+ const apiUrl = `${process.env.EXPO_PUBLIC_API_URL}/api/chat/messages/${messageId}/read`;
  await fetch(
- `${__DEV__ ? 'http://localhost:3000' : 'https://your-server.com'}/api/chat/messages/${messageId}/read`,
+ apiUrl,
  {
  method: 'PUT',
  headers: {
@@ -271,8 +274,9 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ route, navigation }) => {
  formData.append('recipientId', otherUser.id);
  formData.append('messageType', 'image');
 
+ const apiUrl = `${process.env.EXPO_PUBLIC_API_URL}/api/chat/send-image`;
  const response = await fetch(
- `${__DEV__ ? 'http://localhost:3000' : 'https://your-server.com'}/api/chat/send-image`,
+ apiUrl,
  {
  method: 'POST',
  headers: {
@@ -323,8 +327,9 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ route, navigation }) => {
 
  try {
  const token = await AsyncStorage.getItem('authToken');
+ const apiUrl = `${process.env.EXPO_PUBLIC_API_URL}/api/chat/send`;
  const response = await fetch(
- `${__DEV__ ? 'http://localhost:3000' : 'https://your-server.com'}/api/chat/send`,
+ apiUrl,
  {
  method: 'POST',
  headers: {

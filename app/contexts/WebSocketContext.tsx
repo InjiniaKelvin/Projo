@@ -52,9 +52,7 @@ export const WebSocketProvider = ({ children }: PropsWithChildren<{}>) => {
  return;
  }
 
- const serverUrl = __DEV__ 
- ? 'http://localhost:3000' 
- : 'https://your-production-server.com';
+ const serverUrl = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:5000';
 
  const newSocket = io(serverUrl, {
  auth: {

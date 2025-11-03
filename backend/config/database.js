@@ -2,10 +2,17 @@
  * MongoDB Database Configuration
  * 
  * This file handles MongoDB connection setup with Mongoose.
- * Includes connection pooling, error handling, and environment-based configuration.
+ * Optimized for Vercel serverless functions with connection caching.
  */
 
 const mongoose = require('mongoose');
+
+// Global connection promise for serverless caching
+let cached = global.mongoose;
+
+if (!cached) {
+ cached = global.mongoose = { conn: null, promise: null };
+}
 
 class Database {
  constructor() {
@@ -13,33 +20,62 @@ class Database {
  }
 
  /**
- * Connect to MongoDB database
+ * Connect to MongoDB database (Vercel serverless optimized)
  * @param {string} uri - MongoDB connection URI (optional, uses env if not provided)
  * @returns {Promise<mongoose.Connection>}
  */
  async connect(uri = null) {
+ // Return cached connection if available
+ if (cached.conn) {
+ console.log(' Using cached MongoDB connection');
+ return cached.conn;
+ }
+
+ // Return existing connection promise if in progress
+ if (cached.promise) {
+ console.log(' Waiting for MongoDB connection in progress...');
+ cached.conn = await cached.promise;
+ return cached.conn;
+ }
+
  try {
- const connectionUri = uri || process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/quickfix';
+ const connectionUri = uri || process.env.MONGO_URI || process.env.MONGODB_URI;
  
- // Mongoose connection options for optimal performance and stability
+ if (!connectionUri) {
+ throw new Error('MONGO_URI environment variable is not set');
+ }
+ 
+ console.log(` Connecting to MongoDB...`);
+ console.log(` URI starts with: ${connectionUri.substring(0, 25)}...`);
+ 
+ // Mongoose connection options optimized for Vercel serverless
  const options = {
- // Connection pool settings
- maxPoolSize: 10, // Maintain up to 10 socket connections
- serverSelectionTimeoutMS: 30000, // Increased to 30 seconds for high latency networks
- socketTimeoutMS: 75000, // Increased to 75 seconds for slow connections
- connectTimeoutMS: 30000, // Initial connection timeout
- family: 4, // Force IPv4 (prevents IPv6 fallback delays)
+ maxPoolSize: 10,
+ serverSelectionTimeoutMS: 10000, // 10 seconds for faster failure
+ socketTimeoutMS: 45000,
+ connectTimeoutMS: 10000,
+ family: 4,
+ // Vercel-specific optimizations
+ retryWrites: true,
+ w: 'majority'
  };
 
- this.connection = await mongoose.connect(connectionUri, options);
+ // Create connection promise
+ cached.promise = mongoose.connect(connectionUri, options).then((mongoose) => {
+ console.log(` MongoDB connected successfully!`);
+ console.log(` Database: ${mongoose.connection.name}`);
+ console.log(` Host: ${mongoose.connection.host}`);
+ return mongoose;
+ });
+
+ cached.conn = await cached.promise;
+ this.connection = cached.conn;
  
- console.log(` MongoDB connected successfully to: ${connectionUri}`);
- console.log(` Database: ${this.connection.connection.name}`);
- console.log(` Host: ${this.connection.connection.host}:${this.connection.connection.port}`);
- 
- return this.connection;
+ return cached.conn;
  } catch (error) {
  console.error(' MongoDB connection error:', error.message);
+ console.error(' Error details:', error);
+ cached.promise = null; // Reset promise on error
  throw error;
  }
  }
@@ -90,17 +126,9 @@ class Database {
  mongoose.connection.on('disconnected', () => {
  console.log(' Mongoose disconnected from MongoDB');
  });
-
- // Graceful shutdown
- process.on('SIGINT', async () => {
- await this.disconnect();
- process.exit(0);
- });
-
- process.on('SIGTERM', async () => {
- await this.disconnect();
- process.exit(0);
- });
+ 
+ // Don't set up SIGINT/SIGTERM here - let server.js handle it
+ // This prevents premature disconnection
  }
 
  /**

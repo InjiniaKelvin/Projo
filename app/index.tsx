@@ -104,41 +104,12 @@ export default function Index() {
  <Pressable 
  style={[styles.button]} 
  onPress={handleGetStarted}
- onPointerDown={() => console.log(' Index: Button pointer down!')}
- onPressIn={() => console.log(' Index: Button press in!')}
- onPressOut={() => console.log(' Index: Button press out!')}
  accessible={true}
  accessibilityRole="button"
  accessibilityLabel="Get Started"
  >
  <Text style={styles.buttonText}>Get Started</Text>
  </Pressable>
- 
- {/* Web-specific button as fallback */}
- <div 
- style={{
- backgroundColor: '#fff',
- padding: '15px 30px',
- borderRadius: '25px',
- cursor: 'pointer',
- marginTop: '20px',
- border: 'none',
- fontSize: '18px',
- fontWeight: '600',
- color: '#0d6efd',
- userSelect: 'none',
- textAlign: 'center',
- transition: 'all 0.2s ease'
- }}
- onClick={() => {
- console.log(' Index: HTML div clicked!');
- handleGetStarted();
- }}
- onMouseDown={() => console.log(' Index: HTML div mouse down!')}
- onMouseUp={() => console.log(' Index: HTML div mouse up!')}
- >
- Get Started (HTML)
- </div>
  </View>
  );
  }

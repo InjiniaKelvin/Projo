@@ -73,12 +73,12 @@ const corsOptions = {
  // Allow requests with no origin (like mobile apps or curl requests)
  if (!origin) return callback(null, true);
  
- // In development, allow all origins
- if (process.env.NODE_ENV === 'development') {
+ // Allow all vercel.app domains for this project
+ if (origin.includes('vercel.app') || origin.includes('localhost')) {
  return callback(null, true);
  }
  
- // In production, add your allowed origins here
+ // Fallback: allow specific origins
  const allowedOrigins = [
  'http://localhost:3000',
  'http://localhost:8081', // Expo web (current)
@@ -89,6 +89,8 @@ const corsOptions = {
  if (allowedOrigins.indexOf(origin) !== -1) {
  callback(null, true);
  } else {
+ // In development, log the blocked origin for debugging
+ console.log('CORS blocked origin:', origin);
  callback(new Error('Not allowed by CORS'));
  }
  },
@@ -105,13 +107,26 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Health check endpoint (after CORS setup)
-app.get('/health', (req, res) => {
+app.get('/health', async (req, res) => {
+ // Try to connect if not connected (for serverless)
+ if (database.getConnectionStatus() === 'disconnected') {
+ try {
+ await database.connect();
+ } catch (err) {
+ console.error('Health check DB connection error:', err.message);
+ }
+ }
+ 
  res.json({
  success: true,
  message: 'QuickFix API is running',
  timestamp: new Date().toISOString(),
  version: '1.0.0',
- database: database.getConnectionStatus()
+ database: database.getConnectionStatus(),
+ env: {
+ hasMongoUri: !!process.env.MONGO_URI,
+ nodeEnv: process.env.NODE_ENV
+ }
  });
 });
 
@@ -243,6 +258,14 @@ async function startServer() {
 // Start the server if this file is run directly
 if (require.main === module) {
  startServer();
+} else {
+ // For Vercel/serverless: Connect to database when module is imported
+ database.connect()
+ .then(() => {
+ console.log(' Database connected successfully (serverless mode)');
+ ensureIndexes().catch(err => console.error(' Index creation error:', err.message));
+ })
+ .catch(err => console.error(' Database connection error (serverless):', err.message));
 }
 
 /**

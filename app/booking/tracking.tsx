@@ -108,7 +108,8 @@ export default function BookingTrackingScreen() {
  setError(null);
  
  try {
- const response = await fetch(`http://localhost:3000/api/bookings/tracking/${serviceId}`, {
+ const apiUrl = `${process.env.EXPO_PUBLIC_API_URL}/api/bookings/tracking/${serviceId}`;
+ const response = await fetch(apiUrl, {
  headers: {
  'Authorization': `Bearer ${user?.token}`
  }

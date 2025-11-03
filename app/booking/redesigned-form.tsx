@@ -229,7 +229,8 @@ export default function RedesignedBookingForm() {
  setIsSubmitting(true);
  
  try {
- const response = await fetch('http://localhost:3000/api/bookings/redesigned', {
+ const apiUrl = `${process.env.EXPO_PUBLIC_API_URL}/api/bookings/redesigned`;
+ const response = await fetch(apiUrl, {
  method: 'POST',
  headers: {
  'Content-Type': 'application/json',
@@ -245,10 +246,10 @@ export default function RedesignedBookingForm() {
  `Your booking has been submitted successfully.\\n\\nBooking ID: ${result.data.bookingId}\\n\\nWe'll contact you at ${result.data.clientPhone} for confirmation.`,
  [
  {
- text: 'OK',
+ text: 'View My Bookings',
  onPress: () => {
- // Navigate to booking confirmation or home
- router.replace('/');
+ // Navigate to booking tracking to see active bookings
+ router.replace('/booking/tracking');
  }
  }
  ]

@@ -18,8 +18,10 @@ import {
  TouchableOpacity,
  View
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/SimpleAuthContext';
 import WebCompatibleButton from '../WebCompatibleButton';
+import { QUICKFIX_SERVICES } from '../../constants/services';
 
 // Get screen dimensions for responsive design
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -296,30 +298,57 @@ export default function RegisterScreen() {
 
  {formData.role === 'technician' && (
  <View style={styles.skillsSection}>
- <Text style={styles.label}>Skills & Services:</Text>
+ <Text style={styles.label}>Select Your Services (at least 1):</Text>
+ <Text style={styles.helperText}>Choose services you can provide</Text>
  
- <View style={styles.skillInputContainer}>
- <TextInput
- style={[styles.input, styles.skillInput]}
- placeholder="Add a skill (e.g., Plumbing, Electrical)"
- value={skillInput}
- onChangeText={setSkillInput}
- />
- <TouchableOpacity style={styles.addButton} onPress={addSkill}>
- <Text style={styles.addButtonText}>Add</Text>
- </TouchableOpacity>
+ <View style={styles.servicesGrid}>
+ {QUICKFIX_SERVICES.map((service) => {
+   const isSelected = formData.skills.includes(service.id);
+   return (
+     <TouchableOpacity
+       key={service.id}
+       style={[
+         styles.serviceCard,
+         isSelected && styles.serviceCardSelected
+       ]}
+       onPress={() => {
+         setFormData(prev => ({
+           ...prev,
+           skills: isSelected
+             ? prev.skills.filter(s => s !== service.id)
+             : [...prev.skills, service.id]
+         }));
+       }}
+     >
+       <Ionicons 
+         name={service.icon} 
+         size={24} 
+         color={isSelected ? '#fff' : '#0d6efd'} 
+       />
+       <Text style={[
+         styles.serviceName,
+         isSelected && styles.serviceNameSelected
+       ]}>
+         {service.name}
+       </Text>
+       {isSelected && (
+         <Ionicons 
+           name="checkmark-circle" 
+           size={20} 
+           color="#fff" 
+           style={styles.checkmark}
+         />
+       )}
+     </TouchableOpacity>
+   );
+ })}
  </View>
-
- <View style={styles.skillsList}>
- {formData.skills.map((skill, index) => (
- <View key={index} style={styles.skillTag}>
- <Text style={styles.skillText}>{skill}</Text>
- <TouchableOpacity onPress={() => removeSkill(skill)}>
- <Text style={styles.removeSkill}>x</Text>
- </TouchableOpacity>
- </View>
- ))}
- </View>
+ 
+ {formData.skills.length > 0 && (
+   <Text style={styles.selectedCount}>
+     {formData.skills.length} service{formData.skills.length > 1 ? 's' : ''} selected
+   </Text>
+ )}
  </View>
  )}
 
@@ -530,6 +559,56 @@ const styles = StyleSheet.create({
  },
  skillsSection: {
  marginBottom: 16
+ },
+ helperText: {
+ fontSize: 12,
+ color: '#666',
+ marginBottom: 12,
+ },
+ servicesGrid: {
+ flexDirection: 'row',
+ flexWrap: 'wrap',
+ marginTop: 8,
+ },
+ serviceCard: {
+ width: '48%',
+ backgroundColor: '#fff',
+ borderWidth: 2,
+ borderColor: '#e0e0e0',
+ borderRadius: 12,
+ padding: 12,
+ marginRight: '2%',
+ marginBottom: 12,
+ alignItems: 'center',
+ minHeight: 80,
+ justifyContent: 'center',
+ },
+ serviceCardSelected: {
+ backgroundColor: '#0d6efd',
+ borderColor: '#0d6efd',
+ },
+ serviceName: {
+ fontSize: 13,
+ color: '#333',
+ marginTop: 8,
+ textAlign: 'center',
+ fontWeight: '500',
+ },
+ serviceNameSelected: {
+ color: '#fff',
+ fontWeight: '600',
+ },
+ checkmark: {
+ position: 'absolute',
+ top: 8,
+ right: 8,
+ },
+ selectedCount: {
+ fontSize: 14,
+ color: '#0d6efd',
+ fontWeight: '600',
+ marginTop: 8,
+ textAlign: 'center',
  },
  skillInputContainer: {
  flexDirection: 'row',

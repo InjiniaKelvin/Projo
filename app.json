@@ -1,41 +1,59 @@
 {
- "expo": {
- "name": "QuickFixApp",
- "slug": "QuickFixApp",
- "version": "1.0.0",
- "orientation": "portrait",
- "icon": "./assets/images/icon.png",
- "scheme": "quickfixapp",
- "userInterfaceStyle": "automatic",
- "newArchEnabled": true,
- "ios": {
- "supportsTablet": true
- },
- "android": {
- "adaptiveIcon": {
- "foregroundImage": "./assets/images/adaptive-icon.png",
- "backgroundColor": "#ffffff"
- },
- "edgeToEdgeEnabled": true
- },
- "web": {
- "bundler": "metro",
- "output": "static",
- "favicon": "./assets/images/favicon.png"
- },
- "plugins": [
- [
- "expo-splash-screen",
- {
- "image": "./assets/images/splash-icon.png",
- "imageWidth": 200,
- "resizeMode": "contain",
- "backgroundColor": "#ffffff"
- }
- ],
- "expo-font",
- "expo-router",
- "expo-web-browser"
- ]
- }
+  "expo": {
+    "name": "QuickFixApp",
+    "slug": "QuickFixApp",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "quickfixapp",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.injiniakelvin.QuickFixApp",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.injiniakelvin.QuickFixApp"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png",
+      "build": {
+        "babel": {
+          "include": [
+            "@expo/vector-icons"
+          ]
+        }
+      }
+    },
+    "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        }
+      ],
+      "expo-font",
+      "expo-router",
+      "expo-web-browser"
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "941620d9-2355-4445-9dc6-32394d8a633a"
+      }
+    }
+  }
 }
