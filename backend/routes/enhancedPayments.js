@@ -12,12 +12,12 @@ const express = require('express');
 const router = express.Router();
 const { authenticateToken: auth } = require('../middleware/auth');
 const {
-  createPaymentIntent,
-  confirmPayment,
-  releaseEscrowPayment,
-  handleMpesaCallback,
-  getTransactionHistory,
-  processRefund
+ createPaymentIntent,
+ confirmPayment,
+ releaseEscrowPayment,
+ handleMpesaCallback,
+ getTransactionHistory,
+ processRefund
 } = require('../controllers/enhancedPaymentController');
 
 // Create payment intent (Stripe, PayPal, M-Pesa)
@@ -40,33 +40,33 @@ router.post('/mpesa/callback', handleMpesaCallback);
 
 // Get payment methods available
 router.get('/methods', (req, res) => {
-  res.json({
-    success: true,
-    methods: [
-      {
-        id: 'stripe',
-        name: 'Credit/Debit Card',
-        description: 'Visa, Mastercard, American Express',
-        currencies: ['USD', 'EUR', 'GBP'],
-        icon: 'credit-card'
-      },
-      {
-        id: 'paypal',
-        name: 'PayPal',
-        description: 'Pay with your PayPal account',
-        currencies: ['USD', 'EUR', 'GBP'],
-        icon: 'paypal'
-      },
-      {
-        id: 'mpesa',
-        name: 'M-Pesa',
-        description: 'Mobile money payment',
-        currencies: ['KES'],
-        icon: 'mobile',
-        region: 'Kenya'
-      }
-    ]
-  });
+ res.json({
+ success: true,
+ methods: [
+ {
+ id: 'stripe',
+ name: 'Credit/Debit Card',
+ description: 'Visa, Mastercard, American Express',
+ currencies: ['USD', 'EUR', 'GBP'],
+ icon: 'credit-card'
+ },
+ {
+ id: 'paypal',
+ name: 'PayPal',
+ description: 'Pay with your PayPal account',
+ currencies: ['USD', 'EUR', 'GBP'],
+ icon: 'paypal'
+ },
+ {
+ id: 'mpesa',
+ name: 'M-Pesa',
+ description: 'Mobile money payment',
+ currencies: ['KES'],
+ icon: 'mobile',
+ region: 'Kenya'
+ }
+ ]
+ });
 });
 
 module.exports = router;

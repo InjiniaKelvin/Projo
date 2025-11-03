@@ -9,19 +9,31 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.injiniakelvin.QuickFixApp",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.injiniakelvin.QuickFixApp"
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "build": {
+        "babel": {
+          "include": [
+            "@expo/vector-icons"
+          ]
+        }
+      }
     },
     "plugins": [
       [
@@ -36,6 +48,12 @@
       "expo-font",
       "expo-router",
       "expo-web-browser"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "941620d9-2355-4445-9dc6-32394d8a633a"
+      }
+    }
   }
 }

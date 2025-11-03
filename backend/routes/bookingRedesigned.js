@@ -14,6 +14,9 @@ router.post('/redesigned', bookingController.createBooking);
 // GET BOOKINGS BY PHONE NUMBER
 router.get('/phone/:phoneNumber', bookingController.getBookingsByPhone);
 
+// GET BOOKINGS BY EMAIL
+router.get('/email/:email', bookingController.getBookingsByEmail);
+
 // GET SINGLE BOOKING BY ID
 router.get('/:bookingId', bookingController.getBooking);
 

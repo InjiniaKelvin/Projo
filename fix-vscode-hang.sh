@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🚨 VS Code Emergency Fix"
+echo " VS Code Emergency Fix"
 echo "========================"
 
 # Option 1: Reload window (if VS Code is responsive)
@@ -20,11 +20,11 @@ free -h
 
 echo ""
 echo "4. Choose your restart option:"
-echo "   a) ./restart-vscode-light.sh  (minimal features)"
-echo "   b) code .                     (normal restart)"
+echo " a) ./restart-vscode-light.sh (minimal features)"
+echo " b) code . (normal restart)"
 echo ""
-echo "💡 Tips to prevent hanging:"
-echo "   - Close file tabs you're not using"
-echo "   - Disable extensions temporarily"
-echo "   - Use Ctrl+S to save frequently"
-echo "   - Restart VS Code every 2 hours"
+echo " Tips to prevent hanging:"
+echo " - Close file tabs you're not using"
+echo " - Disable extensions temporarily"
+echo " - Use Ctrl+S to save frequently"
+echo " - Restart VS Code every 2 hours"

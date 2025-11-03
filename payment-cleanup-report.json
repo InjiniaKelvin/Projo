@@ -1,0 +1,62 @@
+{
+ "timestamp": "2025-10-12T13:30:53.417Z",
+ "dryRun": false,
+ "filesAnalyzed": 6,
+ "filesModified": 1,
+ "backupsCreated": 1,
+ "stripeReferences": 50,
+ "paypalReferences": 49,
+ "errors": [],
+ "modifications": [
+ {
+ "file": "./backend/controllers/enhancedPaymentController.js",
+ "type": "controller",
+ "stripeReferences": 33,
+ "paypalReferences": 35,
+ "status": "REQUIRES MANUAL CLEANUP",
+ "actions": "Remove Stripe and PayPal imports, functions, and route handlers"
+ },
+ {
+ "file": "./services/PaymentService.js",
+ "type": "service",
+ "stripeReferences": 3,
+ "paypalReferences": 3,
+ "status": "REQUIRES MANUAL CLEANUP",
+ "actions": "Remove Stripe/PayPal payment methods from arrays and functions"
+ },
+ {
+ "file": "./services/EscrowService.js",
+ "type": "service",
+ "stripeReferences": 4,
+ "paypalReferences": 2,
+ "status": "REQUIRES MANUAL CLEANUP",
+ "actions": "Remove Stripe/PayPal payment processing switch cases"
+ },
+ {
+ "file": "./Screens/AddFundsScreen.js",
+ "type": "screen",
+ "stripeReferences": 4,
+ "paypalReferences": 5,
+ "status": "REQUIRES MANUAL CLEANUP",
+ "actions": "Remove Stripe/PayPal payment method options"
+ },
+ {
+ "file": "./package.json",
+ "type": "config",
+ "stripeReferences": 3,
+ "paypalReferences": 2,
+ "status": "REQUIRES MANUAL CLEANUP",
+ "actions": "Remove Stripe and PayPal dependencies"
+ },
+ {
+ "file": "./package.json",
+ "action": "Removed payment gateway dependencies",
+ "dependenciesRemoved": [
+ "@stripe/stripe-react-native",
+ "stripe",
+ "paypal-rest-sdk",
+ "react-native-paypal"
+ ]
+ }
+ ]
+}

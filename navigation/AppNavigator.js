@@ -31,84 +31,84 @@ const Tab = createBottomTabNavigator();
 
 // Custom theme colors for consistency
 const QuickFixTheme = {
-  ...DefaultTheme,
-  colors: {
-    ...DefaultTheme.colors,
-    background: '#f5f7fa',
-    primary:    '#0d6efd',
-    text:       '#212529',
-  },
+ ...DefaultTheme,
+ colors: {
+ ...DefaultTheme.colors,
+ background: '#f5f7fa',
+ primary: '#0d6efd',
+ text: '#212529',
+ },
 };
 
 // Client Tab Navigator
 function ClientTabs() {
-  return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
-          if (route.name === 'Dashboard') {
-            iconName = focused ? 'home' : 'home-outline';
-          } else if (route.name === 'RequestService') {
-            iconName = focused ? 'build' : 'build-outline';
-          } else if (route.name === 'Wallet') {
-            iconName = focused ? 'wallet' : 'wallet-outline';
-          } else if (route.name === 'Profile') {
-            iconName = focused ? 'person' : 'person-outline';
-          }
-          return <Ionicons name={iconName} size={size} color={color} />;
-        },
-        tabBarActiveTintColor: '#0d6efd',
-        tabBarInactiveTintColor: 'gray',
-        headerShown: false,
-      })}
-    >
-      <Tab.Screen name="Dashboard" component={ClientDashboard} />
-      <Tab.Screen name="RequestService" component={ServiceRequestScreen} />
-      <Tab.Screen name="Wallet" component={WalletScreen} />
-      <Tab.Screen 
-        name="Profile" 
-        children={() => <PlaceholderScreen title="Profile" />} 
-      />
-    </Tab.Navigator>
-  );
+ return (
+ <Tab.Navigator
+ screenOptions={({ route }) => ({
+ tabBarIcon: ({ focused, color, size }) => {
+ let iconName;
+ if (route.name === 'Dashboard') {
+ iconName = focused ? 'home' : 'home-outline';
+ } else if (route.name === 'RequestService') {
+ iconName = focused ? 'build' : 'build-outline';
+ } else if (route.name === 'Wallet') {
+ iconName = focused ? 'wallet' : 'wallet-outline';
+ } else if (route.name === 'Profile') {
+ iconName = focused ? 'person' : 'person-outline';
+ }
+ return <Ionicons name={iconName} size={size} color={color} />;
+ },
+ tabBarActiveTintColor: '#0d6efd',
+ tabBarInactiveTintColor: 'gray',
+ headerShown: false,
+ })}
+ >
+ <Tab.Screen name="Dashboard" component={ClientDashboard} />
+ <Tab.Screen name="RequestService" component={ServiceRequestScreen} />
+ <Tab.Screen name="Wallet" component={WalletScreen} />
+ <Tab.Screen 
+ name="Profile" 
+ children={() => <PlaceholderScreen title="Profile" />} 
+ />
+ </Tab.Navigator>
+ );
 }
 
 // Technician Tab Navigator
 function TechnicianTabs() {
-  return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
-          if (route.name === 'Dashboard') {
-            iconName = focused ? 'briefcase' : 'briefcase-outline';
-          } else if (route.name === 'Jobs') {
-            iconName = focused ? 'list' : 'list-outline';
-          } else if (route.name === 'Wallet') {
-            iconName = focused ? 'wallet' : 'wallet-outline';
-          } else if (route.name === 'Profile') {
-            iconName = focused ? 'person' : 'person-outline';
-          }
-          return <Ionicons name={iconName} size={size} color={color} />;
-        },
-        tabBarActiveTintColor: '#0d6efd',
-        tabBarInactiveTintColor: 'gray',
-        headerShown: false,
-      })}
-    >
-      <Tab.Screen name="Dashboard" component={TechnicianDashboard} />
-      <Tab.Screen 
-        name="Jobs" 
-        children={() => <PlaceholderScreen title="Available Jobs" />} 
-      />
-      <Tab.Screen name="Wallet" component={WalletScreen} />
-      <Tab.Screen 
-        name="Profile" 
-        children={() => <PlaceholderScreen title="Profile" />} 
-      />
-    </Tab.Navigator>
-  );
+ return (
+ <Tab.Navigator
+ screenOptions={({ route }) => ({
+ tabBarIcon: ({ focused, color, size }) => {
+ let iconName;
+ if (route.name === 'Dashboard') {
+ iconName = focused ? 'briefcase' : 'briefcase-outline';
+ } else if (route.name === 'Jobs') {
+ iconName = focused ? 'list' : 'list-outline';
+ } else if (route.name === 'Wallet') {
+ iconName = focused ? 'wallet' : 'wallet-outline';
+ } else if (route.name === 'Profile') {
+ iconName = focused ? 'person' : 'person-outline';
+ }
+ return <Ionicons name={iconName} size={size} color={color} />;
+ },
+ tabBarActiveTintColor: '#0d6efd',
+ tabBarInactiveTintColor: 'gray',
+ headerShown: false,
+ })}
+ >
+ <Tab.Screen name="Dashboard" component={TechnicianDashboard} />
+ <Tab.Screen 
+ name="Jobs" 
+ children={() => <PlaceholderScreen title="Available Jobs" />} 
+ />
+ <Tab.Screen name="Wallet" component={WalletScreen} />
+ <Tab.Screen 
+ name="Profile" 
+ children={() => <PlaceholderScreen title="Profile" />} 
+ />
+ </Tab.Navigator>
+ );
 }
 
 /**
@@ -116,70 +116,70 @@ function TechnicianTabs() {
  * Handles routing based on authentication state and user roles
  */
 export default function AppNavigator() {
-  // Get authentication state from context
-  const { isLoading, isAuthenticated, user } = useAuth();
+ // Get authentication state from context
+ const { isLoading, isAuthenticated, user } = useAuth();
 
-  // Show loading screen while checking authentication state
-  if (isLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0d6efd" />
-      </View>
-    );
-  }
+ // Show loading screen while checking authentication state
+ if (isLoading) {
+ return (
+ <View style={styles.loadingContainer}>
+ <ActivityIndicator size="large" color="#0d6efd" />
+ </View>
+ );
+ }
 
-  return (
-    <NavigationContainer theme={QuickFixTheme}>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {!isAuthenticated ? (
-          // Authentication Flow - Show when user is not authenticated
-          <>
-            <Stack.Screen name="Splash" component={SplashScreen} />
-            <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="Register" component={RegisterScreen} />
-          </>
-        ) : (
-          // Authenticated Flow - Show based on user role
-          <>
-            {user?.userType === 'client' && (
-              <Stack.Screen name="Client" component={ClientTabs} />
-            )}
-            {user?.userType === 'technician' && (
-              <Stack.Screen name="Technician" component={TechnicianTabs} />
-            )}
-            {user?.userType === 'admin' && (
-              <Stack.Screen name="Admin" component={AdminDashboard} />
-            )}
-            
-            {/* Payment and Wallet Screens - Available to all authenticated users */}
-            <Stack.Screen 
-              name="EscrowWallet" 
-              component={EscrowWalletScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen 
-              name="AddFunds" 
-              component={AddFundsScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen 
-              name="WithdrawFunds" 
-              component={WithdrawFundsScreen}
-              options={{ headerShown: false }}
-            />
-          </>
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
+ return (
+ <NavigationContainer theme={QuickFixTheme}>
+ <Stack.Navigator screenOptions={{ headerShown: false }}>
+ {!isAuthenticated ? (
+ // Authentication Flow - Show when user is not authenticated
+ <>
+ <Stack.Screen name="Splash" component={SplashScreen} />
+ <Stack.Screen name="Login" component={LoginScreen} />
+ <Stack.Screen name="Register" component={RegisterScreen} />
+ </>
+ ) : (
+ // Authenticated Flow - Show based on user role
+ <>
+ {user?.userType === 'client' && (
+ <Stack.Screen name="Client" component={ClientTabs} />
+ )}
+ {user?.userType === 'technician' && (
+ <Stack.Screen name="Technician" component={TechnicianTabs} />
+ )}
+ {user?.userType === 'admin' && (
+ <Stack.Screen name="Admin" component={AdminDashboard} />
+ )}
+ 
+ {/* Payment and Wallet Screens - Available to all authenticated users */}
+ <Stack.Screen 
+ name="EscrowWallet" 
+ component={EscrowWalletScreen}
+ options={{ headerShown: false }}
+ />
+ <Stack.Screen 
+ name="AddFunds" 
+ component={AddFundsScreen}
+ options={{ headerShown: false }}
+ />
+ <Stack.Screen 
+ name="WithdrawFunds" 
+ component={WithdrawFundsScreen}
+ options={{ headerShown: false }}
+ />
+ </>
+ )}
+ </Stack.Navigator>
+ </NavigationContainer>
+ );
 }
 
 // Loading screen styles
 const styles = StyleSheet.create({
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f5f7fa',
-  },
+ loadingContainer: {
+ flex: 1,
+ justifyContent: 'center',
+ alignItems: 'center',
+ backgroundColor: '#f5f7fa',
+ },
 });

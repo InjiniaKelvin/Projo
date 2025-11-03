@@ -1,0 +1,34 @@
+{
+  "cli": {
+    "version": ">= 16.26.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "ios": {
+        "simulator": true
+      },
+      "env": {
+        "EXPO_NO_CACHE": "1",
+        "EXPO_PUBLIC_API_URL": "https://quickfix-api-sigma.vercel.app"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://quickfix-api-sigma.vercel.app"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

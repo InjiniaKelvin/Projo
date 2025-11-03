@@ -1,20 +1,20 @@
-# 📱 Manual E2E Testing Guide for Projo Booking System
+# [MOBILE] Manual E2E Testing Guide for Projo Booking System
 
-## 🎯 Test Scenarios Overview
-**Status**: Ready for Manual Testing ✅  
-**Backend**: Online (Port 3000) ✅  
-**Metro Bundler**: Running ✅  
-**Service ID Generator**: Working ✅  
+## [TARGET] Test Scenarios Overview
+**Status**: Ready for Manual Testing [COMPLETED] 
+**Backend**: Online (Port 3000) [COMPLETED] 
+**Metro Bundler**: Running [COMPLETED] 
+**Service ID Generator**: Working [COMPLETED] 
 
 ---
 
-## 📋 Pre-Test Setup
+## [CHECKLIST] Pre-Test Setup
 
 ### 1. Environment Check
-- ✅ Backend server running on `http://localhost:3000`
-- ✅ Metro bundler serving React Native app
-- ✅ QR code available for device scanning
-- ✅ Service ID generation validated
+- [COMPLETED] Backend server running on `http://localhost:3000`
+- [COMPLETED] Metro bundler serving React Native app
+- [COMPLETED] QR code available for device scanning
+- [COMPLETED] Service ID generation validated
 
 ### 2. Required Test Devices
 - **Option A**: Physical Android/iOS device with Expo Go app
@@ -24,7 +24,7 @@
 
 ---
 
-## 🧪 E2E Test Scenarios
+## E2E Test Scenarios
 
 ### **Test 1: Complete Booking Flow**
 **Objective**: Validate end-to-end booking creation
@@ -33,19 +33,19 @@
 1. Open app via QR code or emulator
 2. Navigate to booking section
 3. Fill out booking form:
-   - Customer Name: "John Doe"
-   - Phone: "0712345678"
-   - Service Type: "Plumbing"
-   - Mark as Emergency: Yes
+ - Customer Name: "John Doe"
+ - Phone: "0712345678"
+ - Service Type: "Plumbing"
+ - Mark as Emergency: Yes
 4. Submit booking
 5. **Expected**: Service ID generated with format `E[NAME][PHONE][TIMESTAMP]Q`
 6. **Verify**: Booking appears in bookings list
 
 **Success Criteria**:
-- ✅ Form validation works
-- ✅ Emergency booking creates ID starting with "E"
-- ✅ Booking saved and visible
-- ✅ No console errors
+- [COMPLETED] Form validation works
+- [COMPLETED] Emergency booking creates ID starting with "E"
+- [COMPLETED] Booking saved and visible
+- [COMPLETED] No console errors
 
 ---
 
@@ -110,7 +110,7 @@
 4. Check if emergency indicator shows in booking list
 
 **Regular Booking**:
-1. Keep "Emergency" switch OFF  
+1. Keep "Emergency" switch OFF 
 2. Submit booking
 3. Verify service ID starts with "R"
 4. Confirm regular priority display
@@ -150,7 +150,7 @@
 
 ---
 
-## 📊 Test Results Template
+## [METRICS] Test Results Template
 
 ```
 ## Test Execution Results
@@ -162,7 +162,7 @@
 
 ### Test Results Summary
 - [ ] Test 1: Complete Booking Flow
-- [ ] Test 2: Service ID Validation  
+- [ ] Test 2: Service ID Validation 
 - [ ] Test 3: Form Validation
 - [ ] Test 4: Real-time Tracking
 - [ ] Test 5: Emergency vs Regular
@@ -171,10 +171,10 @@
 
 ### Issues Found
 1. [Issue description]
-   - **Severity**: High/Medium/Low
-   - **Steps to Reproduce**: [Steps]
-   - **Expected**: [Expected behavior]
-   - **Actual**: [Actual behavior]
+ - **Severity**: High/Medium/Low
+ - **Steps to Reproduce**: [Steps]
+ - **Expected**: [Expected behavior]
+ - **Actual**: [Actual behavior]
 
 ### Performance Notes
 - App startup time: [X seconds]
@@ -187,7 +187,7 @@
 
 ---
 
-## 🚀 Quick Test Commands
+## [LAUNCH] Quick Test Commands
 
 **Backend Health Check**:
 ```bash
@@ -210,7 +210,7 @@ npx expo start
 
 ---
 
-## 📝 Testing Notes
+## [NOTE] Testing Notes
 
 - **QR Code Ready**: Scan with Expo Go app for instant testing
 - **Web Testing**: Available via browser if needed

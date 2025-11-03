@@ -1,0 +1,112 @@
+[1m
+============================================================[0m
+[1m🚀 END-TO-END TEST: Registration → Booking → Payment[0m
+[1m============================================================
+[0m
+[36m
+============================================================[0m
+[1mSTEP 1: Register Customer[0m
+[36m============================================================[0m
+[34mℹ️  Registering: customer_1761582066054@test.com[0m
+[32m✅ Customer registered successfully[0m
+[34mℹ️  User ID: 68ff9bf378a89ab6b0bbc625[0m
+[34mℹ️  Email: customer_1761582066054@test.com[0m
+[36m
+============================================================[0m
+[1mSTEP 2: Register Technician[0m
+[36m============================================================[0m
+[34mℹ️  Registering: technician_1761582068537@test.com[0m
+[32m✅ Technician registered successfully[0m
+[34mℹ️  User ID: 68ff9bf478a89ab6b0bbc62d[0m
+[34mℹ️  Email: technician_1761582068537@test.com[0m
+[34mℹ️  Skills: plumbing, electrical[0m
+[34mℹ️  Marking users as verified for E2E testing...[0m
+[36m
+============================================================[0m
+[1mSTEP 3: Customer Creates Booking[0m
+[36m============================================================[0m
+[34mℹ️  Creating booking: plumbing - urgent[0m
+[34mℹ️  Description: Kitchen sink is leaking badly. Need urgent repair.[0m
+DEBUG - Booking data being sent: {
+  "clientName": "Test Customer",
+  "clientPhone": "0712345678",
+  "serviceType": "plumbing",
+  "serviceDescription": "Kitchen sink is leaking badly. Need urgent repair.",
+  "urgency": "urgent",
+  "location": {
+    "constituency": "Westlands",
+    "ward": "Kitisuru",
+    "road": "Peponi Road",
+    "description": "Near Peponi School"
+  },
+  "preferredDate": "2025-10-27",
+  "preferredTimeSlot": "10:00-12:00",
+  "estimatedCost": 1500
+}
+DEBUG - Booking creation response: {
+  "success": true,
+  "message": "Booking submitted successfully",
+  "data": {
+    "_id": "68ff9bf678a89ab6b0bbc63d",
+    "bookingId": "QF2025102716215678X6AU",
+    "clientPhone": "+254712345678",
+    "serviceType": "plumbing",
+    "status": "submitted",
+    "urgency": "urgent",
+    "formattedLocation": "Peponi Road, Kitisuru, Westlands",
+    "preferredDate": "2025-10-27T00:00:00.000Z",
+    "preferredTimeSlot": "10:00-12:00",
+    "submittedAt": "2025-10-27T16:21:10.399Z",
+    "isEmergency": false
+  }
+}
+[32m✅ Booking created successfully[0m
+[34mℹ️  Booking ID (QuickFix): QF2025102716215678X6AU[0m
+[34mℹ️  Booking ID (MongoDB): 68ff9bf678a89ab6b0bbc63d[0m
+[34mℹ️  Status: submitted[0m
+[34mℹ️  Estimated Cost: KES undefined[0m
+[36m
+============================================================[0m
+[1mSTEP 4: Technician Accepts Booking[0m
+[36m============================================================[0m
+[34mℹ️  Technician viewing available bookings...[0m
+[34mℹ️  Found 0 available bookings[0m
+[34mℹ️  Accepting booking QF2025102716215678X6AU...[0m
+[32m✅ Booking accepted by technician[0m
+[34mℹ️  Status: N/A[0m
+[34mℹ️  Technician: N/A[0m
+[36m
+============================================================[0m
+[1mSTEP 5: Customer Adds Funds to Wallet[0m
+[36m============================================================[0m
+[34mℹ️  Adding KES 2000 to wallet via M-Pesa...[0m
+[34mℹ️  Phone: 0794536984 (Test number)[0m
+[32m✅ Payment initiated[0m
+[34mℹ️  Transaction ID: 68ff9bf978a89ab6b0bbc657[0m
+[34mℹ️  Tracking ID: Y38R786[0m
+[32m
+📱 M-Pesa STK Push initiated successfully[0m
+[33m⚠️  For E2E testing, we'll simulate payment completion
+[0m
+[33mSimulating payment completion via direct wallet update...[0m
+[dotenv@17.2.3] injecting env (27) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[32m✅ Wallet credited with KES 1980[0m
+[34mℹ️  New balance: KES 1980[0m
+[32m✅ Payment flow tested successfully![0m
+[34mℹ️  In production, user would complete M-Pesa payment on phone
+[0m
+[36m
+============================================================[0m
+[1mSTEP 6: Customer Pays for Booking (Escrow)[0m
+[36m============================================================[0m
+[34mℹ️  Depositing KES 1500 to escrow for booking...[0m
+[31m
+============================================================[0m
+[31m❌ TEST FAILED: Request failed: Too many payment requests, please try again later[0m
+[31m============================================================
+[0m
+Error: Request failed: Too many payment requests, please try again later
+    at makeRequest (/home/injinia47/Desktop/PROJO/Projo/test-e2e-flow.js:102:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async step6_CustomerPaysForBooking (/home/injinia47/Desktop/PROJO/Projo/test-e2e-flow.js:355:18)
+    at async runE2ETest (/home/injinia47/Desktop/PROJO/Projo/test-e2e-flow.js:477:5)

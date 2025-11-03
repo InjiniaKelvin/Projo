@@ -9,17 +9,17 @@
  * @returns {string} Formatted currency string
  */
 export const formatKES = (amount: number, showCurrency: boolean = true): string => {
-  if (typeof amount !== 'number' || isNaN(amount)) {
-    return showCurrency ? 'KES 0' : '0';
-  }
-  
-  // Format with commas for thousands
-  const formatted = amount.toLocaleString('en-KE', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  });
-  
-  return showCurrency ? `KES ${formatted}` : formatted;
+ if (typeof amount !== 'number' || isNaN(amount)) {
+ return showCurrency ? 'KES 0' : '0';
+ }
+ 
+ // Format with commas for thousands
+ const formatted = amount.toLocaleString('en-KE', {
+ minimumFractionDigits: 0,
+ maximumFractionDigits: 2,
+ });
+ 
+ return showCurrency ? `KES ${formatted}` : formatted;
 };
 
 /**
@@ -29,20 +29,20 @@ export const formatKES = (amount: number, showCurrency: boolean = true): string 
  * @returns {string} Formatted abbreviated currency string
  */
 export const formatKESAbbreviated = (amount: number, showCurrency: boolean = true): string => {
-  if (typeof amount !== 'number' || isNaN(amount)) {
-    return showCurrency ? 'KES 0' : '0';
-  }
-  
-  let formatted;
-  if (amount >= 1000000) {
-    formatted = (amount / 1000000).toFixed(1) + 'M';
-  } else if (amount >= 1000) {
-    formatted = (amount / 1000).toFixed(1) + 'K';
-  } else {
-    formatted = amount.toFixed(0);
-  }
-  
-  return showCurrency ? `KES ${formatted}` : formatted;
+ if (typeof amount !== 'number' || isNaN(amount)) {
+ return showCurrency ? 'KES 0' : '0';
+ }
+ 
+ let formatted;
+ if (amount >= 1000000) {
+ formatted = (amount / 1000000).toFixed(1) + 'M';
+ } else if (amount >= 1000) {
+ formatted = (amount / 1000).toFixed(1) + 'K';
+ } else {
+ formatted = amount.toFixed(0);
+ }
+ 
+ return showCurrency ? `KES ${formatted}` : formatted;
 };
 
 /**
@@ -51,13 +51,13 @@ export const formatKESAbbreviated = (amount: number, showCurrency: boolean = tru
  * @returns {number} Parsed amount
  */
 export const parseKES = (currencyString: string): number => {
-  if (typeof currencyString !== 'string') {
-    return 0;
-  }
-  
-  // Remove currency symbols and spaces
-  const cleaned = currencyString.replace(/[KES\s,]/g, '');
-  const amount = parseFloat(cleaned);
-  
-  return isNaN(amount) ? 0 : amount;
+ if (typeof currencyString !== 'string') {
+ return 0;
+ }
+ 
+ // Remove currency symbols and spaces
+ const cleaned = currencyString.replace(/[KES\s,]/g, '');
+ const amount = parseFloat(cleaned);
+ 
+ return isNaN(amount) ? 0 : amount;
 };

@@ -2,122 +2,152 @@
  * MongoDB Database Configuration
  * 
  * This file handles MongoDB connection setup with Mongoose.
- * Includes connection pooling, error handling, and environment-based configuration.
+ * Optimized for Vercel serverless functions with connection caching.
  */
 
 const mongoose = require('mongoose');
 
+// Global connection promise for serverless caching
+let cached = global.mongoose;
+
+if (!cached) {
+ cached = global.mongoose = { conn: null, promise: null };
+}
+
 class Database {
-  constructor() {
-    this.connection = null;
-  }
+ constructor() {
+ this.connection = null;
+ }
 
-  /**
-   * Connect to MongoDB database
-   * @param {string} uri - MongoDB connection URI (optional, uses env if not provided)
-   * @returns {Promise<mongoose.Connection>}
-   */
-  async connect(uri = null) {
-    try {
-      const connectionUri = uri || process.env.MONGODB_URI || 'mongodb://localhost:27017/quickfix';
-      
-      // Mongoose connection options for optimal performance and stability
-      const options = {
-        // Connection pool settings
-        maxPoolSize: 10, // Maintain up to 10 socket connections
-        serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
-        socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
-      };
+ /**
+ * Connect to MongoDB database (Vercel serverless optimized)
+ * @param {string} uri - MongoDB connection URI (optional, uses env if not provided)
+ * @returns {Promise<mongoose.Connection>}
+ */
+ async connect(uri = null) {
+ // Return cached connection if available
+ if (cached.conn) {
+ console.log(' Using cached MongoDB connection');
+ return cached.conn;
+ }
 
-      this.connection = await mongoose.connect(connectionUri, options);
-      
-      console.log(`✅ MongoDB connected successfully to: ${connectionUri}`);
-      console.log(`📊 Database: ${this.connection.connection.name}`);
-      console.log(`🌐 Host: ${this.connection.connection.host}:${this.connection.connection.port}`);
-      
-      return this.connection;
-    } catch (error) {
-      console.error('❌ MongoDB connection error:', error.message);
-      throw error;
-    }
-  }
+ // Return existing connection promise if in progress
+ if (cached.promise) {
+ console.log(' Waiting for MongoDB connection in progress...');
+ cached.conn = await cached.promise;
+ return cached.conn;
+ }
 
-  /**
-   * Disconnect from MongoDB
-   * @returns {Promise<void>}
-   */
-  async disconnect() {
-    try {
-      if (this.connection) {
-        await mongoose.disconnect();
-        this.connection = null;
-        console.log('📴 MongoDB disconnected successfully');
-      }
-    } catch (error) {
-      console.error('❌ MongoDB disconnection error:', error.message);
-      throw error;
-    }
-  }
+ try {
+ const connectionUri = uri || process.env.MONGO_URI || process.env.MONGODB_URI;
+ 
+ if (!connectionUri) {
+ throw new Error('MONGO_URI environment variable is not set');
+ }
+ 
+ console.log(` Connecting to MongoDB...`);
+ console.log(` URI starts with: ${connectionUri.substring(0, 25)}...`);
+ 
+ // Mongoose connection options optimized for Vercel serverless
+ const options = {
+ maxPoolSize: 10,
+ serverSelectionTimeoutMS: 10000, // 10 seconds for faster failure
+ socketTimeoutMS: 45000,
+ connectTimeoutMS: 10000,
+ family: 4,
+ // Vercel-specific optimizations
+ retryWrites: true,
+ w: 'majority'
+ };
 
-  /**
-   * Get current connection status
-   * @returns {string} Connection status
-   */
-  getConnectionStatus() {
-    const states = {
-      0: 'disconnected',
-      1: 'connected',
-      2: 'connecting',
-      3: 'disconnecting'
-    };
-    return states[mongoose.connection.readyState] || 'unknown';
-  }
+ // Create connection promise
+ cached.promise = mongoose.connect(connectionUri, options).then((mongoose) => {
+ console.log(` MongoDB connected successfully!`);
+ console.log(` Database: ${mongoose.connection.name}`);
+ console.log(` Host: ${mongoose.connection.host}`);
+ return mongoose;
+ });
 
-  /**
-   * Setup database event listeners
-   */
-  setupEventListeners() {
-    mongoose.connection.on('connected', () => {
-      console.log('🔗 Mongoose connected to MongoDB');
-    });
+ cached.conn = await cached.promise;
+ this.connection = cached.conn;
+ 
+ return cached.conn;
+ } catch (error) {
+ console.error(' MongoDB connection error:', error.message);
+ console.error(' Error details:', error);
+ cached.promise = null; // Reset promise on error
+ throw error;
+ }
+ }
 
-    mongoose.connection.on('error', (err) => {
-      console.error('❌ Mongoose connection error:', err);
-    });
+ /**
+ * Disconnect from MongoDB
+ * @returns {Promise<void>}
+ */
+ async disconnect() {
+ try {
+ if (this.connection) {
+ await mongoose.disconnect();
+ this.connection = null;
+ console.log(' MongoDB disconnected successfully');
+ }
+ } catch (error) {
+ console.error(' MongoDB disconnection error:', error.message);
+ throw error;
+ }
+ }
 
-    mongoose.connection.on('disconnected', () => {
-      console.log('📴 Mongoose disconnected from MongoDB');
-    });
+ /**
+ * Get current connection status
+ * @returns {string} Connection status
+ */
+ getConnectionStatus() {
+ const states = {
+ 0: 'disconnected',
+ 1: 'connected',
+ 2: 'connecting',
+ 3: 'disconnecting'
+ };
+ return states[mongoose.connection.readyState] || 'unknown';
+ }
 
-    // Graceful shutdown
-    process.on('SIGINT', async () => {
-      await this.disconnect();
-      process.exit(0);
-    });
+ /**
+ * Setup database event listeners
+ */
+ setupEventListeners() {
+ mongoose.connection.on('connected', () => {
+ console.log(' Mongoose connected to MongoDB');
+ });
 
-    process.on('SIGTERM', async () => {
-      await this.disconnect();
-      process.exit(0);
-    });
-  }
+ mongoose.connection.on('error', (err) => {
+ console.error(' Mongoose connection error:', err);
+ });
 
-  /**
-   * Drop database (use with caution - mainly for testing)
-   * @returns {Promise<void>}
-   */
-  async dropDatabase() {
-    try {
-      if (process.env.NODE_ENV === 'production') {
-        throw new Error('Cannot drop database in production environment');
-      }
-      
-      await mongoose.connection.db.dropDatabase();
-      console.log('🗑️ Database dropped successfully');
-    } catch (error) {
-      console.error('❌ Error dropping database:', error.message);
-      throw error;
-    }
-  }
+ mongoose.connection.on('disconnected', () => {
+ console.log(' Mongoose disconnected from MongoDB');
+ });
+ 
+ // Don't set up SIGINT/SIGTERM here - let server.js handle it
+ // This prevents premature disconnection
+ }
+
+ /**
+ * Drop database (use with caution - mainly for testing)
+ * @returns {Promise<void>}
+ */
+ async dropDatabase() {
+ try {
+ if (process.env.NODE_ENV === 'production') {
+ throw new Error('Cannot drop database in production environment');
+ }
+ 
+ await mongoose.connection.db.dropDatabase();
+ console.log(' Database dropped successfully');
+ } catch (error) {
+ console.error(' Error dropping database:', error.message);
+ throw error;
+ }
+ }
 }
 
 // Create singleton instance

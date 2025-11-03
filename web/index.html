@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  
+  <title>QuickFix</title>
+  
+  <!-- Preload critical fonts to prevent timeout errors -->
+  <link 
+    rel="preload" 
+    href="/assets/fonts/Ionicons.ttf" 
+    as="font" 
+    type="font/ttf" 
+    crossorigin="anonymous"
+  />
+  
+  <style>
+    /* Prevent flash of unstyled content */
+    #root {
+      height: 100%;
+    }
+    
+    /* Loading fallback */
+    .app-loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+    
+    /* Font face for Ionicons with fallback */
+    @font-face {
+      font-family: 'Ionicons';
+      src: url('/assets/fonts/Ionicons.ttf') format('truetype');
+      font-display: swap; /* Use fallback font while loading */
+    }
+  </style>
+</head>
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="root">
+    <div class="app-loading">Loading QuickFix...</div>
+  </div>
+</body>
+</html>
