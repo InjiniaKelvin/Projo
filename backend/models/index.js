@@ -6,7 +6,7 @@
  */
 
 const User = require('./User');
-const Booking = require('./Booking');
+const Booking = require('./BookingRedesigned');
 const Service = require('./Service');
 const Transaction = require('./Transaction');
 const Wallet = require('./Wallet');

@@ -21,7 +21,7 @@ const { Booking } = require('./backend/models');
 // Import routes
 const authRoutes = require('./backend/routes/auth');
 const paymentRoutes = require('./backend/routes/payments');
-const bookingRoutes = require('./backend/routes/bookings');
+const bookingRoutes = require('./backend/routes/bookingRedesigned');
 const servicesRoutes = require('./backend/routes/services');
 
 // Import new enhanced routes
@@ -151,11 +151,8 @@ app.use('/uploads', express.static('uploads'));
 app.use('/api/auth', authRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/bookings', bookingRoutes);
+app.use('/api/bookings-redesigned', bookingRoutes); // Alias for compatibility
 app.use('/api/services', servicesRoutes);
-
-// Redesigned booking routes
-const bookingRedesignedRoutes = require('./backend/routes/bookingRedesigned');
-app.use('/api/bookings-redesigned', bookingRedesignedRoutes);
 
 // Enhanced API Routes
 app.use('/api/payments/enhanced', enhancedPaymentRoutes);
@@ -166,8 +163,7 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/ratings', ratingRoutes);
 
 // Technician Routes
-const technicianRoutes = require('./backend/routes/technician');
-app.use('/api/technician', technicianRoutes);
+app.use('/api/technician', require('./backend/routes/technician'));
 
 // M-Pesa callback route (needs to be before error middleware)
 app.post('/api/payments/mpesa/callback', require('./backend/controllers/enhancedPaymentController').handleMpesaCallback);

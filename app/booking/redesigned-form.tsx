@@ -20,9 +20,11 @@ import {
  Text,
  TextInput,
  TouchableOpacity,
- View
+ View,
+ Platform
 } from 'react-native';
-import { simpleNairobiLocations } from '../../data/simpleLocations';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { completeNairobiLocations, getRoadsForWard } from '../../data/completeNairobiLocations';
 
 // TYPE DEFINITIONS
 interface LocationData {
@@ -95,6 +97,10 @@ export default function RedesignedBookingForm() {
  const router = useRouter();
  const [isSubmitting, setIsSubmitting] = useState(false);
  
+ // DATE PICKER STATES
+ const [showDatePicker, setShowDatePicker] = useState(false);
+ const [selectedDate, setSelectedDate] = useState(new Date());
+ 
  // BOOKING DATA - MATCHING BACKEND STRUCTURE EXACTLY
  const [bookingData, setBookingData] = useState<BookingFormData>({
  // CLIENT DETAILS
@@ -127,6 +133,7 @@ export default function RedesignedBookingForm() {
  const [errors, setErrors] = useState<Record<string, string>>({});
  const [selectedConstituency, setSelectedConstituency] = useState<string>('');
  const [availableWards, setAvailableWards] = useState<NairobiWard[]>([]);
+ const [availableRoads, setAvailableRoads] = useState<string[]>([]);
 
  /**
  * HANDLE CONSTITUENCY CHANGE
@@ -139,12 +146,31 @@ export default function RedesignedBookingForm() {
  ...prev.location,
  constituency,
  ward: '', // Reset ward when constituency changes
+ road: '', // Reset road when constituency changes
  }
  }));
  
  // Get wards for selected constituency
- const constituencyData = simpleNairobiLocations.constituencies.find((c: NairobiConstituency) => c.name === constituency);
+ const constituencyData = completeNairobiLocations.find((c: NairobiConstituency) => c.name === constituency);
  setAvailableWards(constituencyData ? constituencyData.wards : []);
+ };
+
+ /**
+ * HANDLE WARD CHANGE
+ */
+ const handleWardChange = (ward: string) => {
+ setBookingData(prev => ({
+ ...prev,
+ location: {
+ ...prev.location,
+ ward,
+ road: '', // Reset road when ward changes
+ }
+ }));
+ 
+ // Get roads for selected ward
+ const roads = getRoadsForWard(selectedConstituency, ward);
+ setAvailableRoads(roads);
  };
 
  /**
@@ -248,8 +274,8 @@ export default function RedesignedBookingForm() {
  {
  text: 'View My Bookings',
  onPress: () => {
- // Navigate to booking tracking to see active bookings
- router.replace('/booking/tracking');
+ // Navigate to My Bookings page
+ router.replace('/bookings');
  }
  }
  ]
@@ -410,7 +436,7 @@ export default function RedesignedBookingForm() {
  style={styles.picker}
  >
  <Picker.Item label="Select constituency" value="" />
- {simpleNairobiLocations.constituencies.map((constituency: NairobiConstituency) => (
+ {completeNairobiLocations.map((constituency: NairobiConstituency) => (
  <Picker.Item 
  key={constituency.name} 
  label={constituency.name} 
@@ -497,13 +523,63 @@ export default function RedesignedBookingForm() {
  
  <View style={styles.inputGroup}>
  <Text style={styles.label}>Preferred Date *</Text>
- <TextInput
- style={[styles.input, errors.preferredDate && styles.inputError]}
+ {Platform.OS === 'web' ? (
+ <View style={[styles.datePickerButton, errors.preferredDate && styles.inputError]}>
+ <Ionicons name="calendar-outline" size={20} color="#2196F3" style={styles.dateIcon} />
+ <input
+ style={{
+   flex: 1,
+   fontSize: 16,
+   color: '#333',
+   border: 'none',
+   outline: 'none',
+   backgroundColor: 'transparent'
+ }}
+ type="date"
  value={bookingData.preferredDate}
- onChangeText={(text) => setBookingData(prev => ({ ...prev, preferredDate: text }))}
- placeholder="YYYY-MM-DD (e.g., 2024-12-25)"
- placeholderTextColor="#999"
+ onChange={(e: any) => {
+   const value = e.target.value;
+   setBookingData(prev => ({ ...prev, preferredDate: value }));
+ }}
+ min={new Date().toISOString().split('T')[0]}
  />
+ </View>
+ ) : (
+ <>
+ <TouchableOpacity
+ style={[styles.datePickerButton, errors.preferredDate && styles.inputError]}
+ onPress={() => setShowDatePicker(true)}
+ >
+ <Ionicons name="calendar-outline" size={20} color="#2196F3" style={styles.dateIcon} />
+ <Text style={[styles.datePickerText, !bookingData.preferredDate && styles.placeholderText]}>
+ {bookingData.preferredDate 
+ ? new Date(bookingData.preferredDate + 'T00:00:00').toLocaleDateString('en-US', {
+ year: 'numeric',
+ month: 'short',
+ day: 'numeric'
+ })
+ : 'Select Date'}
+ </Text>
+ </TouchableOpacity>
+ 
+ {showDatePicker && (
+ <DateTimePicker
+ value={selectedDate}
+ mode="date"
+ display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+ minimumDate={new Date()}
+ onChange={(event, date) => {
+ setShowDatePicker(Platform.OS === 'ios');
+ if (date && event.type !== 'dismissed') {
+ setSelectedDate(date);
+ const formattedDate = date.toISOString().split('T')[0];
+ setBookingData(prev => ({ ...prev, preferredDate: formattedDate }));
+ }
+ }}
+ />
+ )}
+ </>
+ )}
  {errors.preferredDate && <Text style={styles.errorText}>{errors.preferredDate}</Text>}
  </View>
  
@@ -647,6 +723,25 @@ const styles = StyleSheet.create({
  color: '#ff4444',
  fontSize: 12,
  marginTop: 5,
+ },
+ datePickerButton: {
+ flexDirection: 'row',
+ alignItems: 'center',
+ borderWidth: 1,
+ borderColor: '#DDD',
+ borderRadius: 8,
+ padding: 12,
+ backgroundColor: '#FFF',
+ },
+ dateIcon: {
+ marginRight: 10,
+ },
+ datePickerText: {
+ fontSize: 16,
+ color: '#333',
+ },
+ placeholderText: {
+ color: '#999',
  },
  submitButton: {
  backgroundColor: '#007AFF',

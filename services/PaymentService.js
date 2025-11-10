@@ -2,57 +2,23 @@
  * Payment Service - Production Ready
  * 
  * Fully integrated with IntaSend backend
- * No mock data - all real API calls
+ * Uses centralized axios instance for authentication
  */
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Platform } from 'react-native';
-
-const API_BASE_URL = Platform.select({
- web: process.env.EXPO_PUBLIC_API_URL || 'http://localhost:5000/api',
- default: process.env.EXPO_PUBLIC_API_URL || 'http://localhost:5000/api'
-});
+import { apiClient } from '../contexts/SimpleAuthContext';
 
 class PaymentService {
- async getAuthToken() {
- try {
- return await AsyncStorage.getItem('authToken');
- } catch (error) {
- console.error('Failed to get auth token:', error);
- return null;
- }
- }
-
- async getHeaders() {
- const token = await this.getAuthToken();
- return {
- 'Content-Type': 'application/json',
- 'Authorization': `Bearer ${token}`
- };
- }
-
- async handleResponse(response) {
- const data = await response.json();
- 
- if (!response.ok) {
- throw new Error(data.message || `HTTP error! status: ${response.status}`);
- }
- 
- return data;
- }
-
  async getWallet() {
  try {
- const headers = await this.getHeaders();
- const response = await fetch(`${API_BASE_URL}/payments/wallet`, {
- method: 'GET',
- headers
- });
-
- return await this.handleResponse(response);
+ const response = await apiClient.get('/payments/wallet');
+ return response.data;
  } catch (error) {
  console.error('PaymentService.getWallet error:', error);
- throw error;
+ return {
+ success: false,
+ message: error.response?.data?.message || error.message,
+ data: { balance: 0, escrowBalance: 0 }
+ };
  }
  }
 
@@ -60,23 +26,18 @@ class PaymentService {
  try {
  const { amount, paymentMethod, phoneNumber, email } = params;
  
- const headers = await this.getHeaders();
- const response = await fetch(`${API_BASE_URL}/payments/add-funds`, {
- method: 'POST',
- headers,
- body: JSON.stringify({
+ const response = await apiClient.post('/payments/add-funds', {
  amount,
  paymentMethod,
  phoneNumber,
  email,
  description: `Wallet top-up via ${paymentMethod}`
- })
  });
 
- return await this.handleResponse(response);
+ return response.data;
  } catch (error) {
  console.error('PaymentService.addFunds error:', error);
- throw error;
+ throw new Error(error.response?.data?.message || error.message);
  }
  }
 
@@ -84,20 +45,15 @@ class PaymentService {
  try {
  const { amount, phoneNumber } = params;
  
- const headers = await this.getHeaders();
- const response = await fetch(`${API_BASE_URL}/payments/withdraw-funds`, {
- method: 'POST',
- headers,
- body: JSON.stringify({
+ const response = await apiClient.post('/payments/withdraw-funds', {
  amount,
  withdrawalMethod: 'mpesa',
  withdrawalDetails: {
  phoneNumber
  }
- })
  });
 
- return await this.handleResponse(response);
+ return response.data;
  } catch (error) {
  console.error('PaymentService.withdrawFunds error:', error);
  throw error;

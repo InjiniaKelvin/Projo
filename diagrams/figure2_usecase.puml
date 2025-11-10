@@ -1,0 +1,27 @@
+@startuml
+skinparam actorStyle awesome
+
+actor Client
+actor Technician
+actor Admin
+
+rectangle "QuickFix System" {
+  usecase "Register" as UC1
+  usecase "Login" as UC2
+  usecase "Request Service" as UC3
+  usecase "Rate Technician" as UC4
+  usecase "Accept Job" as UC5
+  usecase "Update Status" as UC6
+  usecase "Verify Technician" as UC7
+  usecase "Manage Platform" as UC8
+}
+
+Client --> UC1
+Client --> UC2
+Client --> UC3
+Client --> UC4
+Technician --> UC5
+Technician --> UC6
+Admin --> UC7
+Admin --> UC8
+@enduml

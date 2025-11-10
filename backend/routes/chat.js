@@ -14,7 +14,7 @@ const multer = require('multer');
 const path = require('path');
 const { authenticateToken: auth } = require('../middleware/auth');
 const Message = require('../models/Message');
-const Booking = require('../models/Booking');
+const Booking = require('../models/BookingRedesigned');
 
 // Configure multer for image uploads
 const storage = multer.diskStorage({

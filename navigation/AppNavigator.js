@@ -9,7 +9,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 // Import authentication context
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/SimpleAuthContext';
 
 // Import all screens
 import LoginScreen from '../components/auth/LoginScreen';

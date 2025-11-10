@@ -1,0 +1,55 @@
+{
+  "theme_colors": {
+    "client": {
+      "primary": "#4285F4",
+      "accent": "#00796B",
+      "background": "#F5F5F5",
+      "card_background": "#FFFFFF",
+      "success": "#4CAF50",
+      "warning": "#FF9800",
+      "error": "#F44336"
+    },
+    "technician": {
+      "primary": "#F48B42",
+      "accent": "#00796B",
+      "background": "#F5F5F5",
+      "card_background": "#FFFFFF",
+      "success": "#4CAF50",
+      "warning": "#FF9800",
+      "error": "#F44336"
+    },
+    "admin": {
+      "primary": "#673AB7",
+      "accent": "#03A9F4",
+      "background": "#F5F5F5",
+      "card_background": "#FFFFFF",
+      "success": "#4CAF50",
+      "warning": "#FF9800",
+      "error": "#F44336"
+    }
+  },
+  "spacing": {
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24,
+    "xxl": 32
+  },
+  "typography": {
+    "h1": { "size": 32, "weight": "700" },
+    "h2": { "size": 24, "weight": "700" },
+    "h3": { "size": 20, "weight": "500" },
+    "h4": { "size": 18, "weight": "500" },
+    "body": { "size": 16, "weight": "400" },
+    "caption": { "size": 14, "weight": "400" },
+    "small": { "size": 12, "weight": "400" }
+  },
+  "borderRadius": {
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24,
+    "full": 9999
+  }
+}

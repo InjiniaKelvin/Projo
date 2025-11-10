@@ -11,7 +11,7 @@
 const express = require('express');
 const router = express.Router();
 const { authenticateToken: auth, requireAdmin } = require('../middleware/auth');
-const Booking = require('../models/Booking');
+const Booking = require('../models/BookingRedesigned');
 const Transaction = require('../models/Transaction');
 const User = require('../models/User');
 const PricingService = require('../services/PricingService');

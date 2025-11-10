@@ -6,7 +6,7 @@
  */
 
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import {
  ActivityIndicator,
@@ -51,6 +51,8 @@ interface PriceRange {
 
 export default function ServiceSelectionScreen() {
  const router = useRouter();
+ const params = useLocalSearchParams();
+ const isEmergency = params.emergency === 'true';
  
  const [categories, setCategories] = useState<Category[]>([]);
  const [services, setServices] = useState<Service[]>([]);
@@ -243,7 +245,8 @@ export default function ServiceSelectionScreen() {
  params: { 
  serviceId: service.id,
  serviceName: service.name,
- serviceData: JSON.stringify(service)
+ serviceData: JSON.stringify(service),
+ isEmergency: isEmergency ? 'true' : 'false'
  }
  });
  };
@@ -407,6 +410,17 @@ export default function ServiceSelectionScreen() {
  <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
  }
  >
+ {/* Emergency Mode Banner */}
+ {isEmergency && (
+ <View style={styles.emergencyBanner}>
+ <Ionicons name="alert-circle" size={24} color="#EF5350" />
+ <View style={styles.emergencyBannerText}>
+ <Text style={styles.emergencyBannerTitle}>Emergency Mode</Text>
+ <Text style={styles.emergencyBannerSubtitle}>Select a service for immediate assistance</Text>
+ </View>
+ </View>
+ )}
+
  {/* Search Bar */}
  <View style={styles.searchContainer}>
  <View style={styles.searchBar}>
@@ -549,6 +563,31 @@ const styles = StyleSheet.create({
  borderRadius: 12,
  paddingHorizontal: 15,
  paddingVertical: 12,
+ },
+ emergencyBanner: {
+ flexDirection: 'row',
+ alignItems: 'center',
+ backgroundColor: '#FFEBEE',
+ borderRadius: 12,
+ padding: 16,
+ marginHorizontal: 16,
+ marginBottom: 12,
+ borderLeftWidth: 4,
+ borderLeftColor: '#EF5350',
+ },
+ emergencyBannerText: {
+ flex: 1,
+ marginLeft: 12,
+ },
+ emergencyBannerTitle: {
+ fontSize: 16,
+ fontWeight: '600',
+ color: '#C62828',
+ marginBottom: 4,
+ },
+ emergencyBannerSubtitle: {
+ fontSize: 13,
+ color: '#D32F2F',
  },
  searchInput: {
  flex: 1,

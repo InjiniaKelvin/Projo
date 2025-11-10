@@ -1,0 +1,37 @@
+QUICKFIX APP - FUNCTIONALITY DEBUG REQUEST
+==========================================
+
+ISSUE: Multiple functionalities not working properly including:
+1. Wallet - Not displaying balance or transactions correctly
+2. Profile Settings - Save functionality issues
+3. Other features reported as non-functional
+
+CONTEXT:
+QuickFix is a repair service app with:
+- Backend API: https://quickfix-api-sigma.vercel.app
+- Frontend: Expo/React Native (deployed to Vercel as web app)
+- Authentication: JWT tokens via SimpleAuthContext
+- Payment: M-Pesa integration via IntaSend
+
+YOUR TASK:
+Analyze the following code files and identify WHY functionalities are not working.
+Look for:
+1. API endpoint mismatches
+2. Authentication/token issues
+3. Missing error handling
+4. Incorrect data flow
+5. Network request problems
+6. State management issues
+7. Missing backend endpoints
+8. CORS or deployment issues
+9. Environment variable problems
+10. Integration/connection issues
+
+Provide:
+- Root cause analysis for each non-working feature
+- Specific code locations with issues
+- Exact fixes needed
+- Priority level (Critical/High/Medium/Low)
+- Testing steps to verify fixes
+
+Be extremely specific and actionable!

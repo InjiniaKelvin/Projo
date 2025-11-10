@@ -11,7 +11,7 @@
  */
 
 const User = require('../models/User');
-const Booking = require('../models/Booking');
+const Booking = require('../models/BookingRedesigned');
 const Transaction = require('../models/Transaction');
 const Message = require('../models/Message');
 const Notification = require('../models/Notification');

@@ -10,6 +10,9 @@ const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL
   : 'http://localhost:5000/api';
 axios.defaults.baseURL = API_BASE_URL;
 
+// Export configured axios instance for use in other services
+export const apiClient = axios;
+
 // Storage helper for web/native compatibility
 const storage = {
  async setItem(key, value) {
@@ -131,6 +134,12 @@ function authReducer(state, action) {
  return {
  ...state,
  error: null,
+ };
+ case 'UPDATE_USER':
+ console.log(' Auth Reducer: UPDATE_USER action received', action.payload);
+ return {
+ ...state,
+ user: { ...state.user, ...action.payload },
  };
  default:
  return state;
@@ -515,12 +524,36 @@ export function AuthProvider({ children }) {
  dispatch({ type: 'CLEAR_ERROR' });
  };
 
+ const updateUser = async (updates) => {
+ try {
+ console.log(' Auth: updateUser called with:', updates);
+ 
+ // Update local state immediately for better UX
+ dispatch({ type: 'UPDATE_USER', payload: updates });
+ 
+ // Also update stored user data
+ const currentUserData = await storage.getItem('userData');
+ if (currentUserData) {
+ const userData = JSON.parse(currentUserData);
+ const updatedUserData = { ...userData, ...updates };
+ await storage.setItem('userData', JSON.stringify(updatedUserData));
+ console.log(' Auth: Updated user data in storage');
+ }
+ 
+ return { success: true };
+ } catch (error) {
+ console.error(' Auth: updateUser error:', error);
+ return { success: false, error: error.message };
+ }
+ };
+
  const value = {
  ...state,
  login,
  register,
  logout,
  clearError,
+ updateUser,
  };
 
  return (

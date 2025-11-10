@@ -260,8 +260,7 @@ const bookingSchema = new mongoose.Schema({
  toObject: { virtuals: true }
 });
 
-// INDEXES FOR PERFORMANCE
-bookingSchema.index({ clientPhone: 1 });
+// INDEXES FOR PERFORMANCE (clientPhone already indexed in schema definition)
 bookingSchema.index({ status: 1 });
 bookingSchema.index({ serviceType: 1 });
 bookingSchema.index({ 'location.constituency': 1, 'location.ward': 1 });

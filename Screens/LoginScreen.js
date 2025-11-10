@@ -15,7 +15,7 @@ import {
  TouchableOpacity,
  View
 } from 'react-native';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/SimpleAuthContext';
 import StorageService from '../services/StorageService';
 
 export default function LoginScreen({ navigation }) {

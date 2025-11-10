@@ -1,0 +1,33 @@
+erDiagram
+  USER ||--o{ BOOKING : places
+  BOOKING ||--|{ PAYMENT : includes
+  BOOKING ||--|{ RATING : receives
+  BOOKING ||--|{ SUPPLIER : requestsPartsFrom
+  USER {
+    string user_id PK
+    string name
+    string role
+  }
+  BOOKING {
+    string booking_id PK
+    string user_id FK
+    string service_type
+    string status
+  }
+  PAYMENT {
+    string payment_id PK
+    string booking_id FK
+    float amount
+    string status
+  }
+  RATING {
+    string rating_id PK
+    string booking_id FK
+    int score
+    string comment
+  }
+  SUPPLIER {
+    string supplier_id PK
+    string part_name
+    float price
+  }

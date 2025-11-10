@@ -1,0 +1,120 @@
+COMPREHENSIVE UI AUDIT & REDESIGN FOR QUICKFIX APP
+===================================================
+
+CONTEXT:
+QuickFix is a smart repair service system connecting clients with technicians for home appliance repairs, plumbing, electrical work, etc. It has:
+- Client app (find technicians, book services, track repairs, pay via M-Pesa)
+- Technician app (receive jobs, manage earnings, update availability)
+- Admin dashboard (manage users, analytics, inventory)
+
+CURRENT UI SCREENS TO ANALYZE:
+
+CLIENT SCREENS:
+1. /Screens/ClientDashboard.js - Main dashboard (stats, quick actions, recent bookings)
+2. /app/profile.tsx - Profile management with picture upload
+3. /app/bookings.tsx - List of all user bookings with filters
+4. /app/booking/service-selection.tsx - Browse and select repair services
+5. /app/booking/details.tsx - Booking form with location data
+6. /app/booking/payment.tsx - Payment processing with M-Pesa
+7. /app/booking/tracking.tsx - Real-time technician tracking
+8. /app/wallet.tsx - Wallet balance and transactions
+9. /app/messages.tsx - Chat with technicians
+10. /app/support.tsx - Customer support
+
+TECHNICIAN SCREENS:
+11. /Screens/TechnicianDashboard.js - Technician main dashboard
+12. /app/technician/profile.js - Technician profile with skills
+13. /app/technician/jobs/browse.js - Available jobs listing
+14. /app/technician/jobs/my-jobs.js - Active and past jobs
+15. /app/technician/jobs/[id].js - Job details
+16. /app/technician/earnings.js - Earnings and payments
+
+ADMIN SCREENS:
+17. /Screens/AdminDashboard.js - Admin overview
+18. /app/admin/analytics.tsx - Analytics and reports
+19. /app/admin/users.tsx - User management
+20. /app/admin/technicians.tsx - Technician verification
+21. /app/admin/inventory.tsx - Spare parts inventory
+22. /app/admin/payments.tsx - Payment management
+23. /app/admin/settings.tsx - System settings
+
+AUTH SCREENS:
+24. /app/auth/login.tsx - Login screen
+25. /app/auth/register.tsx - Registration screen
+
+YOUR TASK:
+For EACH screen listed above, provide:
+
+1. IONICONS RECOMMENDATIONS:
+   - Specific icon names for ALL buttons, actions, tabs, and visual elements
+   - Icons for empty states
+   - Icons for stats/metrics
+   - Icons for navigation items
+   - Consider the context (repair services, urgency, technical work)
+
+2. COLOR SCHEME:
+   - Professional color palette (primary, secondary, accent, success, warning, error)
+   - Specific hex codes for each screen type (client=blue theme, technician=orange theme, admin=purple theme)
+   - Background colors
+   - Card/button colors
+   - Status indicators
+
+3. LAYOUT & SPACING:
+   - Recommended padding/margin values (multiples of 4 or 8)
+   - Card border radius
+   - Shadow/elevation values
+   - Grid layouts (2-col, 3-col)
+   - Header heights
+   - Bottom navigation heights
+
+4. TYPOGRAPHY:
+   - Font sizes for headers (h1, h2, h3)
+   - Body text sizes
+   - Button text sizes
+   - Font weights
+
+5. UI PATTERNS:
+   - Empty states design
+   - Loading states
+   - Error states
+   - Success states
+   - Pull-to-refresh
+   - Infinite scroll
+   - Modal/dialog designs
+
+6. NAVIGATION:
+   - Bottom tab bar icons and labels
+   - Header actions
+   - Back buttons
+   - Floating action buttons
+
+7. CREATIVE ENHANCEMENTS:
+   - Animations suggestions (fade, slide, scale)
+   - Micro-interactions
+   - Gesture hints
+   - Visual feedback
+   - Gamification elements (badges, progress bars)
+
+OUTPUT FORMAT:
+Provide a structured JSON-like format for EACH screen with specific values. Be EXTREMELY detailed and creative. Think like a senior UI/UX designer working for a top tech company.
+
+Example format:
+```
+SCREEN: ClientDashboard
+Icons:
+  - stats.active: "pulse-outline" 
+  - stats.completed: "checkmark-done-outline"
+  - action.findTechnician: "search"
+  - action.emergency: "flash"
+  ...
+Colors:
+  - primary: "#2196F3"
+  - accent: "#FF9800"
+  ...
+Layout:
+  - headerPadding: 16
+  - cardRadius: 12
+  ...
+```
+
+Think comprehensively - don't miss ANY UI element!

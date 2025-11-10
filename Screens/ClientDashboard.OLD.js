@@ -1,15 +1,6 @@
 /**
- * QuickFix Client Dashboard - Professional & Functional
- * 
- * Features:
- * - Professional UI with small, well-organized buttons
- * - Real icons (NO EMOJIS)
- * - Profile management with visible profile icon
- * - Clear logout option
- * - Wallet integration
- * - Find Technician (not "New Booking")
- * - Real-time updates
- * - Proper navigation
+ * QuickFix Client Dashboard - Beautiful UI with Real Data
+ * Complete integration with backend APIs
  */
 
 import { Ionicons } from '@expo/vector-icons';
@@ -20,7 +11,6 @@ import {
   ActivityIndicator,
   Alert,
   Dimensions,
-  Image,
   Platform,
   RefreshControl,
   ScrollView,
@@ -55,13 +45,6 @@ export default function ClientDashboard() {
   useEffect(() => {
     if (token) {
       loadDashboardData();
-      
-      // Set up real-time updates every 30 seconds
-      const interval = setInterval(() => {
-        loadDashboardData();
-      }, 30000);
-      
-      return () => clearInterval(interval);
     }
   }, [token]);
 
@@ -130,16 +113,6 @@ export default function ClientDashboard() {
     return 'Good Evening';
   };
 
-  const getMotivationalQuote = () => {
-    const quotes = [
-      'Quality repairs, trusted service',
-      'Your satisfaction is our priority',
-      'Expert technicians at your service',
-      'Professional repairs, every time'
-    ];
-    return quotes[Math.floor(Math.random() * quotes.length)];
-  };
-
   const getStatusColor = (status) => {
     const colors = {
       pending: '#FF9800',
@@ -149,17 +122,6 @@ export default function ClientDashboard() {
       cancelled: '#FF5252'
     };
     return colors[status] || '#757575';
-  };
-
-  const getStatusBackgroundColor = (status) => {
-    const colors = {
-      pending: 'rgba(255, 152, 0, 0.15)',
-      confirmed: 'rgba(33, 150, 243, 0.15)',
-      'in-progress': 'rgba(156, 39, 176, 0.15)',
-      completed: 'rgba(76, 175, 80, 0.15)',
-      cancelled: 'rgba(255, 82, 82, 0.15)'
-    };
-    return colors[status] || 'rgba(117, 117, 117, 0.15)';
   };
 
   const getStatusIcon = (status) => {
@@ -203,10 +165,6 @@ export default function ClientDashboard() {
     );
   };
 
-  const handleProfile = () => {
-    router.push('/profile');
-  };
-
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
@@ -221,29 +179,21 @@ export default function ClientDashboard() {
       <StatusBar barStyle="light-content" backgroundColor="#1976D2" />
       
       {/* Header with Gradient */}
-      <LinearGradient colors={['#1976D2', '#2196F3']} style={styles.header}>
-        <View style={styles.headerContent}>
+      <LinearGradient colors={['#1976D2', '#2196F3', '#42A5F5']} style={styles.header}>
+        <View style={styles.headerTop}>
           <View style={styles.headerLeft}>
-            <Text style={styles.greeting}>{getGreeting()}</Text>
-            <Text style={styles.userName}>{user?.name || user?.firstName || 'Guest'}</Text>
-            <Text style={styles.quote}>{getMotivationalQuote()}</Text>
+            <Text style={styles.greeting}>{getGreeting()},</Text>
+            <Text style={styles.userName}>{user?.name || 'Guest'}</Text>
           </View>
-          
           <View style={styles.headerRight}>
-            {/* Profile Button */}
-            <TouchableOpacity onPress={handleProfile} style={styles.profileButton}>
-              {user?.profilePicture ? (
-                <Image source={{ uri: user.profilePicture }} style={styles.profileImage} />
-              ) : (
-                <View style={styles.profileIconContainer}>
-                  <Ionicons name="person" size={24} color="#FFF" />
-                </View>
-              )}
+            <TouchableOpacity onPress={() => router.push('/notifications')} style={styles.iconButton}>
+              <Ionicons name="notifications-outline" size={24} color="#FFF" />
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>3</Text>
+              </View>
             </TouchableOpacity>
-            
-            {/* Logout Button */}
-            <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-              <Ionicons name="log-out-outline" size={22} color="#FFF" />
+            <TouchableOpacity onPress={handleLogout} style={styles.iconButton}>
+              <Ionicons name="log-out-outline" size={24} color="#FFF" />
             </TouchableOpacity>
           </View>
         </View>
@@ -254,98 +204,77 @@ export default function ClientDashboard() {
         contentContainerStyle={styles.scrollContent}
         refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}
       >
-        {/* Stats Cards - Compact */}
+        {/* Stats Cards */}
         <View style={styles.statsContainer}>
           <View style={styles.statsRow}>
-            <View style={styles.statCard}>
-              <Ionicons name="pulse-outline" size={20} color="#FF9800" />
+            <View style={[styles.statCard, styles.activeCard]}>
+              <Ionicons name="time" size={32} color="#FF9800" />
               <Text style={styles.statNumber}>{stats.activeBookings}</Text>
               <Text style={styles.statLabel}>Active</Text>
             </View>
-            
-            <View style={styles.statCard}>
-              <Ionicons name="checkmark-done-outline" size={20} color="#4CAF50" />
+            <View style={[styles.statCard, styles.completedCard]}>
+              <Ionicons name="checkmark-done" size={32} color="#4CAF50" />
               <Text style={styles.statNumber}>{stats.completedBookings}</Text>
               <Text style={styles.statLabel}>Completed</Text>
             </View>
-            
-            <View style={styles.statCard}>
-              <Ionicons name="wallet-outline" size={20} color="#6366F1" />
-              <Text style={styles.statNumber}>{formatCurrency(stats.walletBalance)}</Text>
-              <Text style={styles.statLabel}>Wallet</Text>
-            </View>
           </View>
+          
+          <TouchableOpacity
+            style={styles.walletCard}
+            onPress={() => router.push('/wallet')}
+          >
+            <LinearGradient colors={['#6366F1', '#8B5CF6']} style={styles.walletGradient}>
+              <View style={styles.walletLeft}>
+                <Text style={styles.walletLabel}>Wallet Balance</Text>
+                <Text style={styles.walletAmount}>{formatCurrency(stats.walletBalance)}</Text>
+              </View>
+              <Ionicons name="wallet" size={40} color="#FFF" />
+            </LinearGradient>
+          </TouchableOpacity>
         </View>
 
-        {/* Quick Actions - Small, Professional Buttons */}
+        {/* Quick Actions */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Quick Actions</Text>
-          
-          <View style={styles.quickActionsGrid}>
-            {/* Find Technician */}
+          <View style={styles.quickActions}>
             <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => router.push('/booking/service-selection')}
+              style={[styles.actionCard, { backgroundColor: '#EF5350' }]}
+              onPress={() => router.push('/booking/details')}
             >
-              <View style={[styles.actionIconCircle, { backgroundColor: '#2196F3' }]}>
-                <Ionicons name="search" size={20} color="#FFF" />
+              <View style={styles.actionIcon}>
+                <Ionicons name="flash" size={28} color="#FFF" />
               </View>
-              <Text style={styles.actionLabel}>Find Technician</Text>
+              <Text style={styles.actionText}>Emergency{'\n'}Service</Text>
             </TouchableOpacity>
 
-            {/* Emergency Service */}
             <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => router.push('/booking/service-selection?emergency=true')}
+              style={[styles.actionCard, { backgroundColor: '#42A5F5' }]}
+              onPress={() => router.push('/booking/redesigned-form')}
             >
-              <View style={[styles.actionIconCircle, { backgroundColor: '#EF5350' }]}>
-                <Ionicons name="alert-circle" size={20} color="#FFF" />
+              <View style={styles.actionIcon}>
+                <Ionicons name="add-circle" size={28} color="#FFF" />
               </View>
-              <Text style={styles.actionLabel}>Emergency</Text>
+              <Text style={styles.actionText}>New{'\n'}Booking</Text>
             </TouchableOpacity>
 
-            {/* My Bookings */}
             <TouchableOpacity
-              style={styles.actionButton}
+              style={[styles.actionCard, { backgroundColor: '#66BB6A' }]}
               onPress={() => router.push('/bookings')}
             >
-              <View style={[styles.actionIconCircle, { backgroundColor: '#78909C' }]}>
-                <Ionicons name="file-tray-stacked-outline" size={20} color="#FFF" />
+              <View style={styles.actionIcon}>
+                <Ionicons name="list" size={28} color="#FFF" />
               </View>
-              <Text style={styles.actionLabel}>My Bookings</Text>
+              <Text style={styles.actionText}>My{'\n'}Bookings</Text>
             </TouchableOpacity>
 
-            {/* Wallet */}
             <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => router.push('/wallet')}
-            >
-              <View style={[styles.actionIconCircle, { backgroundColor: '#78909C' }]}>
-                <Ionicons name="wallet" size={20} color="#FFF" />
-              </View>
-              <Text style={styles.actionLabel}>Wallet</Text>
-            </TouchableOpacity>
-
-            {/* Messages */}
-            <TouchableOpacity
-              style={styles.actionButton}
+              style={[styles.actionCard, { backgroundColor: '#AB47BC' }]}
               onPress={() => router.push('/messages')}
             >
-              <View style={[styles.actionIconCircle, { backgroundColor: '#FFA726' }]}>
-                <Ionicons name="chatbubbles" size={20} color="#FFF" />
+              <View style={styles.actionIcon}>
+                <Ionicons name="chatbubbles" size={28} color="#FFF" />
               </View>
-              <Text style={styles.actionLabel}>Messages</Text>
-            </TouchableOpacity>
-
-            {/* History */}
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => router.push('/bookings?filter=completed')}
-            >
-              <View style={[styles.actionIconCircle, { backgroundColor: '#78909C' }]}>
-                <Ionicons name="archive-outline" size={20} color="#FFF" />
-              </View>
-              <Text style={styles.actionLabel}>History</Text>
+              <Text style={styles.actionText}>Messages</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -361,14 +290,13 @@ export default function ClientDashboard() {
 
           {recentBookings.length === 0 ? (
             <View style={styles.emptyState}>
-              <Ionicons name="calendar-outline" size={48} color="#CCC" />
+              <Ionicons name="calendar-outline" size={64} color="#CCC" />
               <Text style={styles.emptyStateText}>No bookings yet</Text>
               <TouchableOpacity
                 style={styles.createBookingButton}
-                onPress={() => router.push('/booking/service-selection')}
+                onPress={() => router.push('/booking/redesigned-form')}
               >
-                <Ionicons name="add" size={18} color="#FFF" />
-                <Text style={styles.createBookingButtonText}>Find Technician</Text>
+                <Text style={styles.createBookingButtonText}>Create Your First Booking</Text>
               </TouchableOpacity>
             </View>
           ) : (
@@ -379,10 +307,10 @@ export default function ClientDashboard() {
                 onPress={() => router.push(`/booking/${booking._id}`)}
               >
                 <View style={styles.bookingHeader}>
-                  <View style={[styles.statusBadge, { backgroundColor: getStatusBackgroundColor(booking.status) }]}>
+                  <View style={[styles.statusBadge, { backgroundColor: getStatusColor(booking.status) + '20' }]}>
                     <Ionicons
                       name={getStatusIcon(booking.status)}
-                      size={14}
+                      size={16}
                       color={getStatusColor(booking.status)}
                     />
                     <Text style={[styles.statusText, { color: getStatusColor(booking.status) }]}>
@@ -394,7 +322,7 @@ export default function ClientDashboard() {
 
                 <Text style={styles.bookingService}>{booking.serviceType}</Text>
                 <Text style={styles.bookingLocation} numberOfLines={1}>
-                  <Ionicons name="location" size={12} color="#666" />
+                  <Ionicons name="location" size={14} color="#666" />
                   {' '}{booking.location?.ward}, {booking.location?.constituency}
                 </Text>
 
@@ -406,25 +334,24 @@ export default function ClientDashboard() {
           )}
         </View>
 
-        {/* Popular Services - Horizontal Scroll */}
+        {/* Services */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Popular Services</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.servicesScroll}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {[
               { name: 'Plumbing', icon: 'water', color: '#2196F3' },
               { name: 'Electrical', icon: 'flash', color: '#FF9800' },
               { name: 'Carpentry', icon: 'hammer', color: '#795548' },
               { name: 'Cleaning', icon: 'sparkles', color: '#4CAF50' },
-              { name: 'Painting', icon: 'brush', color: '#9C27B0' },
-              { name: 'AC Repair', icon: 'thermometer', color: '#00BCD4' },
+              { name: 'Painting', icon: 'color-palette', color: '#9C27B0' },
             ].map((service) => (
               <TouchableOpacity
                 key={service.name}
                 style={styles.serviceCard}
-                onPress={() => router.push(`/booking/service-selection?service=${service.name.toLowerCase()}`)}
+                onPress={() => router.push(`/booking/redesigned-form?service=${service.name}`)}
               >
                 <View style={[styles.serviceIcon, { backgroundColor: service.color + '20' }]}>
-                  <Ionicons name={service.icon} size={22} color={service.color} />
+                  <Ionicons name={service.icon} size={28} color={service.color} />
                 </View>
                 <Text style={styles.serviceName}>{service.name}</Text>
               </TouchableOpacity>
@@ -432,6 +359,16 @@ export default function ClientDashboard() {
           </ScrollView>
         </View>
       </ScrollView>
+
+      {/* Emergency FAB */}
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => router.push('/booking/details')}
+      >
+        <LinearGradient colors={['#EF5350', '#F44336']} style={styles.fabGradient}>
+          <Ionicons name="flash" size={28} color="#FFF" />
+        </LinearGradient>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -449,17 +386,17 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 12,
-    fontSize: 14,
+    fontSize: 16,
     color: '#666',
   },
   header: {
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 12 : 40,
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 16 : 50,
+    paddingHorizontal: 20,
+    paddingBottom: 24,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
   },
-  headerContent: {
+  headerTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
@@ -468,77 +405,253 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   greeting: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#FFF',
     opacity: 0.9,
-    marginBottom: 2,
   },
   userName: {
-    fontSize: 22,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#FFF',
-    marginBottom: 4,
-  },
-  quote: {
-    fontSize: 12,
-    color: '#FFF',
-    opacity: 0.8,
-    fontStyle: 'italic',
+    marginTop: 4,
   },
   headerRight: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+    gap: 12,
   },
-  profileButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#FFF',
+  iconButton: {
+    position: 'relative',
+    padding: 8,
   },
-  profileIconContainer: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 22,
+  badge: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+    backgroundColor: '#EF5350',
+    borderRadius: 10,
+    minWidth: 18,
+    height: 18,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  profileImage: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-  },
-  logoutButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    justifyContent: 'center',
-    alignItems: 'center',
+  badgeText: {
+    color: '#FFF',
+    fontSize: 10,
+    fontWeight: 'bold',
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 30,
+    paddingBottom: 80,
   },
   statsContainer: {
-    paddingHorizontal: 16,
-    marginTop: -10,
+    padding: 16,
+    marginTop: -20,
   },
   statsRow: {
     flexDirection: 'row',
-    gap: 16,
+    gap: 12,
+    marginBottom: 12,
   },
   statCard: {
     flex: 1,
     backgroundColor: '#FFF',
+    borderRadius: 16,
+    padding: 20,
+    alignItems: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
+  },
+  statNumber: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#333',
+    marginTop: 8,
+  },
+  statLabel: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 4,
+  },
+  walletCard: {
+    borderRadius: 16,
+    overflow: 'hidden',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
+  },
+  walletGradient: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+  },
+  walletLeft: {
+    flex: 1,
+  },
+  walletLabel: {
+    fontSize: 14,
+    color: '#FFF',
+    opacity: 0.9,
+  },
+  walletAmount: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#FFF',
+    marginTop: 4,
+  },
+  section: {
+    paddingHorizontal: 16,
+    marginTop: 24,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  seeAllText: {
+    fontSize: 14,
+    color: '#2196F3',
+    fontWeight: '600',
+  },
+  quickActions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    marginTop: 16,
+  },
+  actionCard: {
+    width: (width - 48) / 2,
+    borderRadius: 16,
+    padding: 20,
+    alignItems: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
+  },
+  actionIcon: {
+    marginBottom: 12,
+  },
+  actionText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#FFF',
+    textAlign: 'center',
+  },
+  bookingCard: {
+    backgroundColor: '#FFF',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.08,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
+  },
+  bookingHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  statusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     borderRadius: 12,
-    padding: 12,
+    gap: 6,
+  },
+  statusText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  bookingDate: {
+    fontSize: 12,
+    color: '#999',
+  },
+  bookingService: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 8,
+  },
+  bookingLocation: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 8,
+  },
+  bookingCost: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#2196F3',
+  },
+  emptyState: {
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  emptyStateText: {
+    fontSize: 16,
+    color: '#666',
+    marginTop: 16,
+    marginBottom: 20,
+  },
+  createBookingButton: {
+    backgroundColor: '#2196F3',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 24,
+  },
+  createBookingButtonText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  serviceCard: {
+    width: 100,
+    backgroundColor: '#FFF',
+    borderRadius: 16,
+    padding: 16,
+    marginRight: 12,
     alignItems: 'center',
     ...Platform.select({
       ios: {
@@ -552,189 +665,42 @@ const styles = StyleSheet.create({
       },
     }),
   },
-  statNumber: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-    marginTop: 6,
-  },
-  statLabel: {
-    fontSize: 11,
-    color: '#666',
-    marginTop: 2,
-  },
-  section: {
-    paddingHorizontal: 16,
-    marginTop: 24,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  sectionTitle: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#333',
-  },
-  seeAllText: {
-    fontSize: 13,
-    color: '#2196F3',
-    fontWeight: '500',
-  },
-  quickActionsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginTop: 16,
-  },
-  actionButton: {
-    width: '32%',
-    alignItems: 'center',
-    paddingVertical: 12,
-    marginBottom: 12,
-  },
-  actionIconCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 6,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.12,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 3,
-      },
-    }),
-  },
-  actionLabel: {
-    fontSize: 11,
-    color: '#333',
-    fontWeight: '500',
-    textAlign: 'center',
-  },
-  bookingCard: {
-    backgroundColor: '#FFF',
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 10,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.06,
-        shadowRadius: 3,
-      },
-      android: {
-        elevation: 1,
-      },
-    }),
-  },
-  bookingHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  statusBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 10,
-    gap: 4,
-  },
-  statusText: {
-    fontSize: 10,
-    fontWeight: '600',
-  },
-  bookingDate: {
-    fontSize: 11,
-    color: '#999',
-  },
-  bookingService: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 6,
-  },
-  bookingLocation: {
-    fontSize: 12,
-    color: '#666',
-    marginBottom: 6,
-  },
-  bookingCost: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    color: '#2196F3',
-  },
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: 30,
-    backgroundColor: '#FFF',
-    borderRadius: 12,
-  },
-  emptyStateText: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 12,
-    marginBottom: 16,
-  },
-  createBookingButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#2196F3',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-    gap: 6,
-  },
-  createBookingButtonText: {
-    color: '#FFF',
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  servicesScroll: {
-    marginTop: 12,
-  },
-  serviceCard: {
-    width: 85,
-    backgroundColor: '#FFF',
-    borderRadius: 12,
-    padding: 12,
-    marginRight: 10,
-    alignItems: 'center',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.06,
-        shadowRadius: 3,
-      },
-      android: {
-        elevation: 1,
-      },
-    }),
-  },
   serviceIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 12,
   },
   serviceName: {
-    fontSize: 11,
-    fontWeight: '500',
+    fontSize: 12,
+    fontWeight: '600',
     color: '#333',
     textAlign: 'center',
+  },
+  fab: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    borderRadius: 30,
+    overflow: 'hidden',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
+  },
+  fabGradient: {
+    width: 60,
+    height: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

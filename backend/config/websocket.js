@@ -12,7 +12,7 @@ const socketIo = require('socket.io');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Message = require('../models/Message');
-const Booking = require('../models/Booking');
+const Booking = require('../models/BookingRedesigned');
 
 let io;
 

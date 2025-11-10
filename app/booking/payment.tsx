@@ -20,6 +20,7 @@ import {
  TouchableOpacity,
  View
 } from 'react-native';
+import { useAuth } from '../../contexts/SimpleAuthContext';
 
 // Type definitions
 interface Booking {
@@ -61,6 +62,7 @@ interface PaymentData {
 export default function PaymentScreen() {
  const router = useRouter();
  const params = useLocalSearchParams();
+ const { token, user } = useAuth();
  
  const [booking, setBooking] = useState<Booking | null>(null);
  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod | null>(null);
@@ -350,9 +352,7 @@ export default function PaymentScreen() {
 
  // Helper function to get auth token
  const getAuthToken = async () => {
- // Implement your auth token retrieval logic
- // For now, return empty string - integrate with your auth system
- return '';
+ return token || '';
  };
 
  // Poll payment status for M-Pesa

@@ -1,0 +1,18 @@
+sequenceDiagram
+    participant Client
+    participant API Gateway
+    participant Matching Engine
+    participant Technician
+    participant Payment Gateway
+    participant Database
+    participant Review Service
+
+    Client->>API Gateway: Submit Repair Request
+    API Gateway->>Matching Engine: Find Nearest Technician
+    Matching Engine-->>Technician: Job Notification
+    Technician-->>Client: Accept & Start Service
+    Client->>Payment Gateway: Send Payment (Escrow)
+    Payment Gateway->>Database: Store Transaction
+    Technician-->>Client: Complete Service
+    Client->>Review Service: Submit Rating
+    Review Service->>Database: Save Feedback

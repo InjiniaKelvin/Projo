@@ -1,0 +1,22 @@
+@startuml
+
+node "Client Device" {
+  component "QuickFix App" as App
+}
+node "Vercel Edge Network" {
+  component "Frontend (React Native Web)" as Frontend
+  component "Backend API (Node.js)" as Backend
+}
+node "MongoDB Atlas Cloud" {
+  database "QuickFix Database" as DB
+}
+node "External Services" {
+  component "IntaSend API"
+  component "Supplier API"
+}
+App --> Frontend
+Frontend --> Backend
+Backend --> DB
+Backend --> "IntaSend API"
+Backend --> "Supplier API"
+@enduml

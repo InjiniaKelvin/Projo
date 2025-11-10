@@ -1,0 +1,27 @@
+Analyze this React Native ClientDashboard component for a repair service app called QuickFix.
+
+Provide specific recommendations for:
+
+1. IONICONS: Suggest better icon names from Ionicons library for:
+   - Find Technician button
+   - Emergency button  
+   - Active Bookings section
+   - Completed Bookings stat
+   - Wallet/balance display
+   - Profile button
+   - Stats cards
+
+2. COLORS: Suggest a professional color scheme (hex codes) for:
+   - Primary buttons
+   - Emergency/urgent actions
+   - Success states
+   - Background gradients
+   - Card backgrounds
+
+3. LAYOUT: Suggest spacing improvements:
+   - Padding values
+   - Margin between sections
+   - Card border radius
+   - Shadow effects
+
+Be specific with exact icon names and hex color codes.

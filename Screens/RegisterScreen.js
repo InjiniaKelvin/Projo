@@ -16,7 +16,7 @@ import {
  TouchableOpacity,
  View
 } from 'react-native';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/SimpleAuthContext';
 
 export default function RegisterScreen({ navigation }) {
  // Authentication context

@@ -6,7 +6,7 @@
  */
 
 const Rating = require('../models/Rating');
-const Booking = require('../models/Booking');
+const Booking = require('../models/BookingRedesigned');
 const User = require('../models/User');
 
 /**

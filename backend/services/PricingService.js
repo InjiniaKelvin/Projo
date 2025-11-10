@@ -12,7 +12,7 @@
 
 const mongoose = require('mongoose');
 const User = require('../models/User');
-const Booking = require('../models/Booking');
+const Booking = require('../models/BookingRedesigned');
 
 // Base pricing configuration
 const BASE_PRICES = {

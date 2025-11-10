@@ -10,7 +10,7 @@
  * - Track earnings and withdrawals
  */
 
-const Booking = require('../models/Booking');
+const Booking = require('../models/BookingRedesigned');
 const User = require('../models/User');
 const Transaction = require('../models/Transaction');
 const NotificationService = require('../services/NotificationService');

@@ -13,7 +13,7 @@ import {
  Text,
  View
 } from 'react-native';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/SimpleAuthContext';
 
 export default function ServiceRequestScreen() {
  const navigation = useNavigation();

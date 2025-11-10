@@ -1,0 +1,24 @@
+flowchart TD
+  subgraph Presentation
+    A[Client App - React Native]
+  end
+  subgraph Logic
+    B[API Gateway - Express.js]
+    C[Booking Service]
+    D[Payment Service]
+    E[Review Service]
+  end
+  subgraph Data
+    F[(MongoDB Atlas)]
+  end
+  subgraph Integrations
+    G[IntaSend API]
+    H[Supplier APIs]
+    I[Twilio Messaging]
+  end
+  A --> B --> C --> F
+  B --> D --> G
+  B --> E --> F
+  D --> F
+  B --> H
+  B --> I
