@@ -1,22 +1,29 @@
 {
+  "name": "quickfix-web",
   "version": 2,
   "builds": [
     {
-      "src": "server.js",
-      "use": "@vercel/node"
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "web-build"
+      }
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "server.js"
+      "dest": "https://quickfix-esezk8zcp-injinia-kelvins-projects.vercel.app/api/$1"
+    },
+    {
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",
-      "dest": "server.js"
+      "dest": "/index.html"
     }
   ],
   "env": {
-    "NODE_ENV": "production"
+    "EXPO_PUBLIC_API_URL": "https://quickfix-esezk8zcp-injinia-kelvins-projects.vercel.app"
   }
 }

@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: quickfix-api
+    env: node
+    buildCommand: npm install
+    startCommand: npm run server:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: BCRYPT_ROUNDS
+        value: 10
+      - key: INTASEND_PUBLISHABLE_KEY
+        sync: false
+      - key: INTASEND_SECRET_KEY
+        sync: false
+      - key: INTASEND_ENV
+        value: live
+      - key: INTASEND_CALLBACK_URL
+        sync: false
+      - key: MPESA_ENV
+        value: live
+      - key: MPESA_CALLBACK_URL
+        sync: false
+      - key: RATE_LIMIT_WINDOW_MS
+        value: 900000
+      - key: RATE_LIMIT_MAX_REQUESTS
+        value: 100
+      - key: ALLOWED_ORIGINS
+        value: "*"
+      - key: MAX_FILE_SIZE
+        value: 5242880
+      - key: WEBSOCKET_PORT
+        value: 10000
+    healthCheckPath: /health

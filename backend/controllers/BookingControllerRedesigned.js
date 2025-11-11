@@ -260,6 +260,40 @@ const BookingControllerRedesigned = {
  },
  
  /**
+ * GET BOOKINGS BY EMAIL
+ */
+ async getBookingsByEmail(req, res) {
+ try {
+ const { email } = req.params;
+ 
+ if (!email) {
+ return res.status(400).json({
+ success: false,
+ message: 'Email is required'
+ });
+ }
+ 
+ const bookings = await BookingRedesigned.find({ clientEmail: email.toLowerCase() })
+ .sort({ submittedAt: -1 })
+ .lean();
+ 
+ res.json({
+ success: true,
+ data: bookings,
+ count: bookings.length
+ });
+ 
+ } catch (error) {
+ console.error(' Error fetching bookings by email:', error);
+ res.status(500).json({
+ success: false,
+ message: 'Failed to fetch bookings',
+ error: error.message
+ });
+ }
+ },
+ 
+ /**
  * GET SINGLE BOOKING BY ID
  */
  async getBooking(req, res) {

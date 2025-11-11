@@ -18,6 +18,7 @@
   "eas-build-pre-install": "rm -rf node_modules/.cache .metro* .expo/cache",
   "test:e2e": "detox test",
   "test:e2e:build": "detox build",
+  "vercel-build": "EXPO_NO_METRO_LAZY=1 npx expo export --platform web --output-dir web-build --no-minify",
   "test:e2e:android": "detox test --configuration android.emu.debug",
   "test:e2e:ios": "detox test --configuration ios.sim.debug",
   "test:booking": "detox test e2e/booking-flow.test.js",

@@ -5,7 +5,7 @@
  */
 
 const express = require('express');
-const bookingController = require('../controllers/bookingController');
+const bookingController = require('../controllers/BookingControllerRedesigned');
 const router = express.Router();
 
 // CREATE BOOKING - MAIN ENDPOINT

@@ -106,8 +106,22 @@ app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Health check endpoint (after CORS setup)
-app.get('/health', async (req, res) => {
+// Simple health check endpoint (no DB required - for Vercel)
+app.get('/health', (req, res) => {
+ res.json({
+ status: 'ok',
+ timestamp: new Date().toISOString(),
+ serverless: require.main !== module,
+ env: {
+ hasMongoUri: !!process.env.MONGO_URI,
+ nodeEnv: process.env.NODE_ENV
+ }
+ });
+});
+
+// API health check with database status
+app.get('/api/health', async (req, res) => {
+ try {
  // Try to connect if not connected (for serverless)
  if (database.getConnectionStatus() === 'disconnected') {
  try {
@@ -128,17 +142,13 @@ app.get('/health', async (req, res) => {
  nodeEnv: process.env.NODE_ENV
  }
  });
-});
-
-// Add /api/health endpoint for compatibility
-app.get('/api/health', (req, res) => {
- res.json({
- success: true,
- message: 'QuickFix API is running',
- timestamp: new Date().toISOString(),
- version: '1.0.0',
- database: database.getConnectionStatus()
+ } catch (error) {
+ res.status(500).json({
+ success: false,
+ error: error.message,
+ timestamp: new Date().toISOString()
  });
+ }
 });
 
 // Routes
@@ -256,13 +266,44 @@ if (require.main === module) {
  startServer();
 } else {
  // For Vercel/serverless: Connect to database when module is imported
+ // But don't fail if connection is slow - let individual requests handle it
  database.connect()
  .then(() => {
  console.log(' Database connected successfully (serverless mode)');
  ensureIndexes().catch(err => console.error(' Index creation error:', err.message));
  })
- .catch(err => console.error(' Database connection error (serverless):', err.message));
+ .catch(err => {
+ console.error(' Database connection error (serverless):', err.message);
+ console.log(' App will attempt to reconnect on first request');
+ });
 }
+
+/**
+ * Global error handler (must be after all routes)
+ */
+app.use((err, req, res, next) => {
+ console.error('❌ Unhandled error:', err);
+ 
+ // Don't leak error details in production
+ const isDev = process.env.NODE_ENV !== 'production';
+ 
+ res.status(err.status || 500).json({
+ success: false,
+ error: isDev ? err.message : 'Internal server error',
+ ...(isDev && { stack: err.stack })
+ });
+});
+
+/**
+ * 404 handler
+ */
+app.use((req, res) => {
+ res.status(404).json({
+ success: false,
+ error: 'Route not found',
+ path: req.path
+ });
+});
 
 /**
  * Export the app for testing or external usage
