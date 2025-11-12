@@ -16,6 +16,11 @@ export default function Index() {
  const { user, isLoading } = useAuth();
  const router = useRouter();
  const [showSplash, setShowSplash] = useState(true);
+ const [hasMounted, setHasMounted] = useState(false);
+
+ useEffect(() => {
+  setHasMounted(true);
+ }, []);
 
  console.log('Index: isLoading:', isLoading, 'user:', user, 'showSplash:', showSplash);
 
@@ -73,6 +78,15 @@ export default function Index() {
 
  return () => clearTimeout(timer);
  }, [showSplash]);
+
+ if (!hasMounted) {
+  return (
+  <View style={styles.container}>
+  <ActivityIndicator size="large" color="#0096FF" />
+  <Text style={styles.loadingText}>Initializing...</Text>
+  </View>
+  );
+ }
 
  // Show splash screen
  if (showSplash) {
