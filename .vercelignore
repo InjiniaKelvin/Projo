@@ -10,11 +10,6 @@ ios
 test-*.js
 scripts
 e2e
-assets
-app
-components
-constants
-hooks
 .vscode
 .idea
 *.sh

@@ -68,39 +68,24 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // CORS configuration with improved preflight handling
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || '').split(',').filter(Boolean).concat([
+    'http://localhost:3000',
+    'http://localhost:8081',
+    'http://localhost:19006',
+    'exp://localhost:19000',
+    'https://quickfix-52eg230eo-injinia-kelvins-projects.vercel.app'
+]);
+
 const corsOptions = {
- origin: function (origin, callback) {
- // Allow requests with no origin (like mobile apps or curl requests)
- if (!origin) return callback(null, true);
- 
- // Allow all vercel.app domains for this project
- if (origin.includes('vercel.app') || origin.includes('localhost')) {
- return callback(null, true);
- }
- 
- // Fallback: allow specific origins
- const allowedOrigins = [
- 'http://localhost:3000',
- 'http://localhost:8081', // Expo web (current)
- 'http://localhost:19006', // Expo web (alternative)
- 'exp://localhost:19000', // Expo app
- ];
- 
- if (allowedOrigins.indexOf(origin) !== -1) {
- callback(null, true);
- } else {
- // In development, log the blocked origin for debugging
- console.log('CORS blocked origin:', origin);
- callback(new Error('Not allowed by CORS'));
- }
- },
- credentials: true,
- methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
- allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
- optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+    origin: allowedOrigins,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+    optionsSuccessStatus: 200
 };
 
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Enable pre-flight for all routes
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));

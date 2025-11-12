@@ -13,7 +13,7 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "https://quickfix-esezk8zcp-injinia-kelvins-projects.vercel.app/api/$1"
+      "dest": "https://quickfix-api-pnv5.onrender.com/api/$1"
     },
     {
       "handle": "filesystem"
@@ -24,6 +24,6 @@
     }
   ],
   "env": {
-    "EXPO_PUBLIC_API_URL": "https://quickfix-esezk8zcp-injinia-kelvins-projects.vercel.app"
+    "EXPO_PUBLIC_API_URL": "https://quickfix-api-pnv5.onrender.com"
   }
 }
