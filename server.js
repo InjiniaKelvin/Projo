@@ -67,17 +67,26 @@ const limiter = rateLimit({
 // Apply rate limiting to all routes except health checks in development
 app.use(limiter);
 
-// CORS configuration with improved preflight handling
-const allowedOrigins = (process.env.ALLOWED_ORIGINS || '').split(',').filter(Boolean).concat([
+// CORS configuration with dynamic origin validation for Vercel
+const whitelist = [
     'http://localhost:3000',
     'http://localhost:8081',
     'http://localhost:19006',
     'exp://localhost:19000',
-    'https://quickfix-52eg230eo-injinia-kelvins-projects.vercel.app'
-]);
+].concat((process.env.ALLOWED_ORIGINS || '').split(',').filter(Boolean));
 
 const corsOptions = {
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+        // Regex to match any Vercel deployment for this project
+        const vercelPattern = /^https:\/\/quickfix-.*\.vercel\.app$/;
+        
+        if (!origin || whitelist.indexOf(origin) !== -1 || vercelPattern.test(origin)) {
+            callback(null, true);
+        } else {
+            console.log('CORS blocked origin:', origin);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
