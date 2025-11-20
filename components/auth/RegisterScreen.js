@@ -22,6 +22,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/SimpleAuthContext';
 import WebCompatibleButton from '../WebCompatibleButton';
 import { QUICKFIX_SERVICES } from '../../constants/services';
+import { SHADOWS } from '../../utils/shadows';
 
 // Get screen dimensions for responsive design
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -439,16 +440,8 @@ const styles = StyleSheet.create({
  }),
  marginBottom: 16,
  backgroundColor: '#fff',
+ ...SHADOWS.small,
  ...Platform.select({
- ios: {
- shadowColor: '#000',
- shadowOffset: { width: 0, height: 1 },
- shadowOpacity: 0.05,
- shadowRadius: 2
- },
- android: {
- elevation: 1
- },
  web: {
  boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
  transition: 'border-color 0.2s ease',
@@ -465,16 +458,8 @@ const styles = StyleSheet.create({
  backgroundColor: '#fff',
  marginBottom: 16,
  paddingRight: 8,
+ ...SHADOWS.small,
  ...Platform.select({
- ios: {
- shadowColor: '#000',
- shadowOffset: { width: 0, height: 1 },
- shadowOpacity: 0.05,
- shadowRadius: 2
- },
- android: {
- elevation: 1
- },
  web: {
  boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
  }
@@ -542,16 +527,8 @@ const styles = StyleSheet.create({
  borderColor: '#ddd',
  borderRadius: Platform.OS === 'ios' ? 10 : 8,
  backgroundColor: '#fff',
+ ...SHADOWS.small,
  ...Platform.select({
- ios: {
- shadowColor: '#000',
- shadowOffset: { width: 0, height: 1 },
- shadowOpacity: 0.05,
- shadowRadius: 2
- },
- android: {
- elevation: 1
- },
  web: {
  boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
  }
@@ -625,16 +602,8 @@ const styles = StyleSheet.create({
  paddingHorizontal: 16,
  paddingVertical: Platform.OS === 'ios' ? 14 : 12,
  borderRadius: Platform.OS === 'ios' ? 10 : 8,
+ ...SHADOWS.button,
  ...Platform.select({
- ios: {
- shadowColor: '#007AFF',
- shadowOffset: { width: 0, height: 2 },
- shadowOpacity: 0.2,
- shadowRadius: 4
- },
- android: {
- elevation: 2
- },
  web: {
  boxShadow: '0 2px 8px rgba(0,122,255,0.2)',
  cursor: 'pointer',
@@ -689,16 +658,8 @@ const styles = StyleSheet.create({
  borderRadius: Platform.OS === 'ios' ? 10 : 8,
  paddingVertical: Platform.OS === 'ios' ? 16 : 14,
  alignItems: 'center',
+ ...SHADOWS.button,
  ...Platform.select({
- ios: {
- shadowColor: '#007AFF',
- shadowOffset: { width: 0, height: 2 },
- shadowOpacity: 0.2,
- shadowRadius: 4
- },
- android: {
- elevation: 3
- },
  web: {
  boxShadow: '0 2px 8px rgba(0,122,255,0.2)',
  cursor: 'pointer',

@@ -7,6 +7,7 @@
 
 const { Technician, Booking, Service } = require('../models');
 const LocationService = require('./LocationService');
+const { sendNotificationToRole } = require('../config/websocket');
 
 class TechnicianMatchingService {
  /**
@@ -33,16 +34,27 @@ class TechnicianMatchingService {
  }
  
  // Find available technicians
- const availableTechnicians = await this.getAvailableTechnicians({
+ let availableTechnicians = await this.getAvailableTechnicians({
  serviceId,
  location,
  scheduledDate,
  preferences
  });
  
- if (availableTechnicians.length === 0) {
- return [];
- }
+  if (availableTechnicians.length === 0) {
+    console.log('No technicians found with initial criteria, trying alternatives...');
+    availableTechnicians = await this.getAlternativeTechnicians(criteria);
+  }
+
+  if (availableTechnicians.length === 0) {
+    console.log('No alternative technicians found.');
+    sendNotificationToRole('admin', 'no_technicians_found', {
+      message: `No technicians found for service ${service.name} in ${location.constituency}, ${location.ward}. Manual assignment required.`,
+      serviceId,
+      location,
+    });
+    return [];
+  }
  
  // Calculate match scores for each technician
  const technicianMatches = await Promise.all(

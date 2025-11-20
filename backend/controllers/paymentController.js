@@ -964,7 +964,95 @@ class PaymentController {
  }
 
  /**
- * Process M-Pesa payment (legacy method - replaced by IntaSend)
+   * Get transaction statistics
+   * @param {Object} req - Express request object
+   * @param {Object} res - Express response object
+   */
+  async getTransactionStats(req, res) {
+    try {
+      const userId = req.user._id;
+      const { period = '30d' } = req.query;
+      
+      let startDate = new Date();
+      if (period === '7d') {
+        startDate.setDate(startDate.getDate() - 7);
+      } else if (period === '30d') {
+        startDate.setDate(startDate.getDate() - 30);
+      } else if (period === '90d') {
+        startDate.setDate(startDate.getDate() - 90);
+      } else if (period === '1y') {
+        startDate.setFullYear(startDate.getFullYear() - 1);
+      } else {
+        startDate.setDate(startDate.getDate() - 30); // Default to 30d
+      }
+
+      const stats = await Transaction.aggregate([
+        {
+          $match: {
+            userId: userId,
+            createdAt: { $gte: startDate }
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            totalVolume: { $sum: '$amount.gross' },
+            count: { $sum: 1 },
+            avgAmount: { $avg: '$amount.gross' },
+            successful: { 
+              $sum: { $cond: [{ $eq: ['$status', 'completed'] }, 1, 0] }
+            },
+            failed: { 
+              $sum: { $cond: [{ $eq: ['$status', 'failed'] }, 1, 0] }
+            }
+          }
+        }
+      ]);
+
+      // Get daily volume for chart
+      const dailyVolume = await Transaction.aggregate([
+        {
+          $match: {
+            userId: userId,
+            createdAt: { $gte: startDate }
+          }
+        },
+        {
+          $group: {
+            _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+            amount: { $sum: '$amount.gross' },
+            count: { $sum: 1 }
+          }
+        },
+        { $sort: { _id: 1 } }
+      ]);
+
+      res.json({
+        success: true,
+        data: {
+          summary: stats[0] || {
+            totalVolume: 0,
+            count: 0,
+            avgAmount: 0,
+            successful: 0,
+            failed: 0
+          },
+          dailyVolume
+        }
+      });
+
+    } catch (error) {
+      console.error('Get transaction stats error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to get transaction statistics',
+        error: error.message
+      });
+    }
+  }
+
+  /**
+ * Process M-Pesa payment (mock implementation)
  * @param {number} amount - Payment amount
  * @param {Object} details - Payment details
  * @param {Object} transaction - Transaction object

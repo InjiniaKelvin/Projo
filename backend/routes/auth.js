@@ -14,6 +14,8 @@ const {
  validateUserLogin,
  handleValidationErrors
 } = require('../middleware/validation');
+const multer = require('multer');
+const path = require('path');
 
 const router = express.Router();
 
@@ -38,6 +40,28 @@ const generalLimiter = rateLimit({
  },
  standardHeaders: true,
  legacyHeaders: false
+});
+
+// Configure multer for profile pictures
+const storage = multer.diskStorage({
+ destination: function (req, file, cb) {
+   cb(null, 'uploads/');
+ },
+ filename: function (req, file, cb) {
+   cb(null, `profile-${Date.now()}${path.extname(file.originalname)}`);
+ }
+});
+
+const upload = multer({ 
+ storage: storage,
+ limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+ fileFilter: (req, file, cb) => {
+   if (file.mimetype.startsWith('image/')) {
+     cb(null, true);
+   } else {
+     cb(new Error('Not an image! Please upload an image.'), false);
+   }
+ }
 });
 
 /**
@@ -135,6 +159,20 @@ router.post('/change-password', generalLimiter, authenticateToken, [
  * @access Private
  */
 router.get('/profile', generalLimiter, authenticateToken, authController.getProfile);
+
+/**
+ * @route PUT /api/auth/profile
+ * @desc Update current user profile
+ * @access Private
+ */
+router.put('/profile', generalLimiter, authenticateToken, authController.updateProfile);
+
+/**
+ * @route POST /api/auth/profile/picture
+ * @desc Upload profile picture
+ * @access Private
+ */
+router.post('/profile/picture', generalLimiter, authenticateToken, upload.single('profilePicture'), authController.uploadProfilePicture);
 
 /**
  * @route GET /api/auth/verify-email/:token

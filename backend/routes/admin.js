@@ -13,13 +13,16 @@ const express = require('express');
 const router = express.Router();
 const { authenticateToken, requireAdmin } = require('../middleware/auth');
 const {
+ getSystemStats,
  getDashboardAnalytics,
  getUsers,
  verifyTechnician,
  toggleUserStatus,
  resolveDispute,
  updatePricing,
- sendBroadcastNotification
+ sendBroadcastNotification,
+ getBookings,
+ assignTechnician
 } = require('../controllers/adminController');
 
 // Apply admin authentication to all routes
@@ -27,12 +30,24 @@ router.use(authenticateToken);
 router.use(requireAdmin);
 
 // Dashboard analytics
+router.get('/system/stats', getSystemStats);
 router.get('/dashboard', getDashboardAnalytics);
+
+// Booking management
+router.get('/bookings', getBookings);
+router.post('/bookings/:bookingId/assign', assignTechnician);
 
 // User management
 router.get('/users', getUsers);
 router.post('/users/:userId/verify', verifyTechnician);
 router.post('/users/:userId/toggle-status', toggleUserStatus);
+
+// Technician management
+router.get('/technicians/pending', (req, res, next) => {
+ req.query.role = 'technician';
+ req.query.verificationStatus = 'pending';
+ getUsers(req, res, next);
+});
 
 // Dispute resolution
 router.post('/disputes/:bookingId/resolve', resolveDispute);

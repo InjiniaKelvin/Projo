@@ -1,140 +1,184 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import apiClient, { API_ENDPOINTS } from '@/config/api';
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
+import { createShadow } from '@/utils/shadows';
+
+type User = {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+  createdAt: string;
+  isActive: boolean;
+};
 
 export default function UserManagement() {
- const router = useRouter();
+  const router = useRouter();
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
- return (
- <ScrollView style={styles.container}>
- <View style={styles.header}>
- <TouchableOpacity 
- style={styles.backButton}
- onPress={() => router.push('/dashboard/admin')}
- >
- <Text style={styles.backButtonText}>← Back to Dashboard</Text>
- </TouchableOpacity>
- <Text style={styles.title}>User Management</Text>
- </View>
+  const fetchUsers = async (pageNum = 1) => {
+    try {
+      setLoading(true);
+      const response = await apiClient.get(`${API_ENDPOINTS.ADMIN.USERS}?page=${pageNum}&limit=15`);
+      if (response.data.users) {
+        setUsers(pageNum === 1 ? response.data.users : [...users, ...response.data.users]);
+        setTotalPages(response.data.totalPages);
+        setPage(pageNum);
+      }
+    } catch (error) {
+      console.error('Error loading users:', error);
+      Alert.alert('Error', 'Failed to fetch users.');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
- <View style={styles.content}>
- <Text style={styles.sectionTitle}>User Statistics</Text>
- 
- <View style={styles.statsContainer}>
- <View style={styles.statCard}>
- <Text style={styles.statNumber}>0</Text>
- <Text style={styles.statLabel}>Total Users</Text>
- </View>
- 
- <View style={styles.statCard}>
- <Text style={styles.statNumber}>0</Text>
- <Text style={styles.statLabel}>Active Users</Text>
- </View>
- 
- <View style={styles.statCard}>
- <Text style={styles.statNumber}>0</Text>
- <Text style={styles.statLabel}>Technicians</Text>
- </View>
- </View>
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
- <Text style={styles.sectionTitle}>Quick Actions</Text>
- 
- <TouchableOpacity style={styles.actionButton}>
- <Text style={styles.actionButtonText}>View All Users</Text>
- </TouchableOpacity>
- 
- <TouchableOpacity style={styles.actionButton}>
- <Text style={styles.actionButtonText}>Pending Verifications</Text>
- </TouchableOpacity>
- 
- <TouchableOpacity style={styles.actionButton}>
- <Text style={styles.actionButtonText}>Export User Data</Text>
- </TouchableOpacity>
- </View>
- </ScrollView>
- );
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchUsers(1);
+  };
+
+  const handleLoadMore = () => {
+    if (page < totalPages && !loading) {
+      fetchUsers(page + 1);
+    }
+  };
+
+  const renderUserItem = ({ item }: { item: User }) => (
+    <TouchableOpacity style={styles.userCard} onPress={() => router.push(`/admin/user/${item._id}`)}>
+      <View style={styles.userInfo}>
+        <View style={styles.avatar}>
+          <ThemedText style={styles.avatarText}>{item.firstName[0]}{item.lastName[0]}</ThemedText>
+        </View>
+        <View>
+          <ThemedText style={styles.userName}>{item.firstName} {item.lastName}</ThemedText>
+          <ThemedText style={styles.userEmail}>{item.email}</ThemedText>
+        </View>
+      </View>
+      <View style={styles.userDetails}>
+        <ThemedText style={styles.userRole}>{item.role}</ThemedText>
+        <View style={[styles.statusIndicator, { backgroundColor: item.isActive ? '#4CAF50' : '#F44336' }]} />
+      </View>
+    </TouchableOpacity>
+  );
+
+  return (
+    <ThemedView style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()}>
+          <Ionicons name="arrow-back" size={24} color="#fff" />
+        </TouchableOpacity>
+        <ThemedText style={styles.title}>User Management</ThemedText>
+        <View style={{ width: 24 }} />
+      </View>
+      <FlatList
+        data={users}
+        renderItem={renderUserItem}
+        keyExtractor={(item) => item._id}
+        contentContainerStyle={styles.listContainer}
+        onRefresh={onRefresh}
+        refreshing={refreshing}
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.5}
+        ListEmptyComponent={() => (
+          !loading && <ThemedText style={styles.emptyText}>No users found.</ThemedText>
+        )}
+        ListFooterComponent={() => (
+          loading && page > 1 && <ActivityIndicator size="small" color="#007AFF" />
+        )}
+      />
+    </ThemedView>
+  );
 }
 
 const styles = StyleSheet.create({
- container: {
- flex: 1,
- backgroundColor: '#f5f7fa',
- },
- header: {
- backgroundColor: '#0d6efd',
- padding: 20,
- paddingTop: 50,
- },
- backButton: {
- marginBottom: 10,
- },
- backButtonText: {
- color: '#fff',
- fontSize: 16,
- },
- title: {
- fontSize: 24,
- fontWeight: 'bold',
- color: '#fff',
- textAlign: 'center',
- },
- content: {
- padding: 20,
- },
- sectionTitle: {
- fontSize: 18,
- fontWeight: '600',
- marginBottom: 15,
- color: '#333',
- },
- statsContainer: {
- flexDirection: 'row',
- justifyContent: 'space-between',
- marginBottom: 30,
- },
- statCard: {
- backgroundColor: '#fff',
- padding: 15,
- borderRadius: 8,
- alignItems: 'center',
- flex: 1,
- marginHorizontal: 5,
- elevation: 2,
- shadowColor: '#000',
- shadowOffset: {
- width: 0,
- height: 1,
- },
- shadowOpacity: 0.1,
- shadowRadius: 2,
- },
- statNumber: {
- fontSize: 24,
- fontWeight: 'bold',
- color: '#0d6efd',
- },
- statLabel: {
- fontSize: 12,
- color: '#666',
- textAlign: 'center',
- },
- actionButton: {
- backgroundColor: '#fff',
- padding: 15,
- borderRadius: 8,
- marginBottom: 10,
- elevation: 2,
- shadowColor: '#000',
- shadowOffset: {
- width: 0,
- height: 1,
- },
- shadowOpacity: 0.1,
- shadowRadius: 2,
- },
- actionButtonText: {
- textAlign: 'center',
- fontWeight: '600',
- color: '#0d6efd',
- },
+  container: {
+    flex: 1,
+    backgroundColor: '#f8f9fa',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#007AFF',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    paddingTop: 40, // For status bar
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  listContainer: {
+    padding: 10,
+  },
+  userCard: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+    // ...createShadow(2),
+  },
+  userInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#E0E0E0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 15,
+  },
+  avatarText: {
+    color: '#333',
+    fontWeight: 'bold',
+  },
+  userName: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  userEmail: {
+    color: '#666',
+    fontSize: 12,
+  },
+  userDetails: {
+    alignItems: 'flex-end',
+  },
+  userRole: {
+    textTransform: 'capitalize',
+    fontWeight: '500',
+    marginBottom: 5,
+  },
+  statusIndicator: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  emptyText: {
+    textAlign: 'center',
+    marginTop: 50,
+    fontSize: 16,
+    color: '#666',
+  },
 });

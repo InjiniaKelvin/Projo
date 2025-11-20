@@ -250,7 +250,7 @@ export default function MyJobs() {
  {item.clientFeedback && (
  <View style={styles.feedbackContainer}>
  <Text style={styles.feedbackLabel}>Client Feedback:</Text>
- <Text style={styles.feedbackText}>"{item.clientFeedback}"</Text>
+             <Text style={styles.feedbackText}>&quot;{item.clientFeedback}&quot;</Text>
  </View>
  )}
  </View>

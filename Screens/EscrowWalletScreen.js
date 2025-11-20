@@ -16,6 +16,7 @@ import {
 import { useAuth } from '../contexts/SimpleAuthContext';
 import EscrowService from '../services/EscrowService';
 import PaymentService from '../services/PaymentService';
+import { createShadow, SHADOWS } from '../utils/shadows';
 
 export default function EscrowWalletScreen({ navigation }) {
  // Authentication context
@@ -349,11 +350,7 @@ const styles = StyleSheet.create({
  marginTop: -10,
  padding: 24,
  borderRadius: 16,
- elevation: 4,
- shadowColor: '#000',
- shadowOffset: { width: 0, height: 2 },
- shadowOpacity: 0.1,
- shadowRadius: 8,
+ ...createShadow({ elevation: 4, radius: 8, opacity: 0.1 }),
  },
  balanceHeader: {
  flexDirection: 'row',
@@ -402,11 +399,7 @@ const styles = StyleSheet.create({
  paddingVertical: 16,
  paddingHorizontal: 12,
  borderRadius: 12,
- elevation: 2,
- shadowColor: '#000',
- shadowOffset: { width: 0, height: 1 },
- shadowOpacity: 0.1,
- shadowRadius: 4,
+ ...SHADOWS.small,
  minWidth: 100,
  },
  actionText: {
@@ -441,11 +434,7 @@ const styles = StyleSheet.create({
  padding: 16,
  borderRadius: 12,
  marginBottom: 12,
- elevation: 2,
- shadowColor: '#000',
- shadowOffset: { width: 0, height: 1 },
- shadowOpacity: 0.1,
- shadowRadius: 4,
+ ...SHADOWS.small,
  },
  escrowHeader: {
  flexDirection: 'row',
@@ -487,11 +476,7 @@ const styles = StyleSheet.create({
  padding: 16,
  borderRadius: 12,
  marginBottom: 8,
- elevation: 1,
- shadowColor: '#000',
- shadowOffset: { width: 0, height: 1 },
- shadowOpacity: 0.05,
- shadowRadius: 2,
+ ...createShadow({ elevation: 1, radius: 2, opacity: 0.05 }),
  },
  transactionDetails: {
  flex: 1,
@@ -534,11 +519,7 @@ const styles = StyleSheet.create({
  margin: 20,
  padding: 20,
  borderRadius: 12,
- elevation: 2,
- shadowColor: '#000',
- shadowOffset: { width: 0, height: 1 },
- shadowOpacity: 0.1,
- shadowRadius: 4,
+ ...SHADOWS.small,
  },
  helpTitle: {
  fontSize: 18,

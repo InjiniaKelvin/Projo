@@ -189,21 +189,26 @@ const optionalAuth = async (req, res, next) => {
  * Middleware to check if user's account is verified
  */
 const requireVerified = (req, res, next) => {
- if (!req.user) {
- return res.status(401).json({
- success: false,
- message: 'Authentication required'
- });
- }
- 
- if (!req.user.isVerified) {
- return res.status(403).json({
- success: false,
- message: 'Account verification required'
- });
- }
- 
- next();
+  // Skip verification in development environment
+  if (process.env.NODE_ENV === 'development') {
+    return next();
+  }
+
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      message: 'Authentication required'
+    });
+  }
+  
+  if (!req.user.isVerified) {
+    return res.status(403).json({
+      success: false,
+      message: 'Account verification required'
+    });
+  }
+  
+  next();
 };
 
 /**

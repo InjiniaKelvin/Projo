@@ -72,15 +72,13 @@ class TechnicianController {
  // Extract skill names from technician's skills
  const technicianSkills = technician.skills.map(skill => skill.name);
 
- // Build query for available jobs
- const query = {
- status: 'submitted', // Only jobs that haven't been assigned
- technicianId: null,
- // Optional filters
- ...(urgency && { urgency })
- };
-
- // Filter by technician's skills OR specific serviceType if provided
+    // Build query for available jobs
+    const query = {
+      status: { $in: ['submitted', 'pending'] }, // Jobs that haven't been assigned
+      technicianId: null,
+      // Optional filters
+      ...(urgency && { urgency })
+    }; // Filter by technician's skills OR specific serviceType if provided
  if (serviceType) {
  query.serviceType = serviceType;
  } else if (technicianSkills.length > 0) {
@@ -100,55 +98,66 @@ class TechnicianController {
 
  const count = await Booking.countDocuments(query);
 
- // Calculate distance for each job (if technician location available)
- const jobsWithDistance = jobs.map(job => {
- const jobData = job.toObject();
- 
- // Calculate distance if both locations available
- if (technician.location?.coordinates && job.location?.coordinates) {
- const distance = calculateDistance(
- technician.location.coordinates[1], // lat
- technician.location.coordinates[0], // lng
- job.location.coordinates[1],
- job.location.coordinates[0]
- );
- jobData.distance = distance.toFixed(1);
- } else {
- jobData.distance = 'N/A';
- }
-
- // Add client rating
- jobData.clientRating = job.userId?.rating?.average || 0;
- jobData.clientName = `${job.userId?.firstName || ''} ${job.userId?.lastName || ''}`.trim();
-
- return jobData;
- });
-
- // Filter by distance if specified
- const filteredJobs = maxDistance 
- ? jobsWithDistance.filter(job => 
- job.distance === 'N/A' || parseFloat(job.distance) <= parseFloat(maxDistance)
- )
- : jobsWithDistance;
-
- res.json({
+ res.status(200).json({
  success: true,
- data: {
- jobs: filteredJobs,
+ message: 'Available jobs fetched successfully',
+ data: jobs,
  totalPages: Math.ceil(count / limit),
- currentPage: parseInt(page),
- totalJobs: count,
- availableNearby: filteredJobs.length
- }
+ currentPage: page
  });
-
  } catch (error) {
- console.error('ERROR: Get available jobs failed:', error);
+ console.error('Error fetching available jobs:', error);
  res.status(500).json({
  success: false,
- message: 'Failed to fetch available jobs',
- error: error.message
+ message: 'Server error while fetching jobs'
  });
+ }
+ }
+
+ /**
+ * GET PROFILE
+ * Fetch the profile of the currently authenticated technician
+ */
+ async getProfile(req, res) {
+ try {
+ const technician = await User.findById(req.user.id).select('-password');
+ if (!technician) {
+ return res.status(404).json({ success: false, message: 'Technician not found' });
+ }
+ res.status(200).json({ success: true, data: technician });
+ } catch (error) {
+ console.error('Error fetching technician profile:', error);
+ res.status(500).json({ success: false, message: 'Server error' });
+ }
+ }
+
+ /**
+ * UPDATE PROFILE
+ * Update the profile of the currently authenticated technician
+ */
+ async updateProfile(req, res) {
+ try {
+ const { id } = req.user;
+ const updates = req.body;
+
+ // Prevent changing role or other sensitive data
+ delete updates.role;
+ delete updates.password;
+
+ const updatedTechnician = await User.findByIdAndUpdate(id, updates, { new: true }).select('-password');
+
+ if (!updatedTechnician) {
+ return res.status(404).json({ success: false, message: 'Technician not found' });
+ }
+
+ res.status(200).json({
+ success: true,
+ message: 'Profile updated successfully',
+ data: updatedTechnician
+ });
+ } catch (error) {
+ console.error('Error updating technician profile:', error);
+ res.status(500).json({ success: false, message: 'Server error' });
  }
  }
 

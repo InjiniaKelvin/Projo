@@ -173,7 +173,8 @@ const bookingSchema = new mongoose.Schema({
  '12:00-14:00',
  '14:00-16:00',
  '16:00-18:00',
- 'flexible'
+ 'flexible',
+ 'emergency-asap' // Added for emergency bookings
  ]
  },
  
@@ -188,6 +189,12 @@ const bookingSchema = new mongoose.Schema({
  type: String,
  default: null
  },
+ 
+ locationHistory: [{
+  latitude: Number,
+  longitude: Number,
+  timestamp: Date,
+ }],
  
  // STATUS TRACKING
  status: {

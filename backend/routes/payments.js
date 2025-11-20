@@ -112,6 +112,13 @@ router.post('/escrow/release', paymentLimiter, [
 ], paymentController.releaseFromEscrow);
 
 /**
+ * @route GET /api/payments/transactions/stats
+ * @desc Get transaction statistics
+ * @access Private
+ */
+router.get('/transactions/stats', generalLimiter, paymentController.getTransactionStats);
+
+/**
  * @route GET /api/payments/transactions
  * @desc Get transaction history
  * @access Private

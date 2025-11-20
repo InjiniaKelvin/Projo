@@ -1,0 +1,359 @@
+env: load .env
+env: export PORT EXPO_PUBLIC_API_URL API_URL JWT_SECRET BCRYPT_ROUNDS MONGO_URI MPESA_ENV MPESA_CALLBACK_URL INTASEND_PUBLISHABLE_KEY INTASEND_SECRET_KEY INTASEND_ENV INTASEND_CALLBACK_URL RATE_LIMIT_WINDOW_MS RATE_LIMIT_MAX_REQUESTS ALLOWED_ORIGINS MAX_FILE_SIZE WEBSOCKET_PORT
+Starting project at /home/injinia47/Desktop/PROJO/Projo
+Starting Metro Bundler
+Waiting on http://localhost:8081
+Logs for your project will appear below.
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ░░░░░░░░░░░░░░░░  1.0% (1/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓░░░░░░░░░░░░ 25.0% (11/23)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  4.0% ( 2/15)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓░░░░░░░░░░░░ 27.2% (15/92)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  5.7% ( 11/106)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓░░░░░░░░░░░░ 27.2% (20/95)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  5.7% ( 15/123)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓░░░░░░░░░░░░ 27.2% ( 31/122)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  5.7% ( 15/123)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓░░░░░░░░░░░░ 27.2% ( 50/137)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  5.7% ( 15/123)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓░░░░░░░░░░░░ 27.2% ( 72/162)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  5.7% ( 15/123)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓░░░░░░░░░░░░ 27.2% ( 91/179)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  5.7% ( 33/139)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓░░░░░░░░░░░░ 27.2% ( 92/183)
+λ node_modules/expo-router/node/render.js ▓▓░░░░░░░░░░░░░░ 14.1% ( 65/173)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓░░░░░░░░░░░░ 27.2% ( 92/183)
+λ node_modules/expo-router/node/render.js ▓▓▓░░░░░░░░░░░░░ 22.8% (104/271)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓░░░░░░░░░░░ 35.1% (119/201)
+λ node_modules/expo-router/node/render.js ▓▓▓░░░░░░░░░░░░░ 22.8% (123/338)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓░░░░░░░░ 54.4% (177/240)
+λ node_modules/expo-router/node/render.js ▓▓▓░░░░░░░░░░░░░ 22.8% (125/342)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓░░░░░░░░ 55.0% (183/258)
+λ node_modules/expo-router/node/render.js ▓▓▓░░░░░░░░░░░░░ 23.7% (184/378)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓░░░░░░░░ 55.0% (183/258)
+λ node_modules/expo-router/node/render.js ▓▓▓▓░░░░░░░░░░░░ 29.8% (223/409)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓░░░░░░░░ 55.0% (183/258)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓░░░░░░░░░░░ 32.0% (233/412)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓░░░░░░░░ 55.0% (183/258)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓░░░░░░░░░░░ 34.6% (251/427)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓░░░░░░░░ 55.0% (183/258)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓░░░░░░░░░░ 38.9% (267/428)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓░░░░░░░░ 55.0% (183/258)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓▓░░░░░░░░░ 44.2% (302/454)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓░░░░░░░░ 55.0% (213/292)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓▓░░░░░░░░░ 44.4% (336/510)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 57.5% (248/327)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓▓░░░░░░░░░ 44.4% (341/512)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 60.3% (258/399)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓▓░░░░░░░░░ 47.2% (371/540)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 60.3% (266/420)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓▓░░░░░░░░░ 49.5% (389/555)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 60.3% (268/425)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓▓▓░░░░░░░░ 52.9% (411/583)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 60.3% (268/425)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 60.6% (478/614)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 60.3% (308/450)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 65.4% (512/633)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 60.3% (346/501)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 68.4% (540/662)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 60.3% (363/512)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 68.4% (540/662)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 60.3% (385/522)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 68.4% (540/662)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 60.3% (398/523)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 68.4% (540/662)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 60.3% (424/558)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓▓▓▓▓▓░░░░░ 70.2% (595/717)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 62.5% (456/577)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓▓▓▓▓▓░░░░░ 72.5% (648/761)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 65.9% (515/665)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓▓▓▓▓▓░░░░░ 74.1% (662/769)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 65.9% (558/703)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 83.5% (722/800)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 67.7% (604/736)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 87.9% (765/816)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓▓▓▓░░░░░ 73.7% (704/820)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 89.3% (779/826)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 89.5% (800/854)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 91.8% (814/941)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 90.7% (820/864)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 91.8% ( 896/1023)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 90.7% (823/865)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 91.8% ( 944/1053)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 93.1% (859/913)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 91.8% ( 971/1090)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 93.1% (890/935)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 91.8% (1053/1127)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 95.0% (938/966)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 93.8% (1129/1166)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (982/982)
+λ node_modules/expo-router/node/render.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 98.9% (1207/1214)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ node_modules/expo-router/node/render.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ Bundled 187182ms node_modules/expo-router/node/render.js (1218 modules)
+λ Bundled 187346ms node_modules/expo-router/node/render.js (1 module)
+Web ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (982/982)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 191432ms index.js (1 module)
+Web ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (982/982)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 191677ms index.js (982 modules)
+λ  WARN  "shadow*" style props are deprecated. Use "boxShadow". 
+λ  LOG   Auth: Module level - Platform.OS: web isWeb: true
+λ  LOG   Auth: Initial state created with isLoading: false
+λ  LOG   Auth: AuthProvider rendered!
+λ  LOG   Auth: Current state: {
+  isLoading: false,
+  isAuthenticated: false,
+  user: null,
+  token: null,
+  error: null,
+  isLoginLoading: false,
+  isRegisterLoading: false
+}
+λ  LOG  Index: isLoading: false user: null showSplash: true
+λ  WARN  "shadow*" style props are deprecated. Use "boxShadow". 
+λ  LOG   Auth: Module level - Platform.OS: web isWeb: true
+λ  LOG   Auth: Initial state created with isLoading: false
+λ  LOG   Auth: AuthProvider rendered!
+λ  LOG   Auth: Current state: {
+  isLoading: false,
+  isAuthenticated: false,
+  user: null,
+  token: null,
+  error: null,
+  isLoginLoading: false,
+  isRegisterLoading: false
+}
+λ  LOG  Index: isLoading: false user: null showSplash: true
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓░░░░░░░░░░░░ 29.8% ( 57/239)
+Web ./index.js ▓▓▓▓░░░░░░░░░░░░ 29.8% ( 73/266)
+Web ./index.js ▓▓▓▓░░░░░░░░░░░░ 29.8% ( 73/269)
+Web ./index.js ▓▓▓▓░░░░░░░░░░░░ 29.8% ( 74/269)
+Web ./index.js ▓▓▓▓░░░░░░░░░░░░ 29.8% (136/327)
+Web ./index.js ▓▓▓▓░░░░░░░░░░░░ 29.8% (197/394)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓░░░░░░░░░░░░ 29.8% (213/406)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓░░░░░░░░░░░░ 30.0% (223/407)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓░░░░░░░░░░░ 34.9% (248/424)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓░░░░░░░░░░░ 36.4% (271/454)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓░░░░░░░░░░ 38.9% (301/490)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓░░░░░░░░░ 47.7% (383/557)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓░░░░░░░░ 51.6% (438/610)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓░░░░░░░░ 54.5% (478/652)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 57.5% (512/675)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 63.0% (539/679)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 68.0% (633/769)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 78.7% (723/815)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 84.5% (811/908)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 84.5% (838/925)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 87.0% (875/938)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 94.5% (936/963)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (983/983)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 82143ms index.js (983 modules)
+Web Bundled 61952ms index.js (1 module)
+ LOG  [web] Logs will appear in the browser console
+ LOG  [web] Logs will appear in the browser console
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ Bundled 943ms node_modules/expo-router/node/render.js (1 module)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 5985ms index.js (1 module)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ  WARN  "shadow*" style props are deprecated. Use "boxShadow". 
+λ  LOG   Auth: Module level - Platform.OS: web isWeb: true
+λ  WARN  props.pointerEvents is deprecated. Use style.pointerEvents 
+λ  WARN  Image: style.resizeMode is deprecated. Please use props.resizeMode. 
+λ  LOG   Auth: Initial state created with isLoading: false
+λ  LOG   Auth: AuthProvider rendered!
+λ  LOG   Auth: Current state: {
+  isLoading: false,
+  isAuthenticated: false,
+  user: null,
+  token: null,
+  error: null,
+  isLoginLoading: false,
+  isRegisterLoading: false
+}
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ Bundled 80672ms node_modules/expo-router/node/render.js (1 module)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ Bundled 6384ms node_modules/expo-router/node/render.js (1 module)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 149021ms index.js (1 module)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 23522ms index.js (1 module)
+λ  WARN  "shadow*" style props are deprecated. Use "boxShadow". 
+λ  LOG   Auth: Module level - Platform.OS: web isWeb: true
+λ  WARN  props.pointerEvents is deprecated. Use style.pointerEvents 
+λ  LOG   Auth: Initial state created with isLoading: false
+λ  LOG   Auth: AuthProvider rendered!
+λ  LOG   Auth: Current state: {
+  isLoading: false,
+  isAuthenticated: false,
+  user: null,
+  token: null,
+  error: null,
+  isLoginLoading: false,
+  isRegisterLoading: false
+}
+λ  WARN  "shadow*" style props are deprecated. Use "boxShadow". 
+λ  LOG   Auth: Module level - Platform.OS: web isWeb: true
+λ  LOG   Auth: Initial state created with isLoading: false
+λ  LOG   Auth: AuthProvider rendered!
+λ  LOG   Auth: Current state: {
+  isLoading: false,
+  isAuthenticated: false,
+  user: null,
+  token: null,
+  error: null,
+  isLoginLoading: false,
+  isRegisterLoading: false
+}
+λ  LOG  LoginScreen: useAuth successful: {
+  isLoading: false,
+  isAuthenticated: false,
+  user: null,
+  token: null,
+  error: null,
+  isLoginLoading: false,
+  isRegisterLoading: false,
+  login: [AsyncFunction: login],
+  register: [AsyncFunction: register],
+  logout: [AsyncFunction: logout],
+  clearError: [Function: clearError],
+  updateUser: [AsyncFunction: updateUser]
+}
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 1985ms index.js (1 module)
+ LOG  [web] Logs will appear in the browser console
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 161ms index.js (1 module)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+λ Bundled 220ms node_modules/expo-router/node/render.js (1 module)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 4552ms index.js (1 module)
+Web ./index.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+ LOG  [web] Logs will appear in the browser console
+λ  WARN  "shadow*" style props are deprecated. Use "boxShadow". 
+λ  LOG   Auth: Module level - Platform.OS: web isWeb: true
+λ  WARN  props.pointerEvents is deprecated. Use style.pointerEvents 
+λ  WARN  Image: style.resizeMode is deprecated. Please use props.resizeMode. 
+λ  LOG   Auth: Initial state created with isLoading: false
+λ  LOG   Auth: AuthProvider rendered!
+λ  LOG   Auth: Current state: {
+  isLoading: false,
+  isAuthenticated: false,
+  user: null,
+  token: null,
+  error: null,
+  isLoginLoading: false,
+  isRegisterLoading: false
+}

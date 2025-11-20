@@ -19,7 +19,7 @@ import {
 } from 'react-native';
 import { useAuth } from '../../contexts/SimpleAuthContext';
 import { SHADOWS } from '../../utils/shadows';
-import WebCompatibleButton from '../WebCompatibleButton';
+import { Button } from '../ui/Button';
 
 // Get screen dimensions for responsive design
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -29,25 +29,8 @@ export default function LoginScreen() {
  const [password, setPassword] = useState('');
  const [isLoading, setIsLoading] = useState(false);
  
- let router;
- try {
- router = useRouter();
- } catch (error) {
- console.error('LoginScreen: useRouter failed:', error);
- router = { push: () => console.log('Router not available') };
- }
- 
- // Test if useAuth is working
- let authState;
- try {
- authState = useAuth();
- console.log('LoginScreen: useAuth successful:', authState);
- } catch (error) {
- console.error('LoginScreen: useAuth failed:', error);
- authState = { login: null, error: null, clearError: () => {} };
- }
- 
- const { login, error, clearError } = authState;
+ const router = useRouter();
+ const { login, error, clearError } = useAuth();
 
  const handleLogin = async () => {
  console.log('LoginScreen: handleLogin called');
@@ -94,12 +77,9 @@ export default function LoginScreen() {
  }
  };
 
- const handleForgotPassword = () => {
- // TODO: Implement forgot password
- Alert.alert('Info', 'Forgot password feature coming soon');
- };
-
- const handleSignUp = () => {
+  const handleForgotPassword = () => {
+    router.push('/auth/forgot-password');
+  }; const handleSignUp = () => {
  try {
  router.push('/auth/register');
  } catch (error) {
@@ -152,18 +132,15 @@ export default function LoginScreen() {
  autoComplete="password"
  />
 
- <WebCompatibleButton
- title={isLoading ? "Signing In..." : "Sign In"}
- onPress={() => {
- console.log('Login button pressed!');
- handleLogin();
- }}
- disabled={isLoading}
- style={{
- ...styles.loginButton,
- ...(isLoading && styles.disabledButton)
- }}
- />
+          <Button
+            title={isLoading ? "Signing In..." : "Sign In"}
+            onPress={() => {
+              console.log('Login button pressed!');
+              handleLogin();
+            }}
+            isLoading={isLoading}
+            style={styles.loginButton}
+          />
 
  <TouchableOpacity 
  onPress={handleForgotPassword}
@@ -184,6 +161,22 @@ export default function LoginScreen() {
  accessibilityRole="button"
  >
  <Text style={styles.signUpText}>Sign Up</Text>
+ </TouchableOpacity>
+ </View>
+
+ <View style={styles.adminSection}>
+ <TouchableOpacity 
+ onPress={() => {
+ // Pre-fill admin credentials for quick access
+ setEmail('admin@quickfix.com');
+ setPassword('');
+ }}
+ style={styles.adminButton}
+ accessible={true}
+ accessibilityLabel="Admin Login"
+ accessibilityRole="button"
+ >
+ <Text style={styles.adminButtonText}>🔐 Admin Login</Text>
  </TouchableOpacity>
  </View>
  </View>
@@ -352,5 +345,32 @@ const styles = StyleSheet.create({
  transition: 'opacity 0.2s ease'
  }
  })
+ },
+ adminSection: {
+ marginTop: 30,
+ paddingTop: 20,
+ borderTopWidth: 1,
+ borderTopColor: '#e0e0e0',
+ width: '100%',
+ alignItems: 'center'
+ },
+ adminButton: {
+ backgroundColor: '#1a1a1a',
+ paddingVertical: 12,
+ paddingHorizontal: 24,
+ borderRadius: 8,
+ ...SHADOWS.medium,
+ ...Platform.select({
+ web: {
+ cursor: 'pointer',
+ transition: 'all 0.2s ease'
+ }
+ })
+ },
+ adminButtonText: {
+ color: '#fff',
+ fontSize: 14,
+ fontWeight: '600',
+ textAlign: 'center'
  }
 });

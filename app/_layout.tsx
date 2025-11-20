@@ -2,9 +2,15 @@ import { Stack } from 'expo-router';
 import { useEffect } from 'react';
 import WebStyleInjector from '../components/WebStyleInjector';
 import { AuthProvider } from '../contexts/SimpleAuthContext';
+import { registerForPushNotificationsAsync } from '../utils/pushNotifications';
 
 export default function RootLayout() {
- // Suppress font loading warnings on web
+  // Register for push notifications
+  useEffect(() => {
+    registerForPushNotificationsAsync();
+  }, []);
+
+  // Suppress font loading warnings on web
  useEffect(() => {
    if (typeof window !== 'undefined') {
      // Override console.warn for font-related warnings

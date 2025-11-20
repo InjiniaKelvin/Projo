@@ -216,6 +216,33 @@ router.put('/preferences', auth, async (req, res) => {
  }
 });
 
+// Register push token
+router.post('/push-token', auth, async (req, res) => {
+ try {
+ const { token } = req.body;
+ 
+ if (!token) {
+ return res.status(400).json({
+ success: false,
+ message: 'Token is required'
+ });
+ }
+
+ await User.findByIdAndUpdate(req.user.id, { pushToken: token });
+
+ res.json({
+ success: true,
+ message: 'Push token registered successfully'
+ });
+ } catch (error) {
+ console.error('Error registering push token:', error);
+ res.status(500).json({
+ success: false,
+ message: 'Failed to register push token'
+ });
+ }
+});
+
 // Test notification (for development)
 router.post('/test', auth, async (req, res) => {
  try {

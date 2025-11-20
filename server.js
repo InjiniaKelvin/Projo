@@ -31,6 +31,7 @@ const notificationRoutes = require('./backend/routes/notifications');
 const analyticsRoutes = require('./backend/routes/analytics');
 const chatRoutes = require('./backend/routes/chat');
 const ratingRoutes = require('./backend/routes/ratings');
+const uploadRoutes = require('./backend/routes/uploads');
 
 // Import WebSocket configuration
 const { initializeSocketIO } = require('./backend/config/websocket');
@@ -39,6 +40,9 @@ const { initializeSocketIO } = require('./backend/config/websocket');
 const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 3000;
+
+// Trust the first proxy in front of the app (e.g., Render's load balancer)
+app.set('trust proxy', 1);
 
 // Setup WebSocket with all handlers
 initializeSocketIO(server);
@@ -165,6 +169,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/ratings', ratingRoutes);
+app.use('/api/uploads', uploadRoutes);
 
 // Technician Routes
 app.use('/api/technician', require('./backend/routes/technician'));

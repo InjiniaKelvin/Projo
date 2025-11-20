@@ -6,7 +6,11 @@
 
 const express = require('express');
 const bookingController = require('../controllers/BookingControllerRedesigned');
+const { authenticateToken } = require('../middleware/auth');
 const router = express.Router();
+
+// GET CLIENT BOOKINGS (Protected)
+router.get('/client', authenticateToken, bookingController.getClientBookings);
 
 // CREATE BOOKING - MAIN ENDPOINT
 router.post('/redesigned', bookingController.createBooking);

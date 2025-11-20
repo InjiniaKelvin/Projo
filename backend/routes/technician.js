@@ -53,4 +53,12 @@ router.get('/earnings', technicianController.getEarnings);
 // POST /api/technician/withdraw
 router.post('/withdraw', technicianController.requestWithdrawal);
 
+// ===== PROFILE MANAGEMENT =====
+
+// GET /api/technician/profile
+router.get('/profile', technicianController.getProfile);
+
+// PUT /api/technician/profile
+router.put('/profile', technicianController.updateProfile);
+
 module.exports = router;

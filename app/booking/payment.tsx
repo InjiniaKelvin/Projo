@@ -21,6 +21,7 @@ import {
  View
 } from 'react-native';
 import { useAuth } from '../../contexts/SimpleAuthContext';
+import { createShadow } from '../../utils/shadows';
 
 // Type definitions
 interface Booking {
@@ -769,11 +770,7 @@ const styles = StyleSheet.create({
  backgroundColor: '#fff',
  borderRadius: 12,
  padding: 15,
- shadowColor: '#000',
- shadowOffset: { width: 0, height: 2 },
- shadowOpacity: 0.1,
- shadowRadius: 4,
- elevation: 3,
+ ...createShadow({ radius: 4, opacity: 0.1, elevation: 3 }),
  },
  serviceName: {
  fontSize: 18,
@@ -797,11 +794,7 @@ const styles = StyleSheet.create({
  backgroundColor: '#fff',
  borderRadius: 12,
  padding: 15,
- shadowColor: '#000',
- shadowOffset: { width: 0, height: 2 },
- shadowOpacity: 0.1,
- shadowRadius: 4,
- elevation: 3,
+ ...createShadow({ radius: 4, opacity: 0.1, elevation: 3 }),
  },
  pricingRow: {
  flexDirection: 'row',
@@ -860,11 +853,7 @@ const styles = StyleSheet.create({
  marginBottom: 10,
  borderWidth: 2,
  borderColor: '#e5e7eb',
- shadowColor: '#000',
- shadowOffset: { width: 0, height: 2 },
- shadowOpacity: 0.1,
- shadowRadius: 4,
- elevation: 3,
+ ...createShadow({ radius: 4, opacity: 0.1, elevation: 3 }),
  },
  selectedPaymentMethod: {
  borderColor: '#0d6efd',

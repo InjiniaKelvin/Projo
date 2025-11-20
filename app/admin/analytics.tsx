@@ -8,8 +8,9 @@ import {
  StyleSheet,
  Text,
  TouchableOpacity,
- View
+ View,
 } from 'react-native';
+import apiClient, { API_ENDPOINTS } from '@/config/api';
 
 // Currency formatting utilities for Kenyan Shillings - inline implementation
 const formatKES = (amount: number, showCurrency: boolean = true): string => {
@@ -44,32 +45,35 @@ const formatKESAbbreviated = (amount: number, showCurrency: boolean = true): str
 };
 
 interface AnalyticsData {
- overview: {
- totalRevenue: number;
- totalServices: number;
- activeTechnicians: number;
- customerSatisfaction: number;
- };
- revenueData: {
- period: string;
- amount: number;
- }[];
- serviceData: {
- category: string;
- count: number;
- revenue: number;
- }[];
- technicianPerformance: {
- name: string;
- completedJobs: number;
- rating: number;
- revenue: number;
- }[];
- customerMetrics: {
- newCustomers: number;
- returningCustomers: number;
- averageJobValue: number;
- };
+  userStats: {
+    totalUsers: number;
+    activeUsers: number;
+  };
+  bookingStats: {
+    totalBookings: number;
+    completionRate: number;
+  };
+  transactionStats: {
+    totalRevenue: number;
+  };
+  topTechnicians: {
+    firstName: string;
+    lastName: string;
+    recentJobCount: number;
+    technicianProfile: { rating: number };
+    recentRevenue: number;
+  }[];
+  serviceTypeStats: {
+    _id: string;
+    count: number;
+    totalRevenue: number;
+  }[];
+  revenueAnalytics: {
+    dailyRevenue: {
+      _id: { year: number; month: number; day: number };
+      revenue: number;
+    }[];
+  };
 }
 
 export default function AnalyticsReportsScreen() {
@@ -77,50 +81,13 @@ export default function AnalyticsReportsScreen() {
  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
  const [loading, setLoading] = useState(true);
  const [refreshing, setRefreshing] = useState(false);
- const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month' | 'quarter' | 'year'>('month');
-
- // Mock analytics data with Kenyan Shilling amounts
- const mockAnalyticsData: AnalyticsData = {
- overview: {
- totalRevenue: 12548050, // KES 12.5M
- totalServices: 1248,
- activeTechnicians: 42,
- customerSatisfaction: 4.7,
- },
- revenueData: [
- { period: 'Jan', amount: 1850000 }, // KES 1.85M
- { period: 'Feb', amount: 2230000 }, // KES 2.23M
- { period: 'Mar', amount: 1980000 }, // KES 1.98M
- { period: 'Apr', amount: 2560000 }, // KES 2.56M
- { period: 'May', amount: 2120000 }, // KES 2.12M
- { period: 'Jun', amount: 1808000 }, // KES 1.81M
- ],
- serviceData: [
- { category: 'HVAC', count: 324, revenue: 4568000 }, // KES 4.57M
- { category: 'Electrical', count: 298, revenue: 3842000 }, // KES 3.84M
- { category: 'Plumbing', count: 256, revenue: 2894000 }, // KES 2.89M
- { category: 'Appliances', count: 198, revenue: 2238000 }, // KES 2.24M
- { category: 'General Repair', count: 172, revenue: 1526000 }, // KES 1.53M
- ],
- technicianPerformance: [
- { name: 'John Smith', completedJobs: 78, rating: 4.9, revenue: 842000 }, // KES 842K
- { name: 'Sarah Johnson', completedJobs: 72, rating: 4.8, revenue: 789000 }, // KES 789K
- { name: 'Mike Davis', completedJobs: 65, rating: 4.7, revenue: 720000 }, // KES 720K
- { name: 'Emma Wilson', completedJobs: 59, rating: 4.6, revenue: 654000 }, // KES 654K
- { name: 'David Brown', completedJobs: 54, rating: 4.5, revenue: 598000 }, // KES 598K
- ],
- customerMetrics: {
- newCustomers: 156,
- returningCustomers: 89,
- averageJobValue: 18550, // KES 18,550
- },
- };
+ const [selectedPeriod, setSelectedPeriod] = useState<'7d' | '30d' | '90d' | '1y'>('30d');
 
  const periods = [
- { key: 'week', label: 'This Week' },
- { key: 'month', label: 'This Month' },
- { key: 'quarter', label: 'This Quarter' },
- { key: 'year', label: 'This Year' },
+  { key: '7d', label: 'Last 7 Days' },
+  { key: '30d', label: 'Last 30 Days' },
+  { key: '90d', label: 'Last 90 Days' },
+  { key: '1y', label: 'Last Year' },
  ];
 
  useEffect(() => {
@@ -130,18 +97,16 @@ export default function AnalyticsReportsScreen() {
  const loadAnalyticsData = async () => {
  try {
  setLoading(true);
- // TODO: Replace with actual API call
- // const response = await fetch(`/api/admin/analytics?period=${selectedPeriod}`);
- // const data = await response.json();
- 
- // Simulate API delay
- setTimeout(() => {
- setAnalyticsData(mockAnalyticsData);
- setLoading(false);
- }, 1000);
+      const response = await apiClient.get(`${API_ENDPOINTS.ADMIN.ANALYTICS}?timeframe=${selectedPeriod}`);
+      if (response.data.success) {
+        setAnalyticsData(response.data.data);
+      } else {
+        Alert.alert('Error', response.data.message || 'Failed to load analytics data');
+      }
  } catch (error) {
  console.error('Error loading analytics data:', error);
  Alert.alert('Error', 'Failed to load analytics data');
+ } finally {
  setLoading(false);
  }
  };
@@ -229,30 +194,30 @@ export default function AnalyticsReportsScreen() {
  <View style={styles.overviewGrid}>
  <View style={styles.overviewCard}>
  <Text style={styles.overviewValue}>
- {formatKES(analyticsData.overview.totalRevenue)}
+              {formatKES(analyticsData.transactionStats.totalRevenue)}
  </Text>
  <Text style={styles.overviewLabel}>Total Revenue</Text>
  </View>
  
  <View style={styles.overviewCard}>
  <Text style={styles.overviewValue}>
- {analyticsData.overview.totalServices.toLocaleString()}
+              {analyticsData.bookingStats.totalBookings.toLocaleString()}
  </Text>
  <Text style={styles.overviewLabel}>Total Services</Text>
  </View>
  
  <View style={styles.overviewCard}>
  <Text style={styles.overviewValue}>
- {analyticsData.overview.activeTechnicians}
+              {analyticsData.userStats.activeUsers}
  </Text>
- <Text style={styles.overviewLabel}>Active Technicians</Text>
+ <Text style={styles.overviewLabel}>Active Users</Text>
  </View>
  
  <View style={styles.overviewCard}>
  <Text style={styles.overviewValue}>
- {analyticsData.overview.customerSatisfaction}/5
+              {analyticsData.bookingStats.completionRate.toFixed(1)}%
  </Text>
- <Text style={styles.overviewLabel}>Customer Rating</Text>
+ <Text style={styles.overviewLabel}>Completion Rate</Text>
  </View>
  </View>
  </View>
@@ -270,18 +235,18 @@ export default function AnalyticsReportsScreen() {
  </View>
  
  <View style={styles.chartContainer}>
- {analyticsData.revenueData.map((item, index) => (
+            {analyticsData.revenueAnalytics.dailyRevenue.map((item, index) => (
  <View key={index} style={styles.chartBar}>
  <View style={styles.barContainer}>
  <View 
  style={[
  styles.bar, 
- { height: (item.amount / 30000) * 100 }
+                      { height: (item.revenue / 100000) * 100 }
  ]} 
  />
  </View>
- <Text style={styles.barLabel}>{item.period}</Text>
- <Text style={styles.barValue}>{formatKESAbbreviated(item.amount)}</Text>
+                  <Text style={styles.barLabel}>{`${item._id.day}/${item._id.month}`}</Text>
+                  <Text style={styles.barValue}>{formatKESAbbreviated(item.revenue)}</Text>
  </View>
  ))}
  </View>
@@ -299,15 +264,15 @@ export default function AnalyticsReportsScreen() {
  </TouchableOpacity>
  </View>
  
- {analyticsData.serviceData.map((service, index) => (
+            {analyticsData.serviceTypeStats.map((service, index) => (
  <View key={index} style={styles.serviceItem}>
  <View style={styles.serviceInfo}>
- <Text style={styles.serviceName}>{service.category}</Text>
+ <Text style={styles.serviceName}>{service._id}</Text>
  <Text style={styles.serviceCount}>{service.count} services</Text>
  </View>
  <Text style={styles.serviceRevenue}>
  <Text style={styles.serviceRevenue}>
- {formatKES(service.revenue)}
+                    {formatKES(service.totalRevenue)}
  </Text>
  </Text>
  </View>
@@ -326,19 +291,19 @@ export default function AnalyticsReportsScreen() {
  </TouchableOpacity>
  </View>
  
- {analyticsData.technicianPerformance.map((tech, index) => (
+            {analyticsData.topTechnicians.map((tech, index) => (
  <View key={index} style={styles.technicianItem}>
  <View style={styles.technicianRank}>
  <Text style={styles.rankNumber}>{index + 1}</Text>
  </View>
  <View style={styles.technicianInfo}>
- <Text style={styles.technicianName}>{tech.name}</Text>
+                  <Text style={styles.technicianName}>{tech.firstName} {tech.lastName}</Text>
  <Text style={styles.technicianStats}>
- {tech.completedJobs} jobs * {tech.rating}⭐
+                    {tech.recentJobCount} jobs * {tech.technicianProfile.rating}⭐
  </Text>
  </View>
  <Text style={styles.technicianRevenue}>
- {formatKES(tech.revenue)}
+                  {formatKES(tech.recentRevenue)}
  </Text>
  </View>
  ))}
@@ -347,7 +312,7 @@ export default function AnalyticsReportsScreen() {
  {/* Customer Metrics */}
  <View style={styles.section}>
  <View style={styles.sectionHeader}>
- <Text style={styles.sectionTitle}>Customer Metrics</Text>
+ <Text style={styles.sectionTitle}>User Metrics</Text>
  <TouchableOpacity
  style={styles.exportButton}
  onPress={() => exportReport('customers')}
@@ -359,21 +324,21 @@ export default function AnalyticsReportsScreen() {
  <View style={styles.customerMetrics}>
  <View style={styles.metricItem}>
  <Text style={styles.metricValue}>
- {analyticsData.customerMetrics.newCustomers}
+                  {analyticsData.userStats.totalUsers}
  </Text>
- <Text style={styles.metricLabel}>New Customers</Text>
+ <Text style={styles.metricLabel}>Total Users</Text>
  </View>
  
  <View style={styles.metricItem}>
  <Text style={styles.metricValue}>
- {analyticsData.customerMetrics.returningCustomers}
+                  {analyticsData.userStats.activeUsers}
  </Text>
- <Text style={styles.metricLabel}>Returning Customers</Text>
+ <Text style={styles.metricLabel}>Active Users</Text>
  </View>
  
  <View style={styles.metricItem}>
  <Text style={styles.metricValue}>
- {formatKES(analyticsData.customerMetrics.averageJobValue)}
+                  {formatKES(analyticsData.transactionStats.totalRevenue / analyticsData.bookingStats.totalBookings)}
  </Text>
  <Text style={styles.metricLabel}>Avg Job Value</Text>
  </View>

@@ -13,6 +13,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Message = require('../models/Message');
 const Booking = require('../models/BookingRedesigned');
+const NotificationService = require('../services/NotificationService');
 
 let io;
 
@@ -24,6 +25,9 @@ const initializeSocketIO = (server) => {
  credentials: true
  }
  });
+
+ // Initialize NotificationService with the socket instance
+ NotificationService.initialize(io);
 
  // Authentication middleware for WebSocket
  io.use(async (socket, next) => {
@@ -109,6 +113,12 @@ const initializeSocketIO = (server) => {
  });
 
  if (activeBooking) {
+  activeBooking.locationHistory.push({
+    latitude,
+    longitude,
+    timestamp: new Date(),
+  });
+  await activeBooking.save();
  io.to(`user_${activeBooking.clientId}`).emit('technician_location_updated', {
  bookingId: activeBooking._id,
  location: { latitude, longitude },
@@ -121,6 +131,33 @@ const initializeSocketIO = (server) => {
  socket.emit('error', { message: 'Failed to update location' });
  }
  });
+
+ // Handle get location history
+ socket.on('get_location_history', async (data) => {
+  try {
+    const { bookingId } = data;
+    const booking = await Booking.findById(bookingId);
+
+    if (!booking) {
+      return socket.emit('error', { message: 'Booking not found' });
+    }
+
+    // Optional: Check if the user is authorized to view this history
+    const isAuthorized = booking.clientId.toString() === socket.user._id.toString() ||
+                         socket.user.role === 'admin';
+
+    if (!isAuthorized) {
+      return socket.emit('error', { message: 'Unauthorized' });
+    }
+
+    socket.emit('location_history', {
+      bookingId: booking._id,
+      history: booking.locationHistory,
+    });
+  } catch (error) {
+    socket.emit('error', { message: 'Failed to get location history' });
+  }
+});
 
  // Handle chat messages
  socket.on('send_message', async (data) => {

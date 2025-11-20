@@ -97,7 +97,7 @@ class MpesaService {
  customerMessage: response.data.CustomerMessage
  };
  } catch (error) {
- logger.error('STK Push failed:', error.response?.data || error.message);
+ logger.error('STK Push failed:', error);
  
  return {
  success: false,
@@ -145,7 +145,7 @@ class MpesaService {
  checkoutRequestId: response.data.CheckoutRequestID
  };
  } catch (error) {
- logger.error('Transaction status query failed:', error.response?.data || error.message);
+ logger.error('Transaction status query failed:', error);
  
  return {
  success: false,
@@ -158,6 +158,7 @@ class MpesaService {
  // Remove any non-digit characters
  let cleaned = phoneNumber.replace(/\D/g, '');
  
+ logger.info(`Original phone number: ${phoneNumber}, Cleaned phone number: ${cleaned}`);
  // Handle different formats
  if (cleaned.startsWith('254')) {
  return cleaned;

@@ -7,11 +7,15 @@ import axios from 'axios';
 import StorageService from '../services/StorageService';
 
 // API Configuration
+// The single source of truth for the backend API URL.
+// It prioritizes the Vercel environment variable and falls back to the live Render URL.
+const PROD_API_URL = 'https://quickfix-api-pnv5.onrender.com/api';
+
 export const API_CONFIG = {
- BASE_URL: process.env.EXPO_PUBLIC_API_URL ? `${process.env.EXPO_PUBLIC_API_URL}/api` : 'https://quickfix-api-sigma.vercel.app/api',
- TIMEOUT: 30000, // 30 seconds
- RETRY_ATTEMPTS: 3,
- RETRY_DELAY: 1000, // 1 second
+  BASE_URL: process.env.EXPO_PUBLIC_API_URL ? `${process.env.EXPO_PUBLIC_API_URL}/api` : PROD_API_URL,
+  TIMEOUT: 30000, // 30 seconds
+  RETRY_ATTEMPTS: 3,
+  RETRY_DELAY: 1000, // 1 second
 };
 
 // Create axios instance with default configuration
@@ -97,35 +101,24 @@ export const API_ENDPOINTS = {
  TOPUP: '/payments/wallet/topup',
  PROCESS: '/payments/process',
  TRANSACTIONS: '/payments/transactions',
- ESCROW_CREATE: '/payments/escrow/create',
- ESCROW_RELEASE: '/payments/escrow/release',
- WEBHOOKS: '/payments/webhooks',
- },
- 
- // Bookings
- BOOKINGS: {
- LIST: '/bookings',
- CREATE: '/bookings',
- DETAIL: (id) => `/bookings/${id}`,
- UPDATE: (id) => `/bookings/${id}`,
- CANCEL: (id) => `/bookings/${id}/cancel`,
- COMPLETE: (id) => `/bookings/${id}/complete`,
- RATE: (id) => `/bookings/${id}/rate`,
+ VERIFY_PAYMENT: '/payments/verify',
  },
 
- // Users
- USERS: {
- SEARCH_TECHNICIANS: '/users/technicians/search',
- UPDATE_LOCATION: '/users/location',
- UPDATE_AVAILABILITY: '/users/availability',
+ // Technician
+ TECHNICIAN: {
+  PROFILE: '/technician/profile',
+  AVAILABILITY: '/technician/availability',
+  SKILLS: '/technician/skills',
  },
 
  // Admin
  ADMIN: {
- PENDING_TECHNICIANS: '/admin/technicians/pending',
- APPROVE_TECHNICIAN: (id) => `/admin/technicians/${id}/approve`,
- REJECT_TECHNICIAN: (id) => `/admin/technicians/${id}/reject`,
- SYSTEM_STATS: '/admin/stats',
+  SYSTEM_STATS: '/admin/system/stats',
+  PENDING_TECHNICIANS: '/admin/technicians/pending',
+  USERS: '/admin/users',
+  VERIFY_TECHNICIAN: (userId) => `/admin/users/${userId}/verify`,
+  ANALYTICS: '/admin/dashboard',
+  INVENTORY: '/inventory',
  },
 
  // Technician

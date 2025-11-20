@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { createContext, useContext, useEffect, useReducer, useRef } from 'react';
 import { Platform } from 'react-native';
+import { registerForPushNotificationsAsync } from '../utils/pushNotifications';
 
 // Configure axios defaults
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL 
@@ -95,6 +96,11 @@ function authReducer(state, action) {
  isAuthenticated: false,
  error: action.payload.error,
  };
+ case 'LOGOUT':
+ return {
+ ...initialState,
+ isLoading: false,
+ };
  case 'REGISTER_START':
  return {
  ...state,
@@ -116,15 +122,6 @@ function authReducer(state, action) {
  isRegisterLoading: false,
  error: action.payload.error,
  };
- case 'LOGOUT':
- console.log(' Auth Reducer: LOGOUT action received');
- console.log(' Auth Reducer: Current state before logout:', state);
- const logoutState = {
- ...initialState,
- isLoading: false,
- };
- console.log(' Auth Reducer: New state after logout:', logoutState);
- return logoutState;
  case 'SET_ERROR':
  return {
  ...state,
@@ -152,6 +149,17 @@ export function AuthProvider({ children }) {
  const [state, dispatch] = useReducer(authReducer, initialState);
  const tokenRef = useRef(state.token);
  
+ // Register for push notifications when authenticated
+ useEffect(() => {
+ if (state.isAuthenticated && state.user) {
+ registerForPushNotificationsAsync().then(token => {
+ if (token) {
+ console.log('Push token registered:', token);
+ }
+ }).catch(err => console.error('Failed to register push token:', err));
+ }
+ }, [state.isAuthenticated, state.user]);
+
  // Update token ref whenever state.token changes
  useEffect(() => {
  tokenRef.current = state.token;
@@ -469,12 +477,6 @@ export function AuthProvider({ children }) {
 
  const logout = async (skipBackendCall = false) => {
  console.log(' Auth: Logout function called, skipBackendCall:', skipBackendCall);
- console.log(' Auth: Current state before logout:', { 
- isAuthenticated: state.isAuthenticated, 
- hasUser: !!state.user, 
- hasToken: !!state.token,
- fullState: state
- });
  
  try {
  // Call backend logout endpoint if we have a token and not skipping
@@ -505,10 +507,6 @@ export function AuthProvider({ children }) {
  console.log(' Auth: Dispatching LOGOUT action...');
  dispatch({ type: 'LOGOUT' });
  console.log(' Auth: LOGOUT action dispatched successfully');
- 
- // Check state after dispatch
- console.log(' Auth: State should be reset now');
- console.log(' Auth: Logout process completed successfully');
  
  } catch (storageError) {
  console.error(' Auth: Storage cleanup error:', storageError);

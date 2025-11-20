@@ -11,92 +11,182 @@
 
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import * as ImagePicker from 'expo-image-picker';
 import { useState, useEffect } from 'react';
-import { Alert, ScrollView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View, ActivityIndicator, Image } from 'react-native';
 import { useAuth } from '../../contexts/SimpleAuthContext';
 import apiClient, { API_ENDPOINTS } from '../../config/api';
+import { createShadow } from '../../utils/shadows';
 
 export default function TechnicianProfile() {
  const router = useRouter();
  const { tab } = useLocalSearchParams(); // Support tab parameter
- const { user, logout } = useAuth();
- const [activeTab, setActiveTab] = useState(tab || 'profile');
- const [isLoading, setIsLoading] = useState(false);
- const [isSaving, setIsSaving] = useState(false);
- 
- const [profileData, setProfileData] = useState({
- firstName: user?.firstName || '',
- lastName: user?.lastName || '',
- email: user?.email || '',
- phoneNumber: user?.phoneNumber || '',
- skills: user?.skills || [],
- rating: user?.rating?.average || 0,
- completedJobs: 0,
- yearsExperience: user?.yearsExperience || 0,
- certifications: user?.certifications || [],
- workRadius: user?.workRadius || 10, // km
- isAvailable: user?.availability?.isAvailable || true,
- workingHours: user?.availability?.workingHours || {
- start: '08:00',
- end: '18:00'
- },
- emergencyAvailable: user?.availability?.emergencyAvailable || false,
- vehicleType: user?.vehicleType || 'None'
- });
+  const { user, logout } = useAuth();
+  const [activeTab, setActiveTab] = useState(tab || 'profile');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  
+  const [profileData, setProfileData] = useState({
+    firstName: user?.firstName || '',
+    lastName: user?.lastName || '',
+    email: user?.email || '',
+    phoneNumber: user?.phoneNumber || '',
+    profilePicture: user?.profilePicture || '',
+    skills: user?.skills || [],
+    rating: user?.rating?.average || 0,
+    completedJobs: 0,
+    yearsExperience: user?.yearsExperience || 0,
+    certifications: user?.certifications || [],
+    workRadius: user?.workRadius || 10,
+    isAvailable: user?.availability?.isAvailable ?? true,
+    workingHours: user?.availability?.workingHours || { start: '08:00', end: '18:00' },
+    emergencyAvailable: user?.availability?.emergencyAvailable ?? false,
+    vehicleType: user?.vehicleType || 'None'
+  });
 
- const [editingField, setEditingField] = useState(null);
- const [tempValue, setTempValue] = useState('');
+  const [originalProfileData, setOriginalProfileData] = useState(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
- const availableSkills = [
- 'Plumbing', 'Electrical', 'Appliance Repair', 'HVAC', 
- 'Carpentry', 'Painting', 'Tiling', 'Roofing', 
- 'Welding', 'Solar Installation', 'Pest Control',
- 'General Maintenance', 'Cleaning Services'
- ];
+  const [editingField, setEditingField] = useState(null);
+  const [tempValue, setTempValue] = useState('');
 
- useEffect(() => {
- loadProfileData();
- }, []);
+  const availableSkills = [
+    'Plumbing', 'Electrical', 'Appliance Repair', 'HVAC', 
+    'Carpentry', 'Painting', 'Tiling', 'Roofing', 
+    'Welding', 'Solar Installation', 'Pest Control',
+    'General Maintenance', 'Cleaning Services'
+  ];
 
- const loadProfileData = async () => {
- try {
- setIsLoading(true);
- const response = await apiClient.get(API_ENDPOINTS.TECHNICIAN.PROFILE || '/api/technician/profile');
- if (response.data.success) {
- const data = response.data.data;
- setProfileData(prev => ({
- ...prev,
- ...data,
- skills: data.skills || [],
- workRadius: data.workRadius || 10
- }));
- }
- } catch (error) {
- console.error('Error loading profile:', error);
- } finally {
- setIsLoading(false);
- }
- };
+  useEffect(() => {
+    loadProfileData();
+  }, []);
 
- const saveProfileChanges = async (updates) => {
- try {
- setIsSaving(true);
- const response = await apiClient.put(API_ENDPOINTS.TECHNICIAN.PROFILE || '/api/technician/profile', updates);
- if (response.data.success) {
- Alert.alert('Success', 'Profile updated successfully!');
- loadProfileData();
- return true;
- }
- } catch (error) {
- console.error('Error saving profile:', error);
- Alert.alert('Error', error.response?.data?.message || 'Failed to update profile');
- return false;
- } finally {
- setIsSaving(false);
- }
- };
+  useEffect(() => {
+    if (originalProfileData) {
+      const hasChanges = JSON.stringify(profileData) !== JSON.stringify(originalProfileData);
+      setHasUnsavedChanges(hasChanges);
+    }
+  }, [profileData, originalProfileData]);
 
- const handleSkillToggle = async (skillName) => {
+  const loadProfileData = async () => {
+    try {
+      setIsLoading(true);
+      const response = await apiClient.get(API_ENDPOINTS.TECHNICIAN.PROFILE);
+      if (response.data.success) {
+        const data = response.data.data;
+        const formattedData = {
+          ...profileData,
+          ...data,
+          profilePicture: data.profilePicture || '',
+          skills: data.skills || [],
+          workRadius: data.workRadius || 10,
+          isAvailable: data.availability?.isAvailable ?? true,
+          emergencyAvailable: data.availability?.emergencyAvailable ?? false,
+          workingHours: data.availability?.workingHours || { start: '08:00', end: '18:00' }
+        };
+        setProfileData(formattedData);
+        setOriginalProfileData(formattedData);
+      }
+    } catch (error) {
+      console.error('Error loading profile:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleImagePick = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Denied', 'We need camera roll permissions to upload a profile picture.');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.7,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const imageUri = result.assets[0].uri;
+        await uploadProfilePicture(imageUri);
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
+      Alert.alert('Error', 'Failed to pick image');
+    }
+  };
+
+  const uploadProfilePicture = async (imageUri) => {
+    try {
+      setIsUploadingImage(true);
+      
+      const formData = new FormData();
+      const filename = imageUri.split('/').pop() || 'profile.jpg';
+      const match = /\.(\w+)$/.exec(filename);
+      const type = match ? `image/${match[1]}` : 'image/jpeg';
+      
+      formData.append('profilePicture', {
+        uri: imageUri,
+        name: filename,
+        type
+      });
+
+      const response = await apiClient.post(API_ENDPOINTS.AUTH.UPLOAD_PROFILE_PICTURE || '/auth/profile/picture', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
+      if (response.data.success) {
+        setProfileData(prev => ({ ...prev, profilePicture: response.data.data.profilePicture }));
+        Alert.alert('Success', 'Profile picture updated successfully');
+      } else {
+        Alert.alert('Error', response.data.message || 'Failed to upload image');
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      Alert.alert('Error', 'Failed to upload profile picture');
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
+  const handleSaveChanges = async () => {
+    try {
+      setIsSaving(true);
+      
+      // Construct updates object based on what changed
+      const updates = {
+        firstName: profileData.firstName,
+        lastName: profileData.lastName,
+        phoneNumber: profileData.phoneNumber,
+        skills: profileData.skills,
+        workRadius: profileData.workRadius,
+        availability: {
+          isAvailable: profileData.isAvailable,
+          emergencyAvailable: profileData.emergencyAvailable,
+          workingHours: profileData.workingHours
+        }
+      };
+
+      const response = await apiClient.put(API_ENDPOINTS.TECHNICIAN.PROFILE, updates);
+      
+      if (response.data.success) {
+        Alert.alert('Success', 'Profile updated successfully!');
+        setOriginalProfileData(JSON.parse(JSON.stringify(profileData)));
+        setHasUnsavedChanges(false);
+      }
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      Alert.alert('Error', error.response?.data?.message || 'Failed to update profile');
+    } finally {
+      setIsSaving(false);
+    }
+  }; const handleSkillToggle = (skillName) => {
  const isCurrentlySelected = profileData.skills.some(s => 
  (typeof s === 'string' ? s : s.name) === skillName
  );
@@ -111,29 +201,16 @@ export default function TechnicianProfile() {
  }
  
  setProfileData(prev => ({ ...prev, skills: newSkills }));
- await saveProfileChanges({ skills: newSkills });
  };
 
- const handleAvailabilityToggle = async () => {
+ const handleAvailabilityToggle = () => {
  const newAvailability = !profileData.isAvailable;
  setProfileData(prev => ({ ...prev, isAvailable: newAvailability }));
- 
- const success = await saveProfileChanges({ 
- 'availability.isAvailable': newAvailability 
- });
- 
- if (success) {
- Alert.alert(
- 'Availability Updated',
- `You are now ${newAvailability ? 'available' : 'unavailable'} for new jobs.`
- );
- }
  };
 
- const handleEmergencyToggle = async () => {
+ const handleEmergencyToggle = () => {
  const newEmergency = !profileData.emergencyAvailable;
  setProfileData(prev => ({ ...prev, emergencyAvailable: newEmergency }));
- await saveProfileChanges({ 'availability.emergencyAvailable': newEmergency });
  };
 
  const handleWorkRadius = () => {
@@ -151,12 +228,8 @@ export default function TechnicianProfile() {
  );
  };
 
- const updateWorkRadius = async (radius) => {
+ const updateWorkRadius = (radius) => {
  setProfileData(prev => ({ ...prev, workRadius: radius }));
- const success = await saveProfileChanges({ workRadius: radius });
- if (success) {
- Alert.alert('Success', `Work radius updated to ${radius} km`);
- }
  };
 
  const handleEditField = (field, currentValue) => {
@@ -164,12 +237,10 @@ export default function TechnicianProfile() {
  setTempValue(currentValue || '');
  };
 
- const saveField = async () => {
+ const saveField = () => {
  if (!editingField) return;
  
- const updates = { [editingField]: tempValue };
  setProfileData(prev => ({ ...prev, [editingField]: tempValue }));
- await saveProfileChanges(updates);
  setEditingField(null);
  setTempValue('');
  };
@@ -192,15 +263,32 @@ export default function TechnicianProfile() {
  );
  };
 
- const renderProfileTab = () => (
- <ScrollView style={styles.tabContent} showsVerticalScrollIndicator={false}>
- {/* Profile Card */}
- <View style={styles.profileCard}>
- <View style={styles.profileHeader}>
- <View style={styles.avatarContainer}>
- <Ionicons name="person" size={40} color="#fff" />
- </View>
- <View style={styles.profileInfo}>
+  const renderProfileTab = () => (
+    <ScrollView style={styles.tabContent} showsVerticalScrollIndicator={false}>
+      {/* Profile Card */}
+      <View style={styles.profileCard}>
+        <View style={styles.profileHeader}>
+          <TouchableOpacity onPress={handleImagePick} disabled={isUploadingImage}>
+            <View style={styles.avatarContainer}>
+              {profileData.profilePicture ? (
+                <Image 
+                  source={{ uri: profileData.profilePicture }} 
+                  style={{ width: 80, height: 80, borderRadius: 40 }} 
+                />
+              ) : (
+                <Ionicons name="person" size={40} color="#fff" />
+              )}
+              {isUploadingImage && (
+                <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.3)', justifyContent: 'center', alignItems: 'center', borderRadius: 40 }]}>
+                  <ActivityIndicator color="#fff" size="small" />
+                </View>
+              )}
+              <View style={styles.editIconContainer}>
+                <Ionicons name="camera" size={14} color="#fff" />
+              </View>
+            </View>
+          </TouchableOpacity>
+          <View style={styles.profileInfo}>
  <Text style={styles.profileName}>
  {profileData.firstName} {profileData.lastName}
  </Text>
@@ -390,41 +478,39 @@ export default function TechnicianProfile() {
  <View style={styles.section}>
  <Text style={styles.sectionTitle}>App Settings</Text>
  
- <TouchableOpacity style={styles.menuItem}>
- <Ionicons name="notifications-outline" size={24} color="#0d6efd" />
- <View style={styles.menuItemContent}>
- <Text style={styles.menuItemTitle}>Notifications</Text>
- <Text style={styles.menuItemSubtitle}>Manage notification preferences</Text>
- </View>
- <Ionicons name="chevron-forward" size={20} color="#666" />
- </TouchableOpacity>
- 
- <TouchableOpacity style={styles.menuItem}>
- <Ionicons name="lock-closed-outline" size={24} color="#0d6efd" />
- <View style={styles.menuItemContent}>
- <Text style={styles.menuItemTitle}>Privacy & Security</Text>
- <Text style={styles.menuItemSubtitle}>Password, data settings</Text>
- </View>
- <Ionicons name="chevron-forward" size={20} color="#666" />
- </TouchableOpacity>
- 
- <TouchableOpacity style={styles.menuItem}>
- <Ionicons name="help-circle-outline" size={24} color="#0d6efd" />
- <View style={styles.menuItemContent}>
- <Text style={styles.menuItemTitle}>Help & Support</Text>
- <Text style={styles.menuItemSubtitle}>FAQ, contact support</Text>
- </View>
- <Ionicons name="chevron-forward" size={20} color="#666" />
- </TouchableOpacity>
- 
- <TouchableOpacity style={styles.menuItem}>
- <Ionicons name="document-outline" size={24} color="#0d6efd" />
- <View style={styles.menuItemContent}>
- <Text style={styles.menuItemTitle}>Terms & Privacy Policy</Text>
- <Text style={styles.menuItemSubtitle}>Legal information</Text>
- </View>
- <Ionicons name="chevron-forward" size={20} color="#666" />
- </TouchableOpacity>
+        <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/notifications')}>
+          <Ionicons name="notifications-outline" size={24} color="#0d6efd" />
+          <View style={styles.menuItemContent}>
+            <Text style={styles.menuItemTitle}>Notifications</Text>
+            <Text style={styles.menuItemSubtitle}>View your notifications</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color="#666" />
+        </TouchableOpacity>         <TouchableOpacity style={styles.menuItem} onPress={() => Alert.alert('Coming Soon', 'Privacy & Security settings will be available soon.')}>
+          <Ionicons name="lock-closed-outline" size={24} color="#0d6efd" />
+          <View style={styles.menuItemContent}>
+            <Text style={styles.menuItemTitle}>Privacy & Security</Text>
+            <Text style={styles.menuItemSubtitle}>Password, data settings</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color="#666" />
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.menuItem} onPress={() => router.push('/support')}>
+          <Ionicons name="help-circle-outline" size={24} color="#0d6efd" />
+          <View style={styles.menuItemContent}>
+            <Text style={styles.menuItemTitle}>Help & Support</Text>
+            <Text style={styles.menuItemSubtitle}>FAQ, contact support</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color="#666" />
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.menuItem} onPress={() => Alert.alert('Coming Soon', 'Terms & Privacy Policy will be available soon.')}>
+          <Ionicons name="document-outline" size={24} color="#0d6efd" />
+          <View style={styles.menuItemContent}>
+            <Text style={styles.menuItemTitle}>Terms & Privacy Policy</Text>
+            <Text style={styles.menuItemSubtitle}>Legal information</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color="#666" />
+        </TouchableOpacity>
  </View>
  
  <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
@@ -518,8 +604,24 @@ export default function TechnicianProfile() {
  {activeTab === 'availability' && renderAvailabilityTab()}
  {activeTab === 'payment' && renderPaymentTab()}
  {activeTab === 'settings' && renderSettingsTab()}
- </View>
- );
+
+      {hasUnsavedChanges && (
+        <View style={styles.saveContainer}>
+          <TouchableOpacity 
+            style={styles.saveChangesButton} 
+            onPress={handleSaveChanges}
+            disabled={isSaving}
+          >
+            {isSaving ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.saveChangesButtonText}>Save Changes</Text>
+            )}
+          </TouchableOpacity>
+        </View>
+      )}
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -586,14 +688,15 @@ const styles = StyleSheet.create({
  fontWeight: '600'
  },
  tabContent: {
- flex: 1
+ flex: 1,
+ marginBottom: 80
  },
  profileCard: {
  backgroundColor: '#fff',
  margin: 16,
  borderRadius: 12,
  padding: 20,
- boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+ ...createShadow({ radius: 8, opacity: 0.1, offset: { width: 0, height: 2 } })
  },
  profileHeader: {
  flexDirection: 'row',
@@ -606,6 +709,19 @@ const styles = StyleSheet.create({
  backgroundColor: '#0d6efd',
  justifyContent: 'center',
  alignItems: 'center'
+ },
+ editIconContainer: {
+ position: 'absolute',
+ bottom: 0,
+ right: 0,
+ backgroundColor: '#0d6efd',
+ width: 24,
+ height: 24,
+ borderRadius: 12,
+ justifyContent: 'center',
+ alignItems: 'center',
+ borderWidth: 2,
+ borderColor: '#fff'
  },
  profileInfo: {
  flex: 1,
@@ -643,7 +759,7 @@ const styles = StyleSheet.create({
  marginTop: 0,
  borderRadius: 12,
  padding: 16,
- boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+ ...createShadow({ radius: 8, opacity: 0.1, offset: { width: 0, height: 2 } })
  },
  sectionTitle: {
  fontSize: 16,
@@ -803,5 +919,32 @@ const styles = StyleSheet.create({
  fontSize: 16,
  fontWeight: '600',
  color: '#dc3545'
+ },
+ saveContainer: {
+ padding: 16,
+ backgroundColor: '#fff',
+ borderTopWidth: 1,
+ borderTopColor: '#eee',
+ position: 'absolute',
+ bottom: 0,
+ left: 0,
+ right: 0,
+ elevation: 5,
+ shadowColor: '#000',
+ shadowOffset: { width: 0, height: -2 },
+ shadowOpacity: 0.1,
+ shadowRadius: 4,
+ },
+ saveChangesButton: {
+ backgroundColor: '#0d6efd',
+ paddingVertical: 16,
+ borderRadius: 12,
+ alignItems: 'center',
+ justifyContent: 'center',
+ },
+ saveChangesButtonText: {
+ color: '#fff',
+ fontSize: 16,
+ fontWeight: '600',
  }
 });

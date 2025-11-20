@@ -20,6 +20,43 @@ const PricingService = require('../services/PricingService');
 const mongoose = require('mongoose');
 
 /**
+ * Get system stats for main dashboard cards
+ */
+const getSystemStats = async (req, res) => {
+ try {
+ const [
+ usersCount,
+ pendingTechniciansCount,
+ paymentsCount,
+ inventoryCount
+ ] = await Promise.all([
+ User.countDocuments(),
+ User.countDocuments({ role: 'technician', 'technicianProfile.verificationStatus': 'pending' }),
+ Transaction.countDocuments(),
+ // Assuming Inventory model exists, otherwise 0
+ mongoose.models.Inventory ? mongoose.models.Inventory.countDocuments() : 0
+ ]);
+
+ res.json({
+ success: true,
+ data: {
+ users: usersCount,
+ pendingTechnicians: pendingTechniciansCount,
+ payments: paymentsCount,
+ inventory: inventoryCount
+ }
+ });
+ } catch (error) {
+ console.error('Get system stats error:', error);
+ res.status(500).json({ 
+ success: false, 
+ message: 'Failed to fetch system stats', 
+ error: error.message 
+ });
+ }
+};
+
+/**
  * Get comprehensive dashboard analytics
  */
 const getDashboardAnalytics = async (req, res) => {
@@ -241,57 +278,57 @@ const getRecentActivity = async () => {
  * Get top performing technicians
  */
 const getTopTechnicians = async (startDate) => {
- return await User.aggregate([
- { $match: { role: 'technician' } },
- {
- $lookup: {
- from: 'bookings',
- localField: '_id',
- foreignField: 'technicianId',
- as: 'bookings'
- }
- },
- {
- $addFields: {
- recentBookings: {
- $filter: {
- input: '$bookings',
- cond: { $gte: ['$$this.createdAt', startDate] }
- }
- }
- }
- },
- {
- $addFields: {
- recentJobCount: { $size: '$recentBookings' },
- recentRevenue: {
- $sum: {
- $map: {
- input: '$recentBookings',
- as: 'booking',
- in: '$$booking.finalPrice'
- }
- }
- }
- }
- },
- {
- $sort: { recentRevenue: -1 }
- },
- {
- $limit: 10
- },
- {
- $project: {
- firstName: 1,
- lastName: 1,
- 'technicianProfile.rating': 1,
- 'technicianProfile.completedJobs': 1,
- recentJobCount: 1,
- recentRevenue: 1
- }
- }
- ]);
+  return await User.aggregate([
+    { $match: { role: 'technician' } },
+    {
+      $lookup: {
+        from: 'bookings',
+        localField: '_id',
+        foreignField: 'technicianId',
+        as: 'bookings'
+      }
+    },
+    {
+      $addFields: {
+        recentBookings: {
+          $filter: {
+            input: '$bookings',
+            cond: { $gte: ['$$this.createdAt', startDate] }
+          }
+        }
+      }
+    },
+    {
+      $addFields: {
+        recentJobCount: { $size: '$recentBookings' },
+        recentRevenue: {
+          $sum: {
+            $map: {
+              input: '$recentBookings',
+              as: 'booking',
+              in: '$$booking.finalPrice'
+            }
+          }
+        }
+      }
+    },
+    {
+      $sort: { recentRevenue: -1 }
+    },
+    {
+      $limit: 10
+    },
+    {
+      $project: {
+        firstName: 1,
+        lastName: 1,
+        'technicianProfile.rating': 1,
+        'technicianProfile.completedJobs': 1,
+        recentJobCount: 1,
+        recentRevenue: 1
+      }
+    }
+  ]);
 };
 
 /**
@@ -715,6 +752,83 @@ const sendBroadcastNotification = async (req, res) => {
 };
 
 /**
+ * Get all bookings with filtering
+ */
+const getBookings = async (req, res) => {
+ try {
+ const { status, page = 1, limit = 20 } = req.query;
+ const query = {};
+ 
+ if (status) query.status = status;
+
+    const bookings = await Booking.find(query)
+      .populate('userId', 'firstName lastName email phoneNumber')
+      .populate('technicianId', 'firstName lastName email phoneNumber')
+      .sort({ createdAt: -1 })
+      .limit(limit * 1)
+      .skip((page - 1) * limit); const total = await Booking.countDocuments(query);
+
+ res.json({
+ success: true,
+ data: {
+ bookings,
+ totalPages: Math.ceil(total / limit),
+ currentPage: page,
+ total
+ }
+ });
+ } catch (error) {
+ console.error('Get bookings error:', error);
+ res.status(500).json({ success: false, message: 'Failed to fetch bookings', error: error.message });
+ }
+};
+
+/**
+ * Manually assign technician to booking
+ */
+const assignTechnician = async (req, res) => {
+ try {
+ const { bookingId } = req.params;
+ const { technicianId } = req.body;
+
+ const booking = await Booking.findById(bookingId);
+ if (!booking) {
+ return res.status(404).json({ success: false, message: 'Booking not found' });
+ }
+
+ const technician = await User.findById(technicianId);
+ if (!technician || technician.role !== 'technician') {
+ return res.status(404).json({ success: false, message: 'Technician not found' });
+ }
+
+    booking.technicianId = technicianId;
+    booking.status = 'technician_assigned';
+    await booking.save();
+
+    // Notify technician
+    await NotificationService.createInAppNotification(
+      technicianId,
+      'New Job Assigned',
+      `You have been assigned a new job: ${booking.serviceType}`,
+      { type: 'job_assignment', bookingId: booking._id }
+    );
+
+    // Notify client (if registered)
+    if (booking.userId) {
+      await NotificationService.createInAppNotification(
+        booking.userId,
+        'Technician Assigned',
+        `${technician.firstName} ${technician.lastName} has been assigned to your request.`,
+        { type: 'job_update', bookingId: booking._id }
+      );
+    } res.json({ success: true, message: 'Technician assigned successfully', booking });
+ } catch (error) {
+ console.error('Assign technician error:', error);
+ res.status(500).json({ success: false, message: 'Failed to assign technician', error: error.message });
+ }
+};
+
+/**
  * Generate verification email template
  */
 const generateVerificationEmailTemplate = (technician, action, reason) => {
@@ -760,11 +874,14 @@ const generateVerificationEmailTemplate = (technician, action, reason) => {
 };
 
 module.exports = {
+ getSystemStats,
  getDashboardAnalytics,
  getUsers,
  verifyTechnician,
  toggleUserStatus,
  resolveDispute,
  updatePricing,
- sendBroadcastNotification
+ sendBroadcastNotification,
+ getBookings,
+ assignTechnician
 };

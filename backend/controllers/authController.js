@@ -616,6 +616,54 @@ class AuthController {
  }
 
  /**
+   * Update user profile
+   * @param {Object} req - Express request object
+   * @param {Object} res - Express response object
+   */
+  async updateProfile(req, res) {
+    try {
+      const userId = req.user._id;
+      const updates = req.body;
+
+      // Prevent updating sensitive fields
+      delete updates.password;
+      delete updates.role;
+      delete updates.email; // Email updates require verification
+      delete updates.isVerified;
+      delete updates.walletId;
+
+      const user = await User.findByIdAndUpdate(
+        userId,
+        { $set: updates },
+        { new: true, runValidators: true }
+      );
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: 'User not found'
+        });
+      }
+
+      res.json({
+        success: true,
+        message: 'Profile updated successfully',
+        data: {
+          user: user.toJSON()
+        }
+      });
+
+    } catch (error) {
+      console.error('Update profile error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to update profile',
+        error: error.message
+      });
+    }
+  }
+
+  /**
  * Verify email
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
@@ -661,6 +709,48 @@ class AuthController {
  });
  }
  }
+
+ /**
+   * Upload profile picture
+   * @param {Object} req - Express request object
+   * @param {Object} res - Express response object
+   */
+  async uploadProfilePicture(req, res) {
+    try {
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          message: 'Please upload a file'
+        });
+      }
+
+      const userId = req.user._id;
+      // Construct URL (assuming uploads are served statically from /uploads)
+      const profilePictureUrl = `/uploads/${req.file.filename}`;
+
+      const user = await User.findByIdAndUpdate(
+        userId,
+        { profilePicture: profilePictureUrl },
+        { new: true }
+      );
+
+      res.json({
+        success: true,
+        message: 'Profile picture updated successfully',
+        data: {
+          profilePicture: profilePictureUrl
+        }
+      });
+
+    } catch (error) {
+      console.error('Upload profile picture error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to upload profile picture',
+        error: error.message
+      });
+    }
+  }
 }
 
 module.exports = new AuthController();

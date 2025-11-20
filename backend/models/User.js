@@ -48,6 +48,11 @@ const userSchema = new mongoose.Schema({
  match: [/^(\+?254|0)[1-9]\d{8}$/, 'Please enter a valid Kenyan phone number']
  },
  
+ pushToken: {
+ type: String,
+ select: false
+ },
+ 
  // Role-based access control
  role: {
  type: String,
@@ -115,11 +120,26 @@ const userSchema = new mongoose.Schema({
  default: false
  }
  }],
+
+ technicianProfile: {
+ verificationStatus: {
+ type: String,
+ enum: ['pending', 'verified', 'rejected'],
+ default: 'pending'
+ },
+ verificationDate: Date,
+ verificationNotes: String,
+ documents: [String]
+ },
  
  availability: {
  isAvailable: {
  type: Boolean,
  default: function() { return this.role === 'technician' ? true : undefined; }
+ },
+ emergencyAvailable: {
+ type: Boolean,
+ default: false
  },
  workingHours: {
  start: { type: String, match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/ }, // HH:MM format

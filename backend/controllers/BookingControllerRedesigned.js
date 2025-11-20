@@ -10,6 +10,7 @@
 
 const BookingRedesigned = require('../models/BookingRedesigned');
 const User = require('../models/User');
+const NotificationService = require('../services/NotificationService');
 
 /**
  * VALIDATION HELPER
@@ -47,30 +48,31 @@ function validateBookingData(data) {
  errors.push('Road/Street is required');
  }
  
- if (!data.locationDescription?.trim()) {
- errors.push('Location description is required');
- }
- 
- if (!data.preferredDate) {
- errors.push('Preferred date is required');
- } else {
- const prefDate = new Date(data.preferredDate);
- const today = new Date();
- today.setHours(0, 0, 0, 0);
- 
- if (prefDate < today) {
- errors.push('Preferred date cannot be in the past');
- }
- }
- 
- if (!data.preferredTimeSlot) {
- errors.push('Preferred time slot is required');
- }
- 
- return errors;
-}
-
-/**
+  if (!data.locationDescription?.trim()) {
+    errors.push('Location description is required');
+  }
+  
+  // Skip scheduling validation for emergency bookings
+  if (data.urgency !== 'emergency') {
+    if (!data.preferredDate) {
+      errors.push('Preferred date is required');
+    } else {
+      const prefDate = new Date(data.preferredDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      if (prefDate < today) {
+        errors.push('Preferred date cannot be in the past');
+      }
+    }
+    
+    if (!data.preferredTimeSlot) {
+      errors.push('Preferred time slot is required');
+    }
+  }
+  
+  return errors;
+}/**
  * PHONE NUMBER HELPERS
  */
 function isValidPhoneNumber(phone) {
@@ -164,35 +166,42 @@ const BookingControllerRedesigned = {
  console.log(' Found existing user for phone:', normalizedPhone);
  }
  
- // CREATE BOOKING
- const bookingData = {
- clientPhone: normalizedPhone,
- clientName: clientName.trim(),
- clientEmail: clientEmail?.trim(),
- userId,
- 
- serviceType,
- serviceDescription: serviceDescription.trim(),
- urgency,
- 
- location: {
- constituency: constituency.trim(),
- ward: ward.trim(),
- road: road.trim(),
- description: locationDescription.trim(),
- landmarks: landmarks?.trim()
- },
- 
- preferredDate: new Date(preferredDate),
- preferredTimeSlot,
- 
- specialRequirements: specialRequirements?.trim(),
- 
- status: 'submitted',
- submittedAt: new Date()
- };
- 
- const booking = new BookingRedesigned(bookingData);
+    // Handle emergency scheduling defaults
+    let finalPreferredDate = preferredDate;
+    let finalPreferredTimeSlot = preferredTimeSlot;
+    
+    if (urgency === 'emergency') {
+      if (!finalPreferredDate) finalPreferredDate = new Date();
+      if (!finalPreferredTimeSlot) finalPreferredTimeSlot = 'emergency-asap';
+    }
+
+    // CREATE BOOKING
+    const bookingData = {
+      clientPhone: normalizedPhone,
+      clientName: clientName.trim(),
+      clientEmail: clientEmail?.trim(),
+      userId,
+      
+      serviceType,
+      serviceDescription: serviceDescription.trim(),
+      urgency,
+      
+      location: {
+        constituency: constituency.trim(),
+        ward: ward.trim(),
+        road: road.trim(),
+        description: locationDescription.trim(),
+        landmarks: landmarks?.trim()
+      },
+      
+      preferredDate: new Date(finalPreferredDate),
+      preferredTimeSlot: finalPreferredTimeSlot,
+      
+      specialRequirements: specialRequirements?.trim(),
+      
+      status: 'submitted',
+      submittedAt: new Date()
+    }; const booking = new BookingRedesigned(bookingData);
  await booking.save();
  
  console.log(' Booking created successfully:', booking.bookingId);
@@ -377,14 +386,21 @@ const BookingControllerRedesigned = {
  }
  
  await booking.save();
- 
- res.json({
- success: true,
- message: 'Booking status updated',
- data: {
- bookingId: booking.bookingId,
- status: booking.status
- }
+    
+    // Send notification to client
+    try {
+      await NotificationService.sendBookingUpdate(booking, { status });
+    } catch (notifError) {
+      console.error('Failed to send notification:', notifError);
+    }
+
+    res.json({
+      success: true,
+      message: 'Booking status updated',
+      data: {
+        bookingId: booking.bookingId,
+        status: booking.status
+      }
  });
  
  } catch (error) {
@@ -417,30 +433,83 @@ const BookingControllerRedesigned = {
  
  booking.technicianId = technicianId;
  booking.technicianPhone = technician.phoneNumber;
- booking.status = 'technician_assigned';
- booking.assignedAt = new Date();
- 
- await booking.save();
- 
- res.json({
- success: true,
- message: 'Technician assigned successfully',
- data: {
- bookingId: booking.bookingId,
- technicianName: `${technician.firstName} ${technician.lastName}`,
- technicianPhone: technician.phoneNumber
- }
- });
- 
- } catch (error) {
- console.error(' Error assigning technician:', error);
- res.status(500).json({
- success: false,
- message: 'Failed to assign technician',
- error: error.message
- });
- }
- }
+    booking.status = 'technician_assigned';
+    booking.assignedAt = new Date();
+    
+    await booking.save();
+    
+    // Send notifications
+    try {
+      // Notify Client
+      await NotificationService.sendBookingUpdate(booking, { status: 'assigned' });
+      
+      // Notify Technician
+      await NotificationService.createNotification({
+        recipientId: technicianId,
+        type: 'job_assigned',
+        title: 'New Job Assigned',
+        message: `You have been assigned to booking #${booking.bookingId}`,
+        data: { bookingId: booking.bookingId },
+        priority: 'high'
+      });
+    } catch (notifError) {
+      console.error('Failed to send assignment notifications:', notifError);
+    }
+
+    res.json({
+      success: true,
+      message: 'Technician assigned successfully',
+      data: {
+        bookingId: booking.bookingId,
+        technicianName: `${technician.firstName} ${technician.lastName}`,
+        technicianPhone: technician.phoneNumber
+      }
+    });
+    
+    } catch (error) {
+      console.error(' Error assigning technician:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to assign technician',
+        error: error.message
+      });
+    }
+  },  /**
+   * GET CLIENT BOOKINGS
+   */
+  async getClientBookings(req, res) {
+    try {
+      const userId = req.user._id;
+      const user = await User.findById(userId);
+      
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: 'User not found'
+        });
+      }
+
+      // Find bookings by user ID or phone number
+      const bookings = await BookingRedesigned.find({
+        $or: [
+          { userId: userId },
+          { clientPhone: user.phoneNumber }
+        ]
+      }).sort({ createdAt: -1 });
+
+      res.json({
+        success: true,
+        data: bookings
+      });
+    } catch (error) {
+      console.error('Get client bookings error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to fetch bookings',
+        error: error.message
+      });
+    }
+  }
 };
 
 module.exports = BookingControllerRedesigned;

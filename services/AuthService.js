@@ -3,7 +3,7 @@
  * Handles all authentication-related API calls
  */
 
-import { apiClient } from '../config/api';
+import apiClient from '../config/api';
 
 export class AuthService {
  /**

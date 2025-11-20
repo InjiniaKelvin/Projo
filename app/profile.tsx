@@ -85,7 +85,7 @@ export default function ProfileScreen() {
       }
       
       // Fetch latest profile data from backend
-      const response = await fetch(`${API_URL}/api/users/profile`, {
+      const response = await fetch(`${API_URL}/api/auth/profile`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -156,7 +156,7 @@ export default function ProfileScreen() {
       } as any);
 
       // Upload to backend
-      const response = await fetch(`${API_URL}/api/users/profile/picture`, {
+      const response = await fetch(`${API_URL}/api/auth/profile/picture`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -226,7 +226,7 @@ export default function ProfileScreen() {
     try {
       setIsSaving(true);
       
-      const response = await fetch(`${API_URL}/api/users/profile`, {
+      const response = await fetch(`${API_URL}/api/auth/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -417,6 +417,55 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </View>
 
+        {/* Settings Section */}
+        <View style={styles.settingsSection}>
+          <Text style={styles.sectionTitle}>Settings & Preferences</Text>
+          
+          <TouchableOpacity style={styles.settingItem} onPress={() => router.push('/notifications')}>
+            <View style={[styles.settingIcon, { backgroundColor: '#E3F2FD' }]}>
+              <Ionicons name="notifications-outline" size={20} color="#2196F3" />
+            </View>
+            <View style={styles.settingContent}>
+              <Text style={styles.settingTitle}>Notifications</Text>
+              <Text style={styles.settingSubtitle}>Manage your alerts</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#CCC" />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.settingItem} onPress={() => Alert.alert('Coming Soon', 'Privacy settings will be available soon.')}>
+            <View style={[styles.settingIcon, { backgroundColor: '#E8F5E9' }]}>
+              <Ionicons name="lock-closed-outline" size={20} color="#4CAF50" />
+            </View>
+            <View style={styles.settingContent}>
+              <Text style={styles.settingTitle}>Privacy & Security</Text>
+              <Text style={styles.settingSubtitle}>Password, data settings</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#CCC" />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.settingItem} onPress={() => router.push('/support')}>
+            <View style={[styles.settingIcon, { backgroundColor: '#FFF3E0' }]}>
+              <Ionicons name="help-circle-outline" size={20} color="#FF9800" />
+            </View>
+            <View style={styles.settingContent}>
+              <Text style={styles.settingTitle}>Help & Support</Text>
+              <Text style={styles.settingSubtitle}>FAQ, contact support</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#CCC" />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.settingItem} onPress={() => Alert.alert('Coming Soon', 'Legal information will be available soon.')}>
+            <View style={[styles.settingIcon, { backgroundColor: '#F3E5F5' }]}>
+              <Ionicons name="document-text-outline" size={20} color="#9C27B0" />
+            </View>
+            <View style={styles.settingContent}>
+              <Text style={styles.settingTitle}>Terms & Privacy Policy</Text>
+              <Text style={styles.settingSubtitle}>Legal information</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#CCC" />
+          </TouchableOpacity>
+        </View>
+
         <View style={styles.bottomPadding} />
       </ScrollView>
     </View>
@@ -598,6 +647,47 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontSize: 16,
     fontWeight: '600',
+  },
+  settingsSection: {
+    marginTop: 24,
+    backgroundColor: '#FFF',
+    paddingVertical: 16,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 12,
+    paddingHorizontal: 16,
+  },
+  settingItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F5F5F5',
+  },
+  settingIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  settingContent: {
+    flex: 1,
+  },
+  settingTitle: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#333',
+  },
+  settingSubtitle: {
+    fontSize: 12,
+    color: '#999',
+    marginTop: 2,
   },
   bottomPadding: {
     height: 30,

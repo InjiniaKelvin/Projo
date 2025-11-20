@@ -5,841 +5,391 @@
  * Features categories, search, filters, and service cards
  */
 
-import { Ionicons } from '@expo/vector-icons';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
- ActivityIndicator,
- FlatList,
- RefreshControl,
- ScrollView,
- StyleSheet,
- Text,
- TextInput,
- TouchableOpacity,
- View
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TextInput,
+  TouchableOpacity,
+  ActivityIndicator,
+  Platform,
+  Image,
 } from 'react-native';
+import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import apiClient from '../../config/api';
+import { ThemedView } from '../../components/ThemedView';
+import { ThemedText } from '../../components/ThemedText';
+import { Colors } from '../../constants/Colors';
 
-// Type definitions
-interface Category {
- id: string;
- name: string;
- icon: string;
- color: string;
- description: string;
- serviceCount?: number;
-}
-
+// Define interfaces for the data structures from the API
 interface Service {
- id: string;
- name: string;
- description: string;
- category: string;
- priceRange: { min: number; max: number };
- estimatedDuration: number;
- averageRating: number;
- totalRatings: number;
- isEmergencyService: boolean;
- icon?: string;
- color?: string;
+  _id: string;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  subCategory: string;
+  // Assuming an optional imageUrl from the API
+  imageUrl?: string;
 }
 
-interface PriceRange {
- min: number;
- max: number;
+interface Category {
+  _id: string;
+  name: string;
 }
 
-export default function ServiceSelectionScreen() {
- const router = useRouter();
- const params = useLocalSearchParams();
- const isEmergency = params.emergency === 'true';
- 
- const [categories, setCategories] = useState<Category[]>([]);
- const [services, setServices] = useState<Service[]>([]);
- const [popularServices, setPopularServices] = useState<Service[]>([]);
- const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
- const [searchQuery, setSearchQuery] = useState<string>('');
- const [isLoading, setIsLoading] = useState<boolean>(true);
- const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
- const [isSearching, setIsSearching] = useState<boolean>(false);
+const ServiceSelectionScreen = () => {
+  const router = useRouter();
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [popularServices, setPopularServices] = useState<Service[]>([]);
+  const [allServices, setAllServices] = useState<Service[]>([]);
+  const [filteredServices, setFilteredServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
- const loadCategories = useCallback(async () => {
- try {
- // Call the real API
- const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000'}/api/services/categories`);
- 
- if (response.ok) {
- const data = await response.json();
- if (data.success) {
- setCategories(data.data.categories);
- return;
- }
- }
- } catch (error) {
- console.error('Error loading categories:', error);
- }
- 
- // Fallback to mock data
- const mockCategories: Category[] = [
- { id: '1', name: 'Plumbing', icon: 'water', color: '#3b82f6', description: 'Water pipes and fixtures', serviceCount: 15 },
- { id: '2', name: 'Electrical', icon: 'flash', color: '#f59e0b', description: 'Electrical installations and repairs', serviceCount: 12 },
- { id: '3', name: 'Appliance Repair', icon: 'construct', color: '#10b981', description: 'Home appliance services', serviceCount: 18 },
- { id: '4', name: 'Automotive', icon: 'car', color: '#dc2626', description: 'Car, motorcycle & vehicle repairs', serviceCount: 22 },
- { id: '5', name: 'Cleaning', icon: 'sparkles', color: '#8b5cf6', description: 'Home and office cleaning', serviceCount: 8 },
- { id: '6', name: 'HVAC', icon: 'thermometer', color: '#ef4444', description: 'Heating and cooling systems', serviceCount: 10 },
- { id: '7', name: 'Carpentry', icon: 'hammer', color: '#f97316', description: 'Wood work and furniture', serviceCount: 14 }
- ];
- setCategories(mockCategories);
- }, []);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        // Fetch all data in parallel
+        const [categoriesRes, popularServicesRes, allServicesRes] = await Promise.all([
+          apiClient.get('/services/categories'),
+          apiClient.get('/services/popular'),
+          apiClient.get('/services'),
+        ]);
 
- const loadPopularServices = useCallback(async () => {
- try {
- // Call the real API for popular services
- const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000'}/api/services/popular`);
- 
- if (response.ok) {
- const data = await response.json();
- if (data.success) {
- setPopularServices(data.data.services);
- return;
- }
- }
- } catch (error) {
- console.error('Error loading popular services:', error);
- }
- 
- // Fallback to mock data
- const mockServices: Service[] = [
- {
- id: '1',
- name: 'Emergency Roadside Assistance',
- category: 'automotive',
- description: '24/7 emergency help - jump start, tire change, towing',
- priceRange: { min: 1500, max: 8000 },
- estimatedDuration: 45,
- averageRating: 4.9,
- totalRatings: 156,
- isEmergencyService: true
- },
- {
- id: '2',
- name: 'Emergency Pipe Repair',
- category: 'plumbing',
- description: 'Quick fix for burst or leaking pipes',
- priceRange: { min: 2000, max: 5000 },
- estimatedDuration: 60,
- averageRating: 4.8,
- totalRatings: 23,
- isEmergencyService: true
- },
- {
- id: '3',
- name: 'Car Engine Diagnostic',
- category: 'automotive',
- description: 'Professional car engine diagnosis and repair',
- priceRange: { min: 2500, max: 8000 },
- estimatedDuration: 90,
- averageRating: 4.7,
- totalRatings: 89,
- isEmergencyService: false
- },
- {
- id: '4',
- name: 'Motorcycle Repair',
- category: 'automotive',
- description: 'Complete motorcycle service and repairs',
- priceRange: { min: 1000, max: 5000 },
- estimatedDuration: 90,
- averageRating: 4.6,
- totalRatings: 45,
- isEmergencyService: false
- },
- {
- id: '5',
- name: 'Power Outlet Installation',
- category: 'electrical',
- description: 'Install new electrical outlets safely',
- priceRange: { min: 1500, max: 3000 },
- estimatedDuration: 45,
- averageRating: 4.7,
- totalRatings: 18,
- isEmergencyService: false
- },
- {
- id: '6',
- name: 'Appliance Diagnostic',
- category: 'appliance-repair',
- description: 'Diagnose issues with home appliances',
- priceRange: { min: 1000, max: 2500 },
- estimatedDuration: 30,
- averageRating: 4.6,
- totalRatings: 15,
- isEmergencyService: false
- }
- ];
- setPopularServices(mockServices);
- }, []);
+        const activeCategories = categoriesRes.data || [];
+        setCategories(activeCategories);
+        setPopularServices(popularServicesRes.data || []);
+        setAllServices(allServicesRes.data || []);
+        
+        // Set initial state after data is fetched
+        if (activeCategories.length > 0) {
+          setSelectedCategory(activeCategories[0]._id);
+        }
+      } catch (err) {
+        console.error("Failed to fetch service data:", err);
+        
+        // Fallback to mock data if API fails
+        const mockCategories = [
+          { _id: 'plumbing', name: 'Plumbing' },
+          { _id: 'electrical', name: 'Electrical' },
+          { _id: 'carpentry', name: 'Carpentry' },
+          { _id: 'painting', name: 'Painting' },
+          { _id: 'cleaning', name: 'Cleaning' },
+        ];
+        
+        const mockServices = [
+          { _id: '1', name: 'Pipe Repair', description: 'Fix leaking or burst pipes', price: 1500, category: 'plumbing', subCategory: 'repair' },
+          { _id: '2', name: 'Drain Cleaning', description: 'Clear blocked drains and sinks', price: 1200, category: 'plumbing', subCategory: 'maintenance' },
+          { _id: '3', name: 'Electrical Wiring', description: 'Install or repair electrical wiring', price: 2000, category: 'electrical', subCategory: 'installation' },
+          { _id: '4', name: 'Light Fixture Installation', description: 'Install ceiling or wall lights', price: 800, category: 'electrical', subCategory: 'installation' },
+          { _id: '5', name: 'Furniture Assembly', description: 'Assemble furniture and fixtures', price: 1000, category: 'carpentry', subCategory: 'assembly' },
+          { _id: '6', name: 'Door Repair', description: 'Fix or replace doors', price: 1500, category: 'carpentry', subCategory: 'repair' },
+          { _id: '7', name: 'Interior Painting', description: 'Paint walls and ceilings', price: 3000, category: 'painting', subCategory: 'interior' },
+          { _id: '8', name: 'Deep Cleaning', description: 'Thorough house cleaning', price: 2500, category: 'cleaning', subCategory: 'residential' },
+        ];
+        
+        setCategories(mockCategories);
+        setAllServices(mockServices);
+        setPopularServices(mockServices.slice(0, 4));
+        
+        if (mockCategories.length > 0) {
+          setSelectedCategory(mockCategories[0]._id);
+        }
+        
+        console.log('Using mock data for services');
+      } finally {
+        setLoading(false);
+      }
+    };
 
- const loadInitialData = useCallback(async () => {
- try {
- await Promise.all([
- loadCategories(),
- loadPopularServices()
- ]);
- } catch (error) {
- console.error('Error loading initial data:', error);
- } finally {
- setIsLoading(false);
- }
- }, [loadCategories, loadPopularServices]);
+    fetchData();
+  }, []);
 
- // Initialize data on component mount
- useEffect(() => {
- loadInitialData();
- }, [loadInitialData]);
+  // Memoized filtering logic for performance
+  useEffect(() => {
+    let result = allServices;
 
- const loadServicesByCategory = async (categoryId: string) => {
- setIsLoading(true);
- try {
- // Mock services by category
- const mockServices: Service[] = [
- {
- id: '1',
- name: 'Pipe Repair & Replacement',
- description: 'Professional pipe repair and replacement services for all types of plumbing issues',
- category: 'plumbing',
- priceRange: { min: 1500, max: 8000 },
- estimatedDuration: 120,
- averageRating: 4.8,
- totalRatings: 124,
- isEmergencyService: true
- },
- {
- id: '2',
- name: 'Toilet Installation & Repair',
- description: 'Complete toilet installation, repair, and maintenance services',
- category: 'plumbing',
- priceRange: { min: 2000, max: 12000 },
- estimatedDuration: 90,
- averageRating: 4.7,
- totalRatings: 87,
- isEmergencyService: false
- }
- ];
- setServices(mockServices);
- } catch (error) {
- console.error('Error loading services:', error);
- } finally {
- setIsLoading(false);
- }
- };
+    if (selectedCategory) {
+      result = result.filter(service => service.category === selectedCategory);
+    }
 
- const handleCategorySelect = (category: Category) => {
- setSelectedCategory(category);
- loadServicesByCategory(category.id);
- };
+    if (searchTerm.trim()) {
+      result = result.filter(service =>
+        service.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    
+    setFilteredServices(result);
+  }, [searchTerm, selectedCategory, allServices]);
 
- const handleServiceSelect = (service: Service) => {
- router.push({
- pathname: '/booking/details',
- params: { 
- serviceId: service.id,
- serviceName: service.name,
- serviceData: JSON.stringify(service),
- isEmergency: isEmergency ? 'true' : 'false'
- }
- });
- };
+  const handleSelectService = (service: Service) => {
+    router.push({
+      pathname: '/booking/date-time-selection',
+      params: { 
+        serviceId: service._id, 
+        serviceName: service.name, 
+        servicePrice: service.price.toString() // Ensure params are strings
+      },
+    });
+  };
 
- const handleSearch = async (query: string) => {
- setSearchQuery(query);
- if (query.length < 2) {
- setServices([]);
- setSelectedCategory(null);
- return;
- }
+  const renderServiceItem = (service: Service) => (
+    <TouchableOpacity key={service._id} style={styles.serviceItem} onPress={() => handleSelectService(service)}>
+      <View style={styles.serviceInfo}>
+        <ThemedText style={styles.serviceName}>{service.name}</ThemedText>
+        <ThemedText style={styles.serviceDescription} numberOfLines={2}>{service.description}</ThemedText>
+        <ThemedText style={styles.servicePrice}>From KES {service.price}</ThemedText>
+      </View>
+      <Ionicons name="chevron-forward" size={24} color={Colors.light.tint} />
+    </TouchableOpacity>
+  );
 
- setIsSearching(true);
- try {
- // Mock search results
- const searchResults = popularServices.filter(service => 
- service.name.toLowerCase().includes(query.toLowerCase())
- );
- setServices(searchResults);
- setSelectedCategory(null);
- } catch (error) {
- console.error('Error searching services:', error);
- } finally {
- setIsSearching(false);
- }
- };
+  // Loading State Component
+  if (loading) {
+    return (
+      <ThemedView style={styles.centered}>
+        <ActivityIndicator size="large" color={Colors.light.tint} />
+        <ThemedText style={{ marginTop: 10 }}>Loading services...</ThemedText>
+      </ThemedView>
+    );
+  }
 
- const onRefresh = async () => {
- setIsRefreshing(true);
- await loadInitialData();
- setIsRefreshing(false);
- };
+  // Error State Component
+  if (error) {
+    return (
+      <ThemedView style={styles.centered}>
+        <Ionicons name="alert-circle-outline" size={48} color="red" />
+        <ThemedText style={styles.errorText}>{error}</ThemedText>
+      </ThemedView>
+    );
+  }
 
- const formatPrice = (priceRange: PriceRange): string => {
- if (priceRange.min === priceRange.max) {
- return `KSh ${priceRange.min.toLocaleString()}`;
- }
- return `KSh ${priceRange.min.toLocaleString()} - ${priceRange.max.toLocaleString()}`;
- };
+  // Main Component Render
+  return (
+    <ThemedView style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={24} color={Colors.light.text} />
+        </TouchableOpacity>
+        <ThemedText style={styles.title}>Select a Service</ThemedText>
+      </View>
 
- const formatDuration = (minutes: number): string => {
- const hours = Math.floor(minutes / 60);
- const mins = minutes % 60;
- 
- if (hours === 0) {
- return `${mins} mins`;
- } else if (mins === 0) {
- return `${hours} hour${hours > 1 ? 's' : ''}`;
- } else {
- return `${hours}h ${mins}m`;
- }
- };
+      <View style={styles.searchContainer}>
+        <Ionicons name="search" size={20} color={Colors.light.icon} style={styles.searchIcon} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search for a service..."
+          placeholderTextColor={Colors.light.icon}
+          value={searchTerm}
+          onChangeText={setSearchTerm}
+          clearButtonMode="while-editing"
+        />
+      </View>
 
- const renderCategoryCard = ({ item }: { item: Category }) => (
- <TouchableOpacity
- style={[styles.categoryCard, selectedCategory?.id === item.id && styles.selectedCategoryCard]}
- onPress={() => handleCategorySelect(item)}
- >
- <View style={[styles.categoryIcon, { backgroundColor: item.color + '20' }]}>
- <Ionicons name={(item.icon as any) || 'business'} size={24} color={item.color} />
- </View>
- <Text style={styles.categoryName}>{item.name}</Text>
- <Text style={styles.categoryCount}>{item.serviceCount} services</Text>
- </TouchableOpacity>
- );
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        {popularServices.length > 0 && (
+          <>
+            <ThemedText style={styles.sectionTitle}>Popular Services</ThemedText>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScrollView}>
+              {popularServices.map(service => (
+                <TouchableOpacity key={service._id} style={styles.popularServiceItem} onPress={() => handleSelectService(service)}>
+                  <Image 
+                    source={{ uri: service.imageUrl || 'https://via.placeholder.com/100' }} 
+                    style={styles.popularServiceImage} 
+                  />
+                  <ThemedText style={styles.popularServiceName} numberOfLines={2}>{service.name}</ThemedText>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </>
+        )}
 
- const renderServiceCard = ({ item }: { item: Service }) => (
- <TouchableOpacity
- style={styles.serviceCard}
- onPress={() => handleServiceSelect(item)}
- >
- <View style={styles.serviceHeader}>
- <View style={[styles.serviceIcon, { backgroundColor: item.color + '20' }]}>
- <Ionicons name={(item.icon as any) || 'construct'} size={20} color={item.color} />
- </View>
- <View style={styles.serviceInfo}>
- <Text style={styles.serviceName}>{item.name}</Text>
- <Text style={styles.serviceDescription} numberOfLines={2}>
- {item.description}
- </Text>
- </View>
- {item.isEmergencyService && (
- <View style={styles.emergencyBadge}>
- <Ionicons name="flash" size={12} color="#fff" />
- <Text style={styles.emergencyText}>24/7</Text>
- </View>
- )}
- </View>
- 
- <View style={styles.serviceFooter}>
- <View style={styles.serviceStats}>
- <View style={styles.statItem}>
- <Ionicons name="star" size={14} color="#fbbf24" />
- <Text style={styles.statText}>{item.averageRating}</Text>
- <Text style={styles.statSubtext}>({item.totalRatings})</Text>
- </View>
- <View style={styles.statItem}>
- <Ionicons name="time-outline" size={14} color="#6b7280" />
- <Text style={styles.statText}>{formatDuration(item.estimatedDuration)}</Text>
- </View>
- </View>
- <Text style={styles.servicePrice}>{formatPrice(item.priceRange)}</Text>
- </View>
- </TouchableOpacity>
- );
+        <ThemedText style={styles.sectionTitle}>All Services</ThemedText>
+        {categories.length > 0 && (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScrollView}>
+            {categories.map(category => (
+                <TouchableOpacity
+                key={category._id}
+                style={[
+                    styles.categoryTab,
+                    selectedCategory === category._id && styles.selectedCategoryTab,
+                ]}
+                onPress={() => setSelectedCategory(category._id)}>
+                <ThemedText
+                    style={[
+                    styles.categoryText,
+                    selectedCategory === category._id && styles.selectedCategoryText,
+                    ]}>
+                    {category.name}
+                </ThemedText>
+                </TouchableOpacity>
+            ))}
+            </ScrollView>
+        )}
 
- const renderCriticalBookingBanner = () => {
- return (
- <TouchableOpacity 
- style={styles.criticalBanner}
- onPress={() => router.push('/booking/details?isEmergency=true')}
- >
- <View style={styles.criticalBannerLeft}>
- <View style={styles.criticalIconContainer}>
- <Ionicons name="flash" size={28} color="#fff" />
- </View>
- <View style={styles.criticalTextContainer}>
- <View style={styles.criticalTitleRow}>
- <Text style={styles.criticalTitle}>Critical Emergency Booking</Text>
- <View style={styles.liveBadge}>
- <View style={styles.liveIndicator} />
- <Text style={styles.liveText}>24/7</Text>
- </View>
- </View>
- <Text style={styles.criticalSubtext}>
- Need immediate assistance? Get urgent help now
- </Text>
- </View>
- </View>
- <Ionicons name="chevron-forward" size={24} color="#dc3545" />
- </TouchableOpacity>
- );
- };
-
- if (isLoading && !isRefreshing) {
- return (
- <View style={[styles.container, styles.centered]}>
- <ActivityIndicator size="large" color="#0d6efd" />
- <Text style={styles.loadingText}>Loading services...</Text>
- </View>
- );
- }
-
- return (
- <View style={styles.container}>
- {/* Header */}
- <View style={styles.header}>
- <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
- <Ionicons name="arrow-back" size={24} color="#fff" />
- </TouchableOpacity>
- <Text style={styles.headerTitle}>QuickFix Services</Text>
- <TouchableOpacity style={styles.notificationButton}>
- <Ionicons name="notifications-outline" size={24} color="#fff" />
- </TouchableOpacity>
- </View>
-
- <ScrollView 
- style={styles.content}
- showsVerticalScrollIndicator={false}
- refreshControl={
- <RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />
- }
- >
- {/* Emergency Mode Banner */}
- {isEmergency && (
- <View style={styles.emergencyBanner}>
- <Ionicons name="alert-circle" size={24} color="#EF5350" />
- <View style={styles.emergencyBannerText}>
- <Text style={styles.emergencyBannerTitle}>Emergency Mode</Text>
- <Text style={styles.emergencyBannerSubtitle}>Select a service for immediate assistance</Text>
- </View>
- </View>
- )}
-
- {/* Search Bar */}
- <View style={styles.searchContainer}>
- <View style={styles.searchBar}>
- <Ionicons name="search-outline" size={20} color="#6b7280" />
- <TextInput
- style={styles.searchInput}
- placeholder="Search for services..."
- value={searchQuery}
- onChangeText={handleSearch}
- placeholderTextColor="#6b7280"
- />
- {isSearching && <ActivityIndicator size="small" color="#0d6efd" />}
- </View>
- </View>
-
- {/* Critical Booking Banner */}
- {!selectedCategory && !searchQuery && renderCriticalBookingBanner()}
-
- {/* Service Categories */}
- {!selectedCategory && !searchQuery && (
- <View style={styles.section}>
- <Text style={styles.sectionTitle}>Browse Categories</Text>
- <FlatList
- data={categories}
- renderItem={renderCategoryCard}
- keyExtractor={item => item.id}
- numColumns={3}
- scrollEnabled={false}
- columnWrapperStyle={styles.categoryRow}
- />
- </View>
- )}
-
- {/* Popular Services */}
- {!selectedCategory && !searchQuery && (
- <View style={styles.section}>
- <Text style={styles.sectionTitle}>Popular Services</Text>
- <FlatList
- data={popularServices}
- renderItem={renderServiceCard}
- keyExtractor={item => item.id}
- scrollEnabled={false}
- />
- </View>
- )}
-
- {/* Category Services or Search Results */}
- {(selectedCategory || searchQuery) && (
- <View style={styles.section}>
- <View style={styles.resultsHeader}>
- {selectedCategory && (
- <TouchableOpacity
- style={styles.backToCategories}
- onPress={() => {
- setSelectedCategory(null);
- setServices([]);
- }}
- >
- <Ionicons name="arrow-back" size={16} color="#0d6efd" />
- <Text style={styles.backText}>All Categories</Text>
- </TouchableOpacity>
- )}
- <Text style={styles.resultsTitle}>
- {selectedCategory ? selectedCategory.name : `Search Results for "${searchQuery}"`}
- </Text>
- <Text style={styles.resultsCount}>
- {services.length} service{services.length !== 1 ? 's' : ''} found
- </Text>
- </View>
- <FlatList
- data={services}
- renderItem={renderServiceCard}
- keyExtractor={item => item.id}
- scrollEnabled={false}
- ListEmptyComponent={
- <View style={styles.emptyState}>
- <Ionicons name="search-outline" size={48} color="#6b7280" />
- <Text style={styles.emptyTitle}>No services found</Text>
- <Text style={styles.emptySubtitle}>
- Try a different search term or browse categories
- </Text>
- </View>
- }
- />
- </View>
- )}
- </ScrollView>
- </View>
- );
-}
+        <View style={styles.serviceList}>
+            {filteredServices.length > 0 ? (
+            filteredServices.map(renderServiceItem)
+            ) : (
+            <ThemedText style={styles.noServicesText}>No services found. Try a different search or category.</ThemedText>
+            )}
+        </View>
+      </ScrollView>
+    </ThemedView>
+  );
+};
 
 const styles = StyleSheet.create({
- container: {
- flex: 1,
- backgroundColor: '#f8f9fa',
- },
- centered: {
- justifyContent: 'center',
- alignItems: 'center',
- },
- header: {
- flexDirection: 'row',
- alignItems: 'center',
- backgroundColor: '#0d6efd',
- paddingTop: 50,
- paddingBottom: 15,
- paddingHorizontal: 15,
- },
- backButton: {
- marginRight: 15,
- },
- headerTitle: {
- flex: 1,
- fontSize: 20,
- fontWeight: 'bold',
- color: '#fff',
- textAlign: 'center',
- },
- notificationButton: {
- padding: 5,
- },
- content: {
- flex: 1,
- },
- loadingText: {
- marginTop: 10,
- fontSize: 16,
- color: '#6b7280',
- },
- searchContainer: {
- padding: 15,
- backgroundColor: '#fff',
- borderBottomWidth: 1,
- borderBottomColor: '#e5e7eb',
- },
- searchBar: {
- flexDirection: 'row',
- alignItems: 'center',
- backgroundColor: '#f3f4f6',
- borderRadius: 12,
- paddingHorizontal: 15,
- paddingVertical: 12,
- },
- emergencyBanner: {
- flexDirection: 'row',
- alignItems: 'center',
- backgroundColor: '#FFEBEE',
- borderRadius: 12,
- padding: 16,
- marginHorizontal: 16,
- marginBottom: 12,
- borderLeftWidth: 4,
- borderLeftColor: '#EF5350',
- },
- emergencyBannerText: {
- flex: 1,
- marginLeft: 12,
- },
- emergencyBannerTitle: {
- fontSize: 16,
- fontWeight: '600',
- color: '#C62828',
- marginBottom: 4,
- },
- emergencyBannerSubtitle: {
- fontSize: 13,
- color: '#D32F2F',
- },
- searchInput: {
- flex: 1,
- fontSize: 16,
- marginLeft: 10,
- color: '#111827',
- },
- section: {
- padding: 15,
- },
- sectionHeader: {
- flexDirection: 'row',
- alignItems: 'center',
- marginBottom: 15,
- },
- sectionTitle: {
- fontSize: 18,
- fontWeight: '600',
- color: '#111827',
- marginLeft: 8,
- flex: 1,
- },
- liveBadge: {
- flexDirection: 'row',
- alignItems: 'center',
- backgroundColor: '#ef4444',
- paddingHorizontal: 8,
- paddingVertical: 4,
- borderRadius: 12,
- },
- liveIndicator: {
- width: 6,
- height: 6,
- borderRadius: 3,
- backgroundColor: '#fff',
- marginRight: 4,
- },
- liveText: {
- fontSize: 12,
- fontWeight: '600',
- color: '#fff',
- },
- categoryRow: {
- justifyContent: 'space-between',
- marginBottom: 10,
- },
- categoryCard: {
- flex: 1,
- alignItems: 'center',
- backgroundColor: '#fff',
- borderRadius: 12,
- padding: 15,
- marginHorizontal: 5,
- shadowColor: '#000',
- shadowOffset: { width: 0, height: 2 },
- shadowOpacity: 0.1,
- shadowRadius: 4,
- elevation: 3,
- },
- selectedCategoryCard: {
- borderWidth: 2,
- borderColor: '#0d6efd',
- },
- categoryIcon: {
- width: 48,
- height: 48,
- borderRadius: 24,
- alignItems: 'center',
- justifyContent: 'center',
- marginBottom: 8,
- },
- categoryName: {
- fontSize: 14,
- fontWeight: '600',
- color: '#111827',
- textAlign: 'center',
- marginBottom: 4,
- },
- categoryCount: {
- fontSize: 12,
- color: '#6b7280',
- textAlign: 'center',
- },
- criticalBanner: {
- flexDirection: 'row',
- alignItems: 'center',
- justifyContent: 'space-between',
- backgroundColor: '#fff5f5',
- borderWidth: 2,
- borderColor: '#dc3545',
- borderRadius: 12,
- padding: 16,
- marginHorizontal: 20,
- marginBottom: 20,
- shadowColor: '#dc3545',
- shadowOffset: { width: 0, height: 2 },
- shadowOpacity: 0.2,
- shadowRadius: 4,
- elevation: 3,
- },
- criticalBannerLeft: {
- flexDirection: 'row',
- alignItems: 'center',
- flex: 1,
- },
- criticalIconContainer: {
- width: 48,
- height: 48,
- borderRadius: 24,
- backgroundColor: '#dc3545',
- alignItems: 'center',
- justifyContent: 'center',
- marginRight: 12,
- },
- criticalTextContainer: {
- flex: 1,
- },
- criticalTitleRow: {
- flexDirection: 'row',
- alignItems: 'center',
- marginBottom: 4,
- },
- criticalTitle: {
- fontSize: 16,
- fontWeight: '700',
- color: '#dc3545',
- marginRight: 8,
- },
- criticalSubtext: {
- fontSize: 13,
- color: '#666',
- },
- serviceCard: {
- backgroundColor: '#fff',
- borderRadius: 12,
- padding: 15,
- marginBottom: 15,
- shadowColor: '#000',
- shadowOffset: { width: 0, height: 2 },
- shadowOpacity: 0.1,
- shadowRadius: 4,
- elevation: 3,
- },
- serviceHeader: {
- flexDirection: 'row',
- alignItems: 'flex-start',
- marginBottom: 12,
- },
- serviceIcon: {
- width: 40,
- height: 40,
- borderRadius: 20,
- alignItems: 'center',
- justifyContent: 'center',
- marginRight: 12,
- },
- serviceInfo: {
- flex: 1,
- },
- serviceName: {
- fontSize: 16,
- fontWeight: '600',
- color: '#111827',
- marginBottom: 4,
- },
- serviceDescription: {
- fontSize: 14,
- color: '#6b7280',
- lineHeight: 20,
- },
- emergencyBadge: {
- flexDirection: 'row',
- alignItems: 'center',
- backgroundColor: '#ef4444',
- paddingHorizontal: 6,
- paddingVertical: 3,
- borderRadius: 8,
- },
- emergencyText: {
- fontSize: 10,
- fontWeight: '600',
- color: '#fff',
- marginLeft: 2,
- },
- serviceFooter: {
- flexDirection: 'row',
- justifyContent: 'space-between',
- alignItems: 'center',
- },
- serviceStats: {
- flexDirection: 'row',
- alignItems: 'center',
- },
- statItem: {
- flexDirection: 'row',
- alignItems: 'center',
- marginRight: 15,
- },
- statText: {
- fontSize: 14,
- fontWeight: '500',
- color: '#374151',
- marginLeft: 4,
- },
- statSubtext: {
- fontSize: 12,
- color: '#6b7280',
- marginLeft: 2,
- },
- servicePrice: {
- fontSize: 16,
- fontWeight: '600',
- color: '#0d6efd',
- },
- resultsHeader: {
- marginBottom: 15,
- },
- backToCategories: {
- flexDirection: 'row',
- alignItems: 'center',
- marginBottom: 8,
- },
- backText: {
- fontSize: 14,
- color: '#0d6efd',
- marginLeft: 4,
- },
- resultsTitle: {
- fontSize: 18,
- fontWeight: '600',
- color: '#111827',
- marginBottom: 4,
- },
- resultsCount: {
- fontSize: 14,
- color: '#6b7280',
- },
- emptyState: {
- alignItems: 'center',
- justifyContent: 'center',
- paddingVertical: 60,
- },
- emptyTitle: {
- fontSize: 18,
- fontWeight: '600',
- color: '#374151',
- marginTop: 15,
- marginBottom: 8,
- },
- emptySubtitle: {
- fontSize: 14,
- color: '#6b7280',
- textAlign: 'center',
- },
+  container: {
+    flex: 1,
+    backgroundColor: Colors.light.background,
+  },
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingTop: Platform.OS === 'android' ? 40 : 50,
+    paddingBottom: 12,
+    backgroundColor: Colors.light.background,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  backButton: {
+    padding: 5,
+    marginRight: 10,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: Colors.light.text,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f0f0f0',
+    borderRadius: 12,
+    marginHorizontal: 16,
+    marginVertical: 16,
+    paddingHorizontal: 12,
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    height: 48,
+    fontSize: 16,
+    color: Colors.light.text,
+  },
+  scrollContent: {
+    paddingBottom: 30,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginHorizontal: 16,
+    marginTop: 10,
+    marginBottom: 12,
+  },
+  horizontalScrollView: {
+    paddingHorizontal: 16,
+    paddingBottom: 10,
+  },
+  popularServiceItem: {
+    width: 120,
+    marginRight: 16,
+    alignItems: 'center',
+  },
+  popularServiceImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 12,
+    backgroundColor: '#e0e0e0',
+  },
+  popularServiceName: {
+    marginTop: 8,
+    textAlign: 'center',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  categoryTab: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    backgroundColor: '#f0f0f0',
+    marginRight: 10,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+  selectedCategoryTab: {
+    backgroundColor: Colors.light.tint,
+    borderColor: Colors.light.tint,
+  },
+  categoryText: {
+    color: Colors.light.text,
+    fontWeight: '600',
+  },
+  selectedCategoryText: {
+    color: '#FFFFFF',
+  },
+  serviceList: {
+    marginTop: 10,
+  },
+  serviceItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+    backgroundColor: Colors.light.background,
+  },
+  serviceInfo: {
+    flex: 1,
+    marginRight: 10,
+  },
+  serviceName: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  serviceDescription: {
+    fontSize: 14,
+    color: Colors.light.icon,
+    marginTop: 4,
+  },
+  servicePrice: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: Colors.light.tint,
+    marginTop: 8,
+  },
+  errorText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: 'red',
+    textAlign: 'center',
+  },
+  noServicesText: {
+    textAlign: 'center',
+    marginTop: 40,
+    fontSize: 16,
+    color: Colors.light.icon,
+  },
 });
+
+export default ServiceSelectionScreen;

@@ -10,8 +10,8 @@
 
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
-import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import React, { useState, useEffect } from 'react';
 import {
  ActivityIndicator,
  Alert,
@@ -25,6 +25,7 @@ import {
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { completeNairobiLocations, getRoadsForWard } from '../../data/completeNairobiLocations';
+import { useAuth } from '../../contexts/SimpleAuthContext';
 
 // TYPE DEFINITIONS
 interface LocationData {
@@ -95,11 +96,14 @@ const URGENCY_LEVELS = [
 
 export default function RedesignedBookingForm() {
  const router = useRouter();
+ const params = useLocalSearchParams();
+ const { user } = useAuth();
  const [isSubmitting, setIsSubmitting] = useState(false);
  
  // DATE PICKER STATES
  const [showDatePicker, setShowDatePicker] = useState(false);
  const [selectedDate, setSelectedDate] = useState(new Date());
+ const [isCritical, setIsCritical] = useState(false);
  
  // BOOKING DATA - MATCHING BACKEND STRUCTURE EXACTLY
  const [bookingData, setBookingData] = useState<BookingFormData>({
@@ -129,8 +133,29 @@ export default function RedesignedBookingForm() {
  // OPTIONAL
  specialRequirements: ''
  });
- 
- const [errors, setErrors] = useState<Record<string, string>>({});
+
+ // Auto-populate user details
+ useEffect(() => {
+   if (user) {
+     setBookingData(prev => ({
+       ...prev,
+       clientName: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+       clientPhone: user.phoneNumber || '',
+       clientEmail: user.email || '',
+     }));
+   }
+ }, [user]);
+
+  // Handle emergency param
+  useEffect(() => {
+    if (params.isEmergency === 'true' || params.emergency === 'true') {
+      setBookingData(prev => ({
+        ...prev,
+        urgency: 'emergency'
+      }));
+      setIsCritical(true);
+    }
+  }, [params]); const [errors, setErrors] = useState<Record<string, string>>({});
  const [selectedConstituency, setSelectedConstituency] = useState<string>('');
  const [availableWards, setAvailableWards] = useState<NairobiWard[]>([]);
  const [availableRoads, setAvailableRoads] = useState<string[]>([]);
@@ -222,24 +247,39 @@ export default function RedesignedBookingForm() {
  newErrors.locationDescription = 'Location description is required';
  }
  
- // SCHEDULING
- if (!bookingData.preferredDate) {
- newErrors.preferredDate = 'Preferred date is required';
- } else {
- const selectedDate = new Date(bookingData.preferredDate);
- const today = new Date();
- today.setHours(0, 0, 0, 0);
- 
- if (selectedDate < today) {
- newErrors.preferredDate = 'Date cannot be in the past';
- }
- }
- 
- if (!bookingData.preferredTimeSlot) {
- newErrors.preferredTimeSlot = 'Time slot is required';
- }
- 
- setErrors(newErrors);
+    // SCHEDULING
+    if (!isCritical) {
+      if (!bookingData.preferredDate) {
+        newErrors.preferredDate = 'Preferred date is required';
+      } else {
+        const selectedDate = new Date(bookingData.preferredDate);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        if (selectedDate < today) {
+          newErrors.preferredDate = 'Date cannot be in the past';
+        }
+      }
+      
+      if (!bookingData.preferredTimeSlot) {
+        newErrors.preferredTimeSlot = 'Time slot is required';
+      } else if (bookingData.preferredDate) {
+        // Check 2 hour allowance for today's bookings
+        const selectedDate = new Date(bookingData.preferredDate);
+        const today = new Date();
+        
+        if (selectedDate.toDateString() === today.toDateString()) {
+          if (bookingData.preferredTimeSlot !== 'flexible') {
+            const slotStart = parseInt(bookingData.preferredTimeSlot.split(':')[0]);
+            const currentHour = today.getHours();
+            
+            if (slotStart < currentHour + 2) {
+              newErrors.preferredTimeSlot = 'Booking must be at least 2 hours in advance';
+            }
+          }
+        }
+      }
+    } setErrors(newErrors);
  return Object.keys(newErrors).length === 0;
  };
 
@@ -267,20 +307,25 @@ export default function RedesignedBookingForm() {
  const result = await response.json();
  
  if (result.success) {
- Alert.alert(
- 'Booking Submitted!',
- `Your booking has been submitted successfully.\\n\\nBooking ID: ${result.data.bookingId}\\n\\nWe'll contact you at ${result.data.clientPhone} for confirmation.`,
- [
- {
- text: 'View My Bookings',
- onPress: () => {
- // Navigate to My Bookings page
- router.replace('/bookings');
- }
- }
- ]
- );
- } else {
+        if (Platform.OS === 'web') {
+          alert(`Booking Submitted!\n\nYour booking has been submitted successfully.\n\nBooking ID: ${result.data.bookingId}\n\nWe'll contact you at ${result.data.clientPhone} for confirmation.`);
+          router.replace('/bookings');
+        } else {
+          Alert.alert(
+            'Booking Submitted!',
+            `Your booking has been submitted successfully.\n\nBooking ID: ${result.data.bookingId}\n\nWe'll contact you at ${result.data.clientPhone} for confirmation.`,
+            [
+              {
+                text: 'View My Bookings',
+                onPress: () => {
+                  // Navigate to My Bookings page
+                  router.replace('/bookings');
+                }
+              }
+            ]
+          );
+        }
+      } else {
  Alert.alert('Submission Failed', result.message || 'Please try again');
  }
  
@@ -453,10 +498,7 @@ export default function RedesignedBookingForm() {
  <View style={[styles.pickerContainer, errors.ward && styles.inputError]}>
  <Picker
  selectedValue={bookingData.location.ward}
- onValueChange={(value) => setBookingData(prev => ({
- ...prev,
- location: { ...prev.location, ward: value }
- }))}
+ onValueChange={handleWardChange}
  style={styles.picker}
  enabled={availableWards.length > 0}
  >
@@ -471,6 +513,24 @@ export default function RedesignedBookingForm() {
  
  <View style={styles.inputGroup}>
  <Text style={styles.label}>Road/Street *</Text>
+ {availableRoads.length > 0 ? (
+ <View style={[styles.pickerContainer, errors.road && styles.inputError]}>
+ <Picker
+ selectedValue={bookingData.location.road}
+ onValueChange={(value) => setBookingData(prev => ({
+ ...prev,
+ location: { ...prev.location, road: value }
+ }))}
+ style={styles.picker}
+ >
+ <Picker.Item label="Select road/street" value="" />
+ {availableRoads.map((road) => (
+ <Picker.Item key={road} label={road} value={road} />
+ ))}
+ <Picker.Item label="Other (Type manually)" value="other" />
+ </Picker>
+ </View>
+ ) : (
  <TextInput
  style={[styles.input, errors.road && styles.inputError]}
  value={bookingData.location.road}
@@ -481,10 +541,20 @@ export default function RedesignedBookingForm() {
  placeholder="Enter road or street name"
  placeholderTextColor="#999"
  />
- {errors.road && <Text style={styles.errorText}>{errors.road}</Text>}
- </View>
- 
- <View style={styles.inputGroup}>
+ )}
+        {bookingData.location.road === 'other' && (
+          <TextInput
+            style={[styles.input, { marginTop: 10 }]}
+            onChangeText={(text) => setBookingData(prev => ({
+              ...prev,
+              location: { ...prev.location, road: text }
+            }))}
+            placeholder="Type road name manually"
+            placeholderTextColor="#999"
+          />
+        )}
+        {errors.road && <Text style={styles.errorText}>{errors.road}</Text>}
+      </View> <View style={styles.inputGroup}>
  <Text style={styles.label}>Location Description *</Text>
  <TextInput
  style={[styles.textArea, errors.locationDescription && styles.inputError]}
@@ -519,11 +589,49 @@ export default function RedesignedBookingForm() {
 
  {/* SCHEDULING */}
  <View style={styles.section}>
- <Text style={styles.sectionTitle}>Scheduling</Text>
- 
- <View style={styles.inputGroup}>
- <Text style={styles.label}>Preferred Date *</Text>
- {Platform.OS === 'web' ? (
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 }}>
+          <Text style={[styles.sectionTitle, { marginBottom: 0 }]}>Scheduling</Text>
+          <TouchableOpacity 
+            style={{ flexDirection: 'row', alignItems: 'center' }}
+            onPress={() => {
+              const newCritical = !isCritical;
+              setIsCritical(newCritical);
+              setBookingData(prev => ({
+                ...prev,
+                urgency: newCritical ? 'emergency' : 'normal'
+              }));
+            }}
+          >
+            <View style={{ 
+              width: 24, 
+              height: 24, 
+              borderRadius: 4, 
+              borderWidth: 2, 
+              borderColor: isCritical ? '#F44336' : '#ccc',
+              backgroundColor: isCritical ? '#F44336' : 'transparent',
+              marginRight: 8,
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              {isCritical && <Ionicons name="checkmark" size={18} color="white" />}
+            </View>
+            <Text style={{ fontSize: 14, fontWeight: '600', color: isCritical ? '#F44336' : '#333' }}>
+              Critical / Emergency
+            </Text>
+          </TouchableOpacity>
+        </View>
+        
+        {isCritical ? (
+          <View style={{ padding: 15, backgroundColor: '#FFEBEE', borderRadius: 8, marginBottom: 10 }}>
+            <Text style={{ color: '#D32F2D', fontWeight: '500' }}>
+              <Ionicons name="alert-circle" size={16} /> Emergency bookings are processed ASAP. No date/time selection required.
+            </Text>
+          </View>
+        ) : (
+          <>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Preferred Date *</Text>
+              {Platform.OS === 'web' ? (
  <View style={[styles.datePickerButton, errors.preferredDate && styles.inputError]}>
  <Ionicons name="calendar-outline" size={20} color="#2196F3" style={styles.dateIcon} />
  <input
@@ -597,11 +705,11 @@ export default function RedesignedBookingForm() {
  ))}
  </Picker>
  </View>
- {errors.preferredTimeSlot && <Text style={styles.errorText}>{errors.preferredTimeSlot}</Text>}
- </View>
- </View>
-
- {/* ADDITIONAL REQUIREMENTS */}
+        {errors.preferredTimeSlot && <Text style={styles.errorText}>{errors.preferredTimeSlot}</Text>}
+        </View>
+          </>
+        )}
+      </View> {/* ADDITIONAL REQUIREMENTS */}
  <View style={styles.section}>
  <Text style={styles.sectionTitle}>Additional Information</Text>
  

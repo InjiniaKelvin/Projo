@@ -11,16 +11,19 @@
  "skipLibCheck": true,
  "moduleResolution": "bundler",
  "forceConsistentCasingInFileNames": true,
- "types": ["@playwright/test"],
+ "types": [],
  "paths": {
  "@/*": [
  "./*"
  ]
  }
  },
- "include": [
- "**/*.ts",
- "**/*.tsx",
- "tests/**/*"
- ]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "tests/**/*"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

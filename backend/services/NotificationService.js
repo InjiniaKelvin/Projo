@@ -429,6 +429,13 @@ class NotificationService {
  }
  
  /**
+   * Alias for sendInAppNotification to maintain compatibility
+   */
+  async createInAppNotification(userId, title, message, data = {}) {
+    return this.sendInAppNotification(userId, title, message, data);
+  }
+
+  /**
  * Send bulk in-app notifications to multiple users
  */
  async sendBulkInAppNotifications(userIds, title, message, data = {}) {

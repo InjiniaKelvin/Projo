@@ -9,11 +9,12 @@ import {
  Text,
  TextInput,
  TouchableOpacity,
- View
+ View,
 } from 'react-native';
+import apiClient, { API_ENDPOINTS } from '@/config/api';
 
 interface SparePart {
- id: string;
+ _id: string;
  name: string;
  category: string;
  sku: string;
@@ -34,70 +35,6 @@ export default function SparePartsInventoryScreen() {
  const [filterCategory, setFilterCategory] = useState('all');
  const [showAddModal, setShowAddModal] = useState(false);
 
- // Mock data for demonstration
- const mockSpareParts: SparePart[] = [
- {
- id: '1',
- name: 'Air Filter',
- category: 'HVAC',
- sku: 'AF-001',
- quantity: 25,
- minStockLevel: 10,
- price: 15.99,
- supplier: 'HVAC Supply Co.',
- lastRestocked: '2025-07-10',
- status: 'in-stock'
- },
- {
- id: '2',
- name: 'Circuit Breaker 20A',
- category: 'Electrical',
- sku: 'CB-20A',
- quantity: 5,
- minStockLevel: 10,
- price: 25.50,
- supplier: 'Electric Parts Ltd.',
- lastRestocked: '2025-07-05',
- status: 'low-stock'
- },
- {
- id: '3',
- name: 'PVC Pipe Connector',
- category: 'Plumbing',
- sku: 'PVC-001',
- quantity: 0,
- minStockLevel: 15,
- price: 3.99,
- supplier: 'Plumbing Solutions',
- lastRestocked: '2025-06-28',
- status: 'out-of-stock'
- },
- {
- id: '4',
- name: 'Thermal Fuse',
- category: 'Appliances',
- sku: 'TF-001',
- quantity: 18,
- minStockLevel: 8,
- price: 8.75,
- supplier: 'Appliance Parts Direct',
- lastRestocked: '2025-07-12',
- status: 'in-stock'
- },
- {
- id: '5',
- name: 'LED Bulb 60W Equivalent',
- category: 'Electrical',
- sku: 'LED-60W',
- quantity: 7,
- minStockLevel: 20,
- price: 12.99,
- supplier: 'Electric Parts Ltd.',
- lastRestocked: '2025-07-08',
- status: 'low-stock'
- }
- ];
-
  const categories = ['all', 'HVAC', 'Electrical', 'Plumbing', 'Appliances'];
 
  useEffect(() => {
@@ -107,18 +44,14 @@ export default function SparePartsInventoryScreen() {
  const loadSpareParts = async () => {
  try {
  setLoading(true);
- // TODO: Replace with actual API call
- // const response = await fetch('/api/admin/spare-parts');
- // const data = await response.json();
- 
- // Simulate API delay
- setTimeout(() => {
- setSpareParts(mockSpareParts);
- setLoading(false);
- }, 1000);
+      const response = await apiClient.get(API_ENDPOINTS.ADMIN.INVENTORY);
+      if (response.data.success) {
+        setSpareParts(response.data.data);
+      }
  } catch (error) {
  console.error('Error loading spare parts:', error);
  Alert.alert('Error', 'Failed to load spare parts');
+ } finally {
  setLoading(false);
  }
  };
@@ -146,22 +79,19 @@ export default function SparePartsInventoryScreen() {
  { text: 'Cancel', style: 'cancel' },
  {
  text: 'Add Stock',
- onPress: (quantity) => {
+ onPress: async (quantity) => {
  if (quantity && !isNaN(Number(quantity))) {
- const newQuantity = part.quantity + Number(quantity);
- setSpareParts(prev =>
- prev.map(p =>
- p.id === part.id 
- ? { 
- ...p, 
- quantity: newQuantity,
- status: newQuantity > p.minStockLevel ? 'in-stock' : 'low-stock',
- lastRestocked: new Date().toISOString().split('T')[0]
- }
- : p
- )
- );
- Alert.alert('Success', `Added ${quantity} units to ${part.name}`);
+ try {
+            const response = await apiClient.put(`${API_ENDPOINTS.ADMIN.INVENTORY}/${part._id}`, {
+              quantity: part.quantity + Number(quantity),
+            });
+            if (response.data.success) {
+              loadSpareParts();
+              Alert.alert('Success', `Added ${quantity} units to ${part.name}`);
+            }
+          } catch (error) {
+            Alert.alert('Error', 'Failed to restock item');
+          }
  }
  }
  }
@@ -257,7 +187,7 @@ export default function SparePartsInventoryScreen() {
  }
  >
  {filteredParts.map((part) => (
- <View key={part.id} style={styles.partCard}>
+ <View key={part._id} style={styles.partCard}>
  <View style={styles.cardHeader}>
  <View style={styles.partInfo}>
  <Text style={styles.partName}>{part.name}</Text>
