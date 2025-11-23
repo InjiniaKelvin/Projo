@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, View, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/contexts/SimpleAuthContext';
 import apiClient from '@/config/api';
 import { ThemedView } from '@/components/ThemedView';
@@ -10,9 +11,11 @@ import { QuickActions } from '@/components/dashboard/client/QuickActions';
 import { RecentBookings } from '@/components/dashboard/client/RecentBookings';
 import { PopularServices } from '@/components/dashboard/client/PopularServices';
 import { Colors } from '@/constants/Colors';
+import { useRouter } from 'expo-router';
 
 export default function ClientDashboard() {
   const { user } = useAuth();
+  const router = useRouter();
   const [stats, setStats] = useState({
     activeBookings: 0,
     completedBookings: 0,
@@ -24,6 +27,13 @@ export default function ClientDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState(null);
+
+  const getTimeGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
+  };
 
   useEffect(() => {
     loadDashboardData();
@@ -78,10 +88,12 @@ export default function ClientDashboard() {
 
   if (isLoading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={Colors.light.tint} />
-        <ThemedText style={styles.loadingText}>Loading dashboard...</ThemedText>
-      </View>
+      <ThemedView style={styles.loadingContainer}>
+        <View style={styles.loadingContent}>
+          <ActivityIndicator size="large" color="#2196F3" />
+          <ThemedText style={styles.loadingText}>Loading your dashboard...</ThemedText>
+        </View>
+      </ThemedView>
     );
   }
 
@@ -91,12 +103,29 @@ export default function ClientDashboard() {
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
-        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}
+        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} colors={['#2196F3']} />}
+        showsVerticalScrollIndicator={false}
       >
+        {/* Welcome Section */}
+        <View style={styles.welcomeSection}>
+          <View style={styles.welcomeContent}>
+            <Ionicons name="hand-right" size={24} color="#FF9800" />
+            <ThemedText style={styles.welcomeText}>
+              {getTimeGreeting()}, {user?.firstName || user?.name || 'Guest'}!
+            </ThemedText>
+          </View>
+          <ThemedText style={styles.welcomeSubtext}>
+            What service do you need today?
+          </ThemedText>
+        </View>
+
         <ClientStats stats={stats} />
         <QuickActions />
         <RecentBookings bookings={recentBookings} />
         <PopularServices />
+        
+        {/* Bottom spacing for better scrolling */}
+        <View style={styles.bottomSpacing} />
       </ScrollView>
     </ThemedView>
   );
@@ -105,20 +134,50 @@ export default function ClientDashboard() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#F5F7FA',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#F5F7FA',
+  },
+  loadingContent: {
+    alignItems: 'center',
   },
   loadingText: {
-    marginTop: 12,
-    fontSize: 14,
+    marginTop: 16,
+    fontSize: 15,
+    color: '#666',
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 30,
+    paddingBottom: 20,
+  },
+  welcomeSection: {
+    paddingHorizontal: 16,
+    paddingTop: 20,
+    paddingBottom: 16,
+  },
+  welcomeContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+    gap: 8,
+  },
+  welcomeText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  welcomeSubtext: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 4,
+  },
+  bottomSpacing: {
+    height: 20,
   },
 });
