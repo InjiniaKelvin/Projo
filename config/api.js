@@ -11,8 +11,27 @@ import StorageService from '../services/StorageService';
 // It prioritizes the Vercel environment variable and falls back to the live Render URL.
 const PROD_API_URL = 'https://quickfix-api-pnv5.onrender.com/api';
 
+const getBaseUrl = () => {
+  // If we are in development mode, use the environment variable or localhost
+  if (__DEV__) {
+    return process.env.EXPO_PUBLIC_API_URL 
+      ? `${process.env.EXPO_PUBLIC_API_URL}/api` 
+      : 'http://localhost:5000/api';
+  }
+
+  // In production, we prefer the hardcoded production URL 
+  // UNLESS EXPO_PUBLIC_API_URL is set to something that is NOT localhost.
+  // This prevents local .env values from leaking into production builds if they are localhost.
+  const envUrl = process.env.EXPO_PUBLIC_API_URL;
+  if (envUrl && !envUrl.includes('localhost') && !envUrl.includes('127.0.0.1')) {
+    return `${envUrl}/api`;
+  }
+  
+  return PROD_API_URL;
+};
+
 export const API_CONFIG = {
-  BASE_URL: process.env.EXPO_PUBLIC_API_URL ? `${process.env.EXPO_PUBLIC_API_URL}/api` : PROD_API_URL,
+  BASE_URL: getBaseUrl(),
   TIMEOUT: 30000, // 30 seconds
   RETRY_ATTEMPTS: 3,
   RETRY_DELAY: 1000, // 1 second
