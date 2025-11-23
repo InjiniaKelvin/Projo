@@ -12,21 +12,26 @@ import StorageService from '../services/StorageService';
 const PROD_API_URL = 'https://quickfix-api-pnv5.onrender.com/api';
 
 const getBaseUrl = () => {
-  // If we are in development mode, use the environment variable or localhost
+  // Check if we are running in a browser environment
+  const isWeb = typeof window !== 'undefined';
+  
+  // If on web and the hostname is localhost, force localhost API
+  if (isWeb && window.location.hostname === 'localhost') {
+    return 'http://localhost:5000/api';
+  }
+
+  // If on web and NOT localhost (e.g. Vercel), force production API
+  if (isWeb && window.location.hostname !== 'localhost') {
+    return PROD_API_URL;
+  }
+
+  // Fallback for native apps (iOS/Android)
   if (__DEV__) {
     return process.env.EXPO_PUBLIC_API_URL 
       ? `${process.env.EXPO_PUBLIC_API_URL}/api` 
       : 'http://localhost:5000/api';
   }
 
-  // In production, we prefer the hardcoded production URL 
-  // UNLESS EXPO_PUBLIC_API_URL is set to something that is NOT localhost.
-  // This prevents local .env values from leaking into production builds if they are localhost.
-  const envUrl = process.env.EXPO_PUBLIC_API_URL;
-  if (envUrl && !envUrl.includes('localhost') && !envUrl.includes('127.0.0.1')) {
-    return `${envUrl}/api`;
-  }
-  
   return PROD_API_URL;
 };
 
