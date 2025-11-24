@@ -20,6 +20,6 @@
     }
   ],
   "env": {
-    "EXPO_PUBLIC_API_URL": "https://quickfix-hd592s6ys-injinia-kelvins-projects.vercel.app"
+    "EXPO_PUBLIC_API_URL": "https://quickfix-api-pnv5.onrender.com"
   }
 }
