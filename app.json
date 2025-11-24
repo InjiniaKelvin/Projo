@@ -53,7 +53,8 @@
       "router": {},
       "eas": {
         "projectId": "941620d9-2355-4445-9dc6-32394d8a633a"
-      }
+      },
+      "apiUrl": "https://quickfix-api-pnv5.onrender.com"
     }
   }
 }
