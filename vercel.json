@@ -1,5 +1,4 @@
 {
-  "name": "quickfix-web",
   "version": 2,
   "builds": [
     {
@@ -19,7 +18,9 @@
       "dest": "/index.html"
     }
   ],
-  "env": {
-    "EXPO_PUBLIC_API_URL": "https://quickfix-api-pnv5.onrender.com"
+  "build": {
+    "env": {
+      "EXPO_PUBLIC_API_URL": "https://quickfix-api-pnv5.onrender.com"
+    }
   }
 }
