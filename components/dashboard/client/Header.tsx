@@ -25,6 +25,11 @@ export function ClientHeader() {
     router.push('/notifications');
   };
 
+  const handleLogout = async () => {
+    await logout();
+    router.replace('/auth/login');
+  };
+
   return (
     <LinearGradient colors={['#1976D2', '#1565C0']} style={styles.header}>
       <StatusBar barStyle="light-content" backgroundColor="#1976D2" />
@@ -44,6 +49,9 @@ export function ClientHeader() {
             <View style={styles.notificationBadge}>
               <ThemedText style={styles.badgeText}>3</ThemedText>
             </View>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleLogout} style={styles.iconButton}>
+            <Ionicons name="log-out-outline" size={24} color="#FFF" />
           </TouchableOpacity>
           <TouchableOpacity onPress={handleProfile} style={styles.profileButton}>
             {user?.profilePicture ? (

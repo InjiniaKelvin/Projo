@@ -165,17 +165,17 @@ const userSchema = new mongoose.Schema({
  
  isVerified: {
  type: Boolean,
- default: false
+ default: true // Auto-verify for testing phase
  },
  
  isEmailVerified: {
  type: Boolean,
- default: false
+ default: true // Auto-verify for testing phase
  },
  
  isPhoneVerified: {
  type: Boolean,
- default: false
+ default: true // Auto-verify for testing phase
  },
  
  // Security

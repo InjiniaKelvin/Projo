@@ -187,8 +187,14 @@ const optionalAuth = async (req, res, next) => {
 
 /**
  * Middleware to check if user's account is verified
+ * Bypassed for testing phase - allowing all authenticated users
  */
 const requireVerified = (req, res, next) => {
+  // Bypass verification check for testing phase
+  // TODO: Re-enable verification in production
+  return next();
+  
+  /* Original verification logic (commented for testing):
   // Skip verification in development environment
   if (process.env.NODE_ENV === 'development') {
     return next();
@@ -209,6 +215,7 @@ const requireVerified = (req, res, next) => {
   }
   
   next();
+  */
 };
 
 /**
