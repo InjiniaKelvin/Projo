@@ -1,14 +1,35 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity, Image, Platform, StatusBar } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
 import { useAuth } from '@/contexts/SimpleAuthContext';
 import { useRouter } from 'expo-router';
+import apiClient from '@/config/api';
 
 export function ClientHeader() {
   const { user, logout } = useAuth();
   const router = useRouter();
+  const [notificationCount, setNotificationCount] = useState(0);
+
+  useEffect(() => {
+    fetchNotificationCount();
+    // Poll for new notifications every 30 seconds
+    const interval = setInterval(fetchNotificationCount, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const fetchNotificationCount = async () => {
+    try {
+      const response = await apiClient.get('/notifications/unread-count');
+      if (response.data.success) {
+        setNotificationCount(response.data.data.count);
+      }
+    } catch (error) {
+      console.error('Failed to fetch notification count:', error);
+      // Don't show error to user, just log it
+    }
+  };
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -46,9 +67,11 @@ export function ClientHeader() {
         <View style={styles.headerRight}>
           <TouchableOpacity onPress={handleNotifications} style={styles.iconButton}>
             <Ionicons name="notifications-outline" size={24} color="#FFF" />
-            <View style={styles.notificationBadge}>
-              <ThemedText style={styles.badgeText}>3</ThemedText>
-            </View>
+            {notificationCount > 0 && (
+              <View style={styles.notificationBadge}>
+                <ThemedText style={styles.badgeText}>{notificationCount > 99 ? '99+' : notificationCount}</ThemedText>
+              </View>
+            )}
           </TouchableOpacity>
           <TouchableOpacity onPress={handleLogout} style={styles.iconButton}>
             <Ionicons name="log-out-outline" size={24} color="#FFF" />

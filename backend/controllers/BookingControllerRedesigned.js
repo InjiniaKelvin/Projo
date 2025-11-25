@@ -11,6 +11,7 @@
 const BookingRedesigned = require('../models/BookingRedesigned');
 const User = require('../models/User');
 const NotificationService = require('../services/NotificationService');
+const { createBookingNotification, createEmergencyNotification } = require('../services/notificationService');
 
 /**
  * VALIDATION HELPER
@@ -205,6 +206,19 @@ const BookingControllerRedesigned = {
  await booking.save();
  
  console.log(' Booking created successfully:', booking.bookingId);
+ 
+ // Create notification for user if they exist
+ if (userId) {
+   if (urgency === 'emergency') {
+     createEmergencyNotification(userId, booking).catch(err => 
+       console.error('Failed to create emergency notification:', err)
+     );
+   } else {
+     createBookingNotification(userId, booking, 'submitted').catch(err => 
+       console.error('Failed to create booking notification:', err)
+     );
+   }
+ }
  
  // RESPONSE WITH ESSENTIAL DATA
  res.status(201).json({

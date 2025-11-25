@@ -8,6 +8,7 @@
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { User, Wallet } = require('../models');
+const { createRegistrationNotification, createProfileUpdateNotification } = require('../services/notificationService');
 
 class AuthController {
  /**
@@ -69,19 +70,31 @@ class AuthController {
  };
  
  // Add technician-specific fields
- if (role === 'technician' && req.body.skills) {
- // Transform skill names array into skill objects
+ if (role === 'technician') {
+ // Validate and store skills
+ if (!req.body.skills || req.body.skills.length === 0) {
+ return res.status(400).json({
+ success: false,
+ message: 'Technicians must select at least one service'
+ });
+ }
+ 
+ // Transform skill names array into skill objects with proper structure
  userData.skills = req.body.skills.map(skillName => ({
- name: skillName,
+ name: typeof skillName === 'string' ? skillName : skillName.name || skillName,
  experience: 0,
  certified: false
  }));
- }
- if (role === 'technician' && req.body.location) {
+ 
+ // Set location if provided
+ if (req.body.location) {
  userData.location = {
  type: 'Point',
  coordinates: [req.body.location.longitude || 0, req.body.location.latitude || 0]
  };
+ }
+ 
+ console.log('Technician skills being saved:', JSON.stringify(userData.skills));
  }
  
  const user = new User(userData);
@@ -117,6 +130,11 @@ class AuthController {
  // Remove sensitive data from response
  const userResponse = user.toJSON();
  delete userResponse.password;
+ 
+ // Create welcome notification (don't await to avoid slowing down response)
+ createRegistrationNotification(user._id, role).catch(err => 
+   console.error('Failed to create registration notification:', err)
+ );
  
  console.log(`SUCCESS: Registration complete for ${email} - Total: ${Date.now() - startCheck}ms`);
  
@@ -644,6 +662,11 @@ class AuthController {
           message: 'User not found'
         });
       }
+
+      // Create profile update notification (don't await)
+      createProfileUpdateNotification(userId).catch(err => 
+        console.error('Failed to create profile update notification:', err)
+      );
 
       res.json({
         success: true,

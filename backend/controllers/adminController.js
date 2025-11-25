@@ -16,6 +16,7 @@ const Transaction = require('../models/Transaction');
 const Message = require('../models/Message');
 const Notification = require('../models/Notification');
 const NotificationService = require('../services/NotificationService');
+const { createTechnicianApprovalNotification, createTechnicianRejectionNotification } = require('../services/notificationService');
 const PricingService = require('../services/PricingService');
 const mongoose = require('mongoose');
 
@@ -476,32 +477,36 @@ const verifyTechnician = async (req, res) => {
  'technicianProfile.verificationNotes': reason
  });
 
- // Send notification to technician
+ // Create in-app notification using simple notification service
+ if (action === 'approve') {
+   await createTechnicianApprovalNotification(userId, true).catch(err => 
+     console.error('Failed to create approval notification:', err)
+   );
+ } else {
+   await createTechnicianRejectionNotification(userId, reason).catch(err => 
+     console.error('Failed to create rejection notification:', err)
+   );
+ }
+
+ // Also use the NotificationService for email and push notifications
  const title = action === 'approve' 
- ? 'Verification Approved!' 
- : 'Verification Rejected';
+ ? 'Profile Approved!' 
+ : 'Profile Not Approved';
  
  const message = action === 'approve'
- ? 'Congratulations! Your technician profile has been verified. You can now start accepting jobs.'
- : `Your verification was rejected. Reason: ${reason}. Please update your profile and try again.`;
+ ? 'Congratulations! Your technician profile has been approved. You can now start accepting jobs.'
+ : `Your application was not approved. Reason: ${reason || 'Please update your profile and try again'}.`;
 
- await NotificationService.createInAppNotification(
- userId,
- title,
- message,
- {
- type: 'system',
- priority: action === 'approve' ? 'normal' : 'high'
- }
- );
+ // Log for debugging
+ console.log(`Admin ${action} technician ${userId}:`, { title, message });
 
- // Send email notification
- if (technician.email) {
+ // Send email notification if NotificationService is available
+ if (technician.email && NotificationService.sendEmail) {
  await NotificationService.sendEmail(
  technician.email,
  `QuickFix - ${title}`,
  generateVerificationEmailTemplate(technician, action, reason)
- );
+ ).catch(err => console.error('Failed to send email:', err));
  }
 
  res.json({ 
