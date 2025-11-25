@@ -129,10 +129,10 @@ export default function RegisterScreen() {
  clearError && clearError();
 
  try {
- const { firstName, lastName, email, phoneNumber, password, role } = formData;
+ const { firstName, lastName, email, phoneNumber, password, role, skills } = formData;
  console.log('RegisterScreen: calling register with:', email, firstName, lastName);
  
- const result = await register(email, password, firstName, lastName, phoneNumber, role);
+ const result = await register(email, password, firstName, lastName, phoneNumber, role, skills);
  console.log('RegisterScreen: register result:', result);
  
  if (result && result.success) {

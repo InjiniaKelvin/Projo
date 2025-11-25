@@ -414,19 +414,27 @@ export function AuthProvider({ children }) {
  }
  };
 
- const register = async (email, password, firstName, lastName, phoneNumber, role = 'client') => {
+ const register = async (email, password, firstName, lastName, phoneNumber, role = 'client', skills = []) => {
  console.log(' Auth: Register called with:', email, firstName, lastName);
  dispatch({ type: 'REGISTER_START' });
  
  try {
- const response = await axios.post('/auth/register', {
+ const requestData = {
  email: email.toLowerCase().trim(),
  password: password,
  firstName: firstName.trim(),
  lastName: lastName.trim(),
  phoneNumber: phoneNumber?.trim(),
  role: role
- });
+ };
+ 
+ // Add skills if registering as technician
+ if (role === 'technician' && skills && skills.length > 0) {
+ requestData.skills = skills;
+ console.log(' Auth: Including skills for technician:', skills);
+ }
+ 
+ const response = await axios.post('/auth/register', requestData);
  
  console.log(' Auth: Register response:', response.data);
  
