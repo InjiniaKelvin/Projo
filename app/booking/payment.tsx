@@ -238,7 +238,9 @@ export default function PaymentScreen() {
  case 'mpesa':
  // IntaSend M-Pesa STK Push
  paymentRequest.paymentMethod = 'mpesa';
- paymentRequest.phoneNumber = paymentData.phoneNumber;
+ paymentRequest.paymentDetails = {
+ phoneNumber: paymentData.phoneNumber
+ };
  
  response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/payments/add-funds`, {
  method: 'POST',

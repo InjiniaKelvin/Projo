@@ -19,7 +19,7 @@
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
     "test:e2e:build": "detox build",
-    "vercel-build": "EXPO_NO_METRO_LAZY=1 npx expo export --platform web --output-dir web-build --no-minify",
+    "vercel-build": "EXPO_PUBLIC_API_URL=https://quickfix-api-pnv5.onrender.com EXPO_NO_METRO_LAZY=1 npx expo export --platform web --output-dir web-build --no-minify",
     "test:e2e:android": "detox test --configuration android.emu.debug",
     "test:e2e:ios": "detox test --configuration ios.sim.debug",
     "test:booking": "detox test e2e/booking-flow.test.js",
