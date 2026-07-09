@@ -33,3 +33,9 @@ Desktop.ini
 expo-env.d.ts
 # @end expo-cli
 .vercel
+
+# Ignore all markdown files
+**/*.md
+
+# Keep pinned documentation file
+!QUICKFIX_PROJECT_DOCUMENTATION.md
